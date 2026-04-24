@@ -224,7 +224,7 @@ Do not upload when the user passes `--no-upload`.
 When upload is enabled and `infographic.png` exists, run:
 
 ```bash
-guige-infographic/scripts/upload_to_drive.sh \
+scripts/upload_to_drive.sh \
   infographic/{topic-slug}/infographic.png \
   "{topic-slug}" \
   "gdrive:guige-images"
