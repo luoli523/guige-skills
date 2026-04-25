@@ -77,7 +77,15 @@ Model overrides:
 Load priority:
 
 ```text
-CLI args > EXTEND.md > process env > <cwd>/.guige-skills/.env > ~/.guige-skills/.env > built-in defaults
+CLI args > EXTEND.md > <cwd>/.guige-skills/.env > ~/.guige-skills/.env > non-provider process env > built-in defaults
+```
+
+Provider environment variables are guige-scoped by default. The Python backend ignores ambient shell values for `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `GEMINI_API_KEY`, provider base URLs, and provider model env overrides unless they are defined in `.guige-skills/.env`.
+
+To deliberately use provider values already exported in the shell, set this in the shell for that run. This control flag is not loaded from `.guige-skills/.env`.
+
+```bash
+GUIGE_ALLOW_AMBIENT_PROVIDER_ENV=1
 ```
 
 `EXTEND.md` paths, first hit wins:
@@ -90,7 +98,7 @@ CLI args > EXTEND.md > process env > <cwd>/.guige-skills/.env > ~/.guige-skills/
 
 Schema: [preferences-schema.md](references/config/preferences-schema.md).
 
-Do not read or write `.baoyu-skills`.
+Never read, write, source, or rely on `.baoyu-skills`.
 
 ## Usage
 

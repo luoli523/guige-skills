@@ -42,7 +42,7 @@ def _model_path(model: str) -> str:
 def _api_key() -> str:
     key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
     if not key:
-        raise RuntimeError("GOOGLE_API_KEY or GEMINI_API_KEY is required")
+        raise RuntimeError("Guige-scoped GOOGLE_API_KEY or GEMINI_API_KEY is required")
     return key
 
 

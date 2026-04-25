@@ -13,6 +13,8 @@ GOOGLE_BASE_URL=https://generativelanguage.googleapis.com
 
 `GOOGLE_BASE_URL` is optional.
 
+These provider values should live in `.guige-skills/.env`. Ambient shell provider env is ignored unless `GUIGE_ALLOW_AMBIENT_PROVIDER_ENV=1` is set.
+
 ## Gemini Models
 
 Gemini image models use:

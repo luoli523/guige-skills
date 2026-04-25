@@ -7,7 +7,7 @@ python3 skills/guige-imagen/scripts/main.py \
   --prompt "A clean product photo of a translucent mechanical keyboard"
 ```
 
-Provider is auto-detected from available API keys. Google is preferred when both Google and OpenAI keys are present; pass `--provider` when you need deterministic routing.
+Provider is auto-detected from API keys in `.guige-skills/.env`. Google is preferred when both Google and OpenAI keys are present; pass `--provider` when you need deterministic routing.
 
 Final images are saved to:
 
@@ -16,6 +16,8 @@ Final images are saved to:
 ```
 
 The filename is derived from the prompt or first Markdown heading in the prompt files.
+
+Ambient shell provider keys are ignored by default. Set `GUIGE_ALLOW_AMBIENT_PROVIDER_ENV=1` only when you deliberately want the CLI to use already-exported provider values.
 
 ## OpenAI
 

@@ -3,6 +3,20 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+PROVIDER_ENV_KEYS = frozenset(
+    {
+        "OPENAI_API_KEY",
+        "GOOGLE_API_KEY",
+        "GEMINI_API_KEY",
+        "OPENAI_BASE_URL",
+        "GOOGLE_BASE_URL",
+        "OPENAI_IMAGE_MODEL",
+        "GOOGLE_IMAGE_MODEL",
+    }
+)
+ALLOW_AMBIENT_PROVIDER_ENV = "GUIGE_ALLOW_AMBIENT_PROVIDER_ENV"
+CONTROL_ENV_KEYS = frozenset({ALLOW_AMBIENT_PROVIDER_ENV})
+
 
 def parse_env_file(path: Path) -> dict[str, str]:
     try:
@@ -29,12 +43,26 @@ def parse_env_file(path: Path) -> dict[str, str]:
     return values
 
 
+def _is_truthy(value: str | None) -> bool:
+    return (value or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 def load_env_files(cwd: Path | None = None, home: Path | None = None) -> None:
     resolved_cwd = cwd or Path.cwd()
     resolved_home = home or Path.home()
 
     merged = parse_env_file(resolved_home / ".guige-skills" / ".env")
     merged.update(parse_env_file(resolved_cwd / ".guige-skills" / ".env"))
+    allow_ambient_provider_env = _is_truthy(os.environ.get(ALLOW_AMBIENT_PROVIDER_ENV))
+
+    if not allow_ambient_provider_env:
+        for key in PROVIDER_ENV_KEYS:
+            os.environ.pop(key, None)
 
     for key, value in merged.items():
-        os.environ.setdefault(key, value)
+        if key in CONTROL_ENV_KEYS:
+            continue
+        if key in PROVIDER_ENV_KEYS and not allow_ambient_provider_env:
+            os.environ[key] = value
+        else:
+            os.environ.setdefault(key, value)

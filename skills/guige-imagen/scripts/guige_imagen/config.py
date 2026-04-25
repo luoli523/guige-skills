@@ -120,7 +120,8 @@ def detect_provider(args: CliArgs) -> Provider:
         if has_openai:
             return "openai"
         raise ValueError(
-            "Reference images require GOOGLE_API_KEY/GEMINI_API_KEY or OPENAI_API_KEY, or pass --provider explicitly."
+            "Reference images require a guige-scoped GOOGLE_API_KEY/GEMINI_API_KEY or OPENAI_API_KEY, "
+            "or pass --provider explicitly."
         )
 
     if has_google:
@@ -129,8 +130,9 @@ def detect_provider(args: CliArgs) -> Provider:
         return "openai"
 
     raise ValueError(
-        "No API key found. Set GOOGLE_API_KEY/GEMINI_API_KEY or OPENAI_API_KEY, "
-        "or create <cwd>/.guige-skills/.env or ~/.guige-skills/.env."
+        "No guige-scoped API key found. Add GOOGLE_API_KEY/GEMINI_API_KEY or OPENAI_API_KEY "
+        "to <cwd>/.guige-skills/.env or ~/.guige-skills/.env. To deliberately use shell "
+        "provider env, set GUIGE_ALLOW_AMBIENT_PROVIDER_ENV=1."
     )
 
 

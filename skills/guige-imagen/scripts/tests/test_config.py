@@ -80,7 +80,32 @@ default_model:
 
         self.assertEqual(config.default_provider, "google")
 
-    def test_load_env_files_keeps_process_env_over_file_values(self) -> None:
+    def test_load_env_files_clears_ambient_provider_env_by_default(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            cwd = Path(root) / "project"
+            home = Path(root) / "home"
+            cwd.mkdir()
+            home.mkdir()
+
+            with patch.dict(
+                os.environ,
+                {
+                    "OPENAI_API_KEY": "ambient-openai",
+                    "GOOGLE_API_KEY": "ambient-google",
+                    "GEMINI_API_KEY": "ambient-gemini",
+                    "OPENAI_BASE_URL": "https://ambient.example/v1",
+                    "CUSTOM_ENV": "kept",
+                },
+                clear=True,
+            ):
+                load_env_files(cwd, home)
+                self.assertNotIn("OPENAI_API_KEY", os.environ)
+                self.assertNotIn("GOOGLE_API_KEY", os.environ)
+                self.assertNotIn("GEMINI_API_KEY", os.environ)
+                self.assertNotIn("OPENAI_BASE_URL", os.environ)
+                self.assertEqual(os.environ["CUSTOM_ENV"], "kept")
+
+    def test_load_env_files_prefers_project_provider_env(self) -> None:
         with tempfile.TemporaryDirectory() as root:
             cwd = Path(root) / "project"
             home = Path(root) / "home"
@@ -89,9 +114,52 @@ default_model:
             (home / ".guige-skills" / ".env").write_text("GOOGLE_API_KEY=home\n", encoding="utf-8")
             (cwd / ".guige-skills" / ".env").write_text("GOOGLE_API_KEY=cwd\n", encoding="utf-8")
 
-            with patch.dict(os.environ, {"GOOGLE_API_KEY": "process"}, clear=False):
+            with patch.dict(os.environ, {"GOOGLE_API_KEY": "process"}, clear=True):
+                load_env_files(cwd, home)
+                self.assertEqual(os.environ["GOOGLE_API_KEY"], "cwd")
+
+    def test_load_env_files_can_allow_ambient_provider_env(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            cwd = Path(root) / "project"
+            home = Path(root) / "home"
+            (cwd / ".guige-skills").mkdir(parents=True)
+            (cwd / ".guige-skills" / ".env").write_text("GOOGLE_API_KEY=cwd\n", encoding="utf-8")
+
+            with patch.dict(
+                os.environ,
+                {
+                    "GUIGE_ALLOW_AMBIENT_PROVIDER_ENV": "1",
+                    "GOOGLE_API_KEY": "process",
+                },
+                clear=True,
+            ):
                 load_env_files(cwd, home)
                 self.assertEqual(os.environ["GOOGLE_API_KEY"], "process")
+
+    def test_load_env_files_does_not_allow_ambient_provider_env_from_file(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            cwd = Path(root) / "project"
+            home = Path(root) / "home"
+            (cwd / ".guige-skills").mkdir(parents=True)
+            (cwd / ".guige-skills" / ".env").write_text(
+                "GUIGE_ALLOW_AMBIENT_PROVIDER_ENV=1\n", encoding="utf-8"
+            )
+
+            with patch.dict(os.environ, {"GOOGLE_API_KEY": "process"}, clear=True):
+                load_env_files(cwd, home)
+                self.assertNotIn("GOOGLE_API_KEY", os.environ)
+                self.assertNotIn("GUIGE_ALLOW_AMBIENT_PROVIDER_ENV", os.environ)
+
+    def test_load_env_files_keeps_non_provider_process_env_over_file_values(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            cwd = Path(root) / "project"
+            home = Path(root) / "home"
+            (cwd / ".guige-skills").mkdir(parents=True)
+            (cwd / ".guige-skills" / ".env").write_text("CUSTOM_VALUE=file\n", encoding="utf-8")
+
+            with patch.dict(os.environ, {"CUSTOM_VALUE": "process"}, clear=True):
+                load_env_files(cwd, home)
+                self.assertEqual(os.environ["CUSTOM_VALUE"], "process")
 
     def test_detect_provider_from_model_and_env(self) -> None:
         self.assertEqual(detect_provider(CliArgs(model="gpt-image-1.5")), "openai")

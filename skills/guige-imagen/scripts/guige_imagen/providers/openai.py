@@ -189,7 +189,7 @@ def extract_image_from_response(result: dict[str, Any]) -> bytes:
 def generate_image(prompt: str, model: str, args: CliArgs) -> bytes:
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is required")
+        raise RuntimeError("Guige-scoped OPENAI_API_KEY is required")
 
     base_url = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
     headers = {"Authorization": f"Bearer {api_key}"}

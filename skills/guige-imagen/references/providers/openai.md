@@ -12,6 +12,8 @@ OPENAI_BASE_URL=https://api.openai.com/v1
 
 `OPENAI_BASE_URL` is optional.
 
+These provider values should live in `.guige-skills/.env`. Ambient shell provider env is ignored unless `GUIGE_ALLOW_AMBIENT_PROVIDER_ENV=1` is set.
+
 ## Behavior
 
 - Text-to-image uses `POST /images/generations`.

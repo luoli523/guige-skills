@@ -25,6 +25,14 @@ GOOGLE_IMAGE_MODEL=gemini-3-pro-image-preview
 OPENAI_IMAGE_MODEL=gpt-image-1.5
 ```
 
+The Python backend ignores provider values that are only present in the shell environment by default. Put provider API keys, base URLs, and model env overrides in one of the `.guige-skills/.env` files above.
+
+To deliberately use already-exported shell provider values, set this in the shell for that run. This control flag is not loaded from `.guige-skills/.env`.
+
+```bash
+GUIGE_ALLOW_AMBIENT_PROVIDER_ENV=1
+```
+
 ## Preferences
 
 Project-local:
