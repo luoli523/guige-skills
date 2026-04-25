@@ -8,7 +8,7 @@ Usage: upload_to_drive.sh <image-path> <topic-slug> [target]
 Uploads an infographic image to Google Drive via rclone.
 
 Defaults:
-  target: ${GUIGE_IMAGES_TARGET:-gdrive:guige-images}
+  target: ${GUIGE_IMAGES_TARGET:-gdrive:}
   filename: <topic-slug>-infographic-YYYYMMDD.png
 EOF
 }
@@ -20,7 +20,7 @@ fi
 
 image_path="$1"
 topic_slug="$2"
-target="${3:-${GUIGE_IMAGES_TARGET:-gdrive:guige-images}}"
+target="${3:-${GUIGE_IMAGES_TARGET:-gdrive:}}"
 date_suffix="${GUIGE_IMAGES_DATE:-$(date +%Y%m%d)}"
 
 if [[ ! -f "$image_path" ]]; then
@@ -45,7 +45,11 @@ if [[ -z "$safe_slug" ]]; then
 fi
 
 filename="${safe_slug}-infographic-${date_suffix}.png"
-destination="${target%/}/${filename}"
+if [[ "$target" == *: ]]; then
+  destination="${target}${filename}"
+else
+  destination="${target%/}/${filename}"
+fi
 
 rclone copyto "$image_path" "$destination"
 

@@ -1,6 +1,6 @@
 ---
 name: guige-infographic
-description: Generate infographics in Gui Ge's personal style as a standalone skill. Supports --layout, --style, --aspect, and --lang options; always uses the bundled Gui Ge character image from assets/guige.jpeg; creates analysis/structured content/prompts independently; generates the final infographic; and can optionally upload it to Google Drive guige-images with a content-related filename. Use for 鬼哥信息图, 中文信息图, 信息图, 高密度信息大图, visual summary, or turning article/content into a Gui Ge branded infographic.
+description: Generate infographics in Gui Ge's personal style as a standalone skill. Supports --layout, --style, --aspect, and --lang options; always uses the bundled Gui Ge character image from assets/guige.jpeg; creates analysis/structured content/prompts independently; generates the final infographic; and can optionally upload generated materials through guige-drive-upload. Use for 鬼哥信息图, 中文信息图, 信息图, 高密度信息大图, visual summary, or turning article/content into a Gui Ge branded infographic.
 version: 0.3.2
 ---
 
@@ -23,8 +23,8 @@ This skill owns its own analysis, structure, design choices, prompt generation, 
 | Default style | `guige-journal` |
 | Default aspect | `landscape` (`16:9`) |
 | Upload behavior | Disabled by default; opt in per request or env |
-| Upload target | `gdrive:guige-images` |
-| Upload filename | `{topic-slug}-infographic-{YYYYMMDD}.png` |
+| Upload backend | `guige-drive-upload` |
+| Upload Drive folder | `guige-skills/guige-infographic/{topic-slug}/` |
 
 ## Assets
 
@@ -79,7 +79,7 @@ Accept CLI-style options in the user's request. Explicit options override defaul
 | `--aspect` | Named: `portrait` (`9:16`), `landscape` (`16:9`), `square` (`1:1`). Custom W:H ratios are allowed, e.g. `3:4`, `4:3`, `2.35:1` |
 | `--lang` | Output language for infographic text, e.g. `zh`, `en`, `ja`, `ko`, or another language code/name |
 | `--upload` | Upload final image to Google Drive after generation |
-| `--no-upload` | Force local-only delivery even if `GUIGE_INFOGRAPHIC_UPLOAD=1` |
+| `--no-upload` | Force local-only delivery even if `GUIGE_DRIVE_UPLOAD=1` |
 | `--no-confirm` | Skip Step 4 confirmation |
 
 Parameter handling:
@@ -216,26 +216,37 @@ If the final Downloads file exists, append a timestamp before the extension:
 
 ### Step 7: Optional Google Drive Upload
 
-Google Drive upload is optional and disabled by default.
+Google Drive upload is optional and disabled by default. Use `guige-drive-upload` for upload; do not call this skill's legacy `scripts/upload_to_drive.sh` unless the shared upload skill is unavailable.
 
 Upload only when one of these is true:
 
-- The user explicitly asks to upload, e.g. `上传到 Google Drive`, `传到 guige-images`, `upload to Drive`, or equivalent.
+- The user explicitly asks to upload, e.g. `上传到 Google Drive`, `upload to Drive`, or equivalent.
 - The user passes `--upload`.
-- The environment variable `GUIGE_INFOGRAPHIC_UPLOAD=1` is set.
+- The environment variable `GUIGE_DRIVE_UPLOAD=1` is set.
 
 Do not upload when the user passes `--no-upload`.
 
-When upload is enabled and the final Downloads image exists, run:
+When upload is enabled and the final Downloads image exists, invoke `guige-drive-upload` with all generated materials:
 
 ```bash
-scripts/upload_to_drive.sh \
-  ~/Downloads/guige-skill-imagen/{topic-slug}-infographic.png \
-  "{topic-slug}" \
-  "gdrive:guige-images"
+python3 skills/guige-drive-upload/scripts/main.py \
+  --skill guige-infographic \
+  --task "{topic-slug}" \
+  --paths \
+    ~/Downloads/guige-skill-imagen/{topic-slug}-infographic.png \
+    infographic/{topic-slug}/source-{topic-slug}.md \
+    infographic/{topic-slug}/analysis.md \
+    infographic/{topic-slug}/structured-content.md \
+    infographic/{topic-slug}/prompts/infographic.md
 ```
 
-The upload script requires `rclone` configured with a Google Drive remote named `gdrive`.
+The upload backend writes to:
+
+```text
+gdrive:guige-skills/guige-infographic/{topic-slug}/
+```
+
+The upload backend requires `rclone` configured with a Google Drive remote named `gdrive`, unless `GUIGE_DRIVE_TARGET` or `--target` points to another configured remote.
 
 If upload is not enabled, skip this step and report the local final image path.
 
@@ -260,12 +271,11 @@ Keep the report short.
 
 ## Helper Scripts
 
-Use [upload_to_drive.sh](scripts/upload_to_drive.sh) for Drive upload.
+Legacy: [upload_to_drive.sh](scripts/upload_to_drive.sh) is retained for backward compatibility. Prefer `guige-drive-upload` for all new uploads.
 
 Environment overrides:
 
 | Env var | Meaning |
 |---------|---------|
-| `GUIGE_INFOGRAPHIC_UPLOAD` | Set to `1` to upload by default |
-| `GUIGE_IMAGES_TARGET` | Override upload target, e.g. `gdrive:guige-images` |
-| `GUIGE_IMAGES_DATE` | Override date suffix for deterministic tests |
+| `GUIGE_DRIVE_UPLOAD` | Set to `1` to upload by default |
+| `GUIGE_DRIVE_TARGET` | Override upload target, e.g. `gdrive:` |
