@@ -16,7 +16,9 @@ This skill owns its own analysis, structure, design choices, prompt generation, 
 |---------|---------|
 | Language | `zh` |
 | Character image | `assets/guige.jpeg` |
-| Output root | `infographic/{topic-slug}/` |
+| Working root | `infographic/{topic-slug}/` |
+| Final image directory | `~/Downloads/guige-skill-imagen/` |
+| Final image filename | `{topic-slug}-infographic.png` |
 | Default layout | `dense-modules` |
 | Default style | `guige-journal` |
 | Default aspect | `landscape` (`16:9`) |
@@ -190,23 +192,26 @@ Write the prompt file before invoking any image backend.
 Use the best image backend available in the current runtime:
 
 1. Native runtime image tool, if available.
-2. A configured local image generation skill or script, if the current runtime provides one.
-3. If no image backend exists, stop and report the prepared prompt path.
+2. `guige-imagen` Python API backend, when API keys are configured or deterministic local output is required.
+3. Another configured local image generation skill or script, if the current runtime provides one.
+4. If no image backend exists, stop and report the prepared prompt path.
 
 If the backend supports image references, pass `refs/01-ref-guige.jpeg`. If not, rely on the text character section in the prompt.
 
-Normalize final output to:
+Normalize final output by moving the generated image to:
 
 ```text
-infographic/{topic-slug}/infographic.png
+~/Downloads/guige-skill-imagen/{topic-slug}-infographic.png
 ```
 
-If the backend saves to another path, copy the generated image to `infographic.png` and leave the original in place.
+The filename must be content-related. Use the derived `topic-slug`; if the source title is weak or generic, improve the slug from the actual image topic before moving.
 
-If `infographic.png` exists, rename the old file to:
+If the backend saves to another path, move the generated image to the final Downloads path.
+
+If the final Downloads file exists, append a timestamp before the extension:
 
 ```text
-infographic-backup-YYYYMMDD-HHMMSS.png
+~/Downloads/guige-skill-imagen/{topic-slug}-infographic-YYYYMMDD-HHMMSS.png
 ```
 
 ### Step 7: Optional Google Drive Upload
@@ -221,22 +226,22 @@ Upload only when one of these is true:
 
 Do not upload when the user passes `--no-upload`.
 
-When upload is enabled and `infographic.png` exists, run:
+When upload is enabled and the final Downloads image exists, run:
 
 ```bash
 scripts/upload_to_drive.sh \
-  infographic/{topic-slug}/infographic.png \
+  ~/Downloads/guige-skill-imagen/{topic-slug}-infographic.png \
   "{topic-slug}" \
   "gdrive:guige-images"
 ```
 
 The upload script requires `rclone` configured with a Google Drive remote named `gdrive`.
 
-If upload is not enabled, skip this step and report the local image path.
+If upload is not enabled, skip this step and report the local final image path.
 
 If upload is enabled but fails, keep the local image and report:
 
-- local image path
+- local final image path
 - upload target
 - exact upload error
 - required fix, usually installing/configuring `rclone`
@@ -247,7 +252,7 @@ Report:
 
 - topic
 - layout, style, aspect, language, image backend
-- local image path
+- local final image path
 - Google Drive path, upload skipped, or upload blocker
 - generated files: source, analysis, structured content, prompt
 

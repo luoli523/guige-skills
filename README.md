@@ -9,6 +9,10 @@
 ├── install.sh
 ├── README.md
 └── skills/
+    ├── guige-imagen/
+    │   ├── SKILL.md
+    │   ├── references/
+    │   └── scripts/
     └── guige-infographic/
         ├── SKILL.md
         ├── assets/
@@ -20,6 +24,7 @@
 
 ## 当前 Skill
 
+- `guige-imagen`：鬼哥 skill set 的图片生成底座，支持 runtime 图片工具 fallback 和 OpenAI/Google Python API 后端，最终图片统一放到 `~/Downloads/guige-skill-imagen/`。
 - `guige-infographic`：生成鬼哥风格信息图，内置鬼哥角色图，支持 `--layout`、`--style`、`--aspect`、`--lang` 参数，并可按需上传到 Google Drive。
 
 ## 本地初始化
