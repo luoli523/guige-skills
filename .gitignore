@@ -1,3 +1,7 @@
 .DS_Store
+__pycache__/
+*.pyc
 infographic/
 hand-write-pic/
+imagen/
+svg/
