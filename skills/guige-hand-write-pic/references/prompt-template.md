@@ -12,6 +12,7 @@ Image settings:
 
 Style:
 Warm cream paper background (#F5F0E8), clean sketchnote style with slight hand-drawn wobble. No realistic elements. Looks like a high-quality slide summary.
+No bundled Gui Ge character, no `鬼哥` narrator, no orange headband, no blue hoodie, no guitar prop, and no recurring mascot unless the user explicitly switches to `guige-infographic`.
 
 Color:
 Use pastel rounded cards for sections:
@@ -49,3 +50,4 @@ Content:
 - Use icons and diagram metaphors before adding explanatory text.
 - Make the footer takeaway one sentence, bold, and centered.
 - Avoid realistic rendering, photo texture, 3D realism, and logo-like marks.
+- Avoid Gui Ge/`鬼哥` character references by default; this skill is for unbranded hand-drawn summaries.

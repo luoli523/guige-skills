@@ -1,7 +1,7 @@
 ---
 name: guige-hand-write-pic
-description: Generate one-page hand-drawn educational infographics in Gui Ge's warm sketchnote style. Use when the user asks for 手绘图, 手写风图片, 手绘知识图, sketchnote, hand-drawn educational infographic, slide-summary style images, or turning content into a warm cream-paper visual summary. Creates source/analysis/structured-content/prompt files, generates the final image through the available guige image backend, and can optionally upload materials through guige-drive-upload.
-version: 0.1.0
+description: Generate one-page hand-drawn educational infographics in a warm cream-paper sketchnote style without the bundled Gui Ge character image by default. Use when the user asks for 手绘图, 手写风图片, 手绘知识图, sketchnote, hand-drawn educational infographic, slide-summary style images, or turning content into a warm unbranded visual summary. For Gui Ge branded narrator/character infographics, use guige-infographic instead. Creates source/analysis/structured-content/prompt files, generates the final image through the available guige image backend, and can optionally upload materials through guige-drive-upload.
+version: 0.1.1
 ---
 
 # Gui Ge Hand Write Pic
@@ -10,11 +10,14 @@ Generate one-page hand-drawn educational infographics with a fixed warm cream-pa
 
 This skill is for visual-first summaries. It should transform content into icons, doodles, simple diagrams, grouped cards, wavy arrows, and short labels rather than dense paragraphs.
 
+This skill does not use the bundled Gui Ge character image by default. It should not create a recurring `鬼哥` narrator, orange headband, blue hoodie, guitar prop, or `refs/01-ref-guige.jpeg`. Use `guige-infographic` when the user wants a Gui Ge branded character/narrator image.
+
 ## Defaults
 
 | Setting | Default |
 |---------|---------|
 | Language | `zh` unless user content or request clearly asks otherwise |
+| Character image | None by default |
 | Working root | `hand-write-pic/{topic-slug}/` |
 | Final image directory | `~/Downloads/guige-skill-imagen/` |
 | Final image filename | `{topic-slug}-hand-write-pic.png` |
@@ -37,6 +40,7 @@ Always use the style in [prompt-template.md](references/prompt-template.md):
 - black text/outlines, warm gray `#6B6B6B` annotations
 - visual-first icons, doodles, simple diagrams, wavy arrows, short labels
 - plenty of whitespace and one bold centered takeaway sentence in the footer
+- no Gui Ge/`鬼哥` character, narrator sticker, headband, hoodie, guitar prop, or bundled character reference unless the user explicitly asks to switch to `guige-infographic`
 
 ## Options
 
@@ -122,10 +126,11 @@ Replace `<insert your content here>` with the structured content. Add the chosen
 
 Use the best image backend available in the current runtime:
 
-1. Native runtime image tool, if available.
-2. `guige-imagen` Python API backend, when API keys are configured or deterministic local output is required.
-3. Another configured local image generation skill or script, if available.
-4. If no image backend exists, stop and report the prepared prompt path.
+1. `guige-imagen` Python API backend, when guige-scoped API keys are configured or deterministic local output is required.
+2. If no guige-scoped API key is configured and the session is running in Codex, use Codex's built-in imagen/image generation tool first.
+3. If no guige-scoped API key is configured and the session is not running in Codex, try the native image generation tool provided by the current interactive runtime.
+4. Another configured local image generation skill or script, if available.
+5. If no image backend exists, stop and report the prepared prompt path.
 
 Normalize final output by copying or moving the generated image to:
 

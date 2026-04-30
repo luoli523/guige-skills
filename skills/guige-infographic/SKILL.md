@@ -1,7 +1,7 @@
 ---
 name: guige-infographic
-description: Generate infographics in Gui Ge's personal style as a standalone skill. Supports --layout, --style, --aspect, and --lang options; always uses the bundled Gui Ge character image from assets/guige.jpeg; creates analysis/structured content/prompts independently; generates the final infographic through guige-imagen when keyed or deterministic output is required, and in no-key Codex sessions prefers Codex's built-in imagen/image generation tool before other runtime tools; can optionally upload generated materials through guige-drive-upload. Use for 鬼哥信息图, 中文信息图, 信息图, 高密度信息大图, visual summary, or turning article/content into a Gui Ge branded infographic.
-version: 0.3.2
+description: Generate Gui Ge branded infographics in Gui Ge's personal style as a standalone skill. Supports --layout, --style, --aspect, and --lang options; always uses the bundled Gui Ge character image from assets/guige.jpeg; creates analysis/structured content/prompts independently; generates the final infographic through guige-imagen when keyed or deterministic output is required, and in no-key Codex sessions prefers Codex's built-in imagen/image generation tool before other runtime tools; can optionally upload generated materials through guige-drive-upload. Use for 鬼哥信息图, 中文信息图, 信息图, 高密度信息大图, visual summary, or turning article/content into a Gui Ge branded infographic. For unbranded warm sketchnote summaries, use guige-hand-write-pic instead.
+version: 0.3.3
 ---
 
 # Gui Ge Infographic
@@ -9,6 +9,8 @@ version: 0.3.2
 Standalone workflow for infographics with the bundled Gui Ge narrator character and optional Google Drive delivery.
 
 This skill owns its own analysis, structure, design choices, prompt generation, image generation, and upload flow.
+
+Use this skill when the output should be Gui Ge branded or should include the Gui Ge narrator/character. Use `guige-hand-write-pic` instead for plain warm cream-paper sketchnote summaries without the bundled Gui Ge character image.
 
 ## Defaults
 
