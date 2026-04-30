@@ -2,7 +2,21 @@
 .obsidian/
 __pycache__/
 *.pyc
+
+# Local secrets and machine-specific configuration.
+.env
+.guige-skills/
+.baoyu-skills/
+
+# Generated/downloaded skill outputs. Keep skill source, docs, tests, and
+# checked-in assets under skills/ tracked; keep run artifacts out of git.
 infographic/
 hand-write-pic/
 imagen/
 svg/
+x-to-markdown/
+post-to-wechat/
+wechat/
+downloads/
+generated/
+*.wechat.html
