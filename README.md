@@ -24,6 +24,9 @@
     ├── guige-hand-write-pic/
     │   ├── SKILL.md
     │   └── references/
+    ├── guige-to-wechat/
+    │   ├── SKILL.md
+    │   └── scripts/
     ├── guige-x-2-md/
     │   ├── SKILL.md
     │   └── scripts/
@@ -43,7 +46,42 @@
 - `guige-infographic`：生成鬼哥风格信息图，内置鬼哥角色图，支持 `--layout`、`--style`、`--aspect`、`--lang` 参数，并可按需通过 `guige-drive-upload` 上传到 Google Drive。
 - `guige-hand-write-pic`：生成一页式手绘教育信息图，固定暖米色纸张、sketchnote、粉彩卡片和短标签风格；复用 `guige-imagen` 生图底座，并可按需通过 `guige-drive-upload` 上传到 Google Drive。
 - `guige-svg`：生成可编辑 SVG 图表和时间表，使用结构化 JSON spec 与 Python 确定性渲染器，支持矩阵、流程图、时间线和架构图，可按需导出 PNG 并上传到 Google Drive。
+- `guige-to-wechat`：将 Markdown、HTML 或纯文本发布到微信公众号草稿箱，Python 标准库实现官方 API 路径，支持 front matter、微信友好 HTML、正文图片上传、封面素材上传、草稿创建和 dry-run。
 - `guige-x-2-md`：将 X/Twitter 推文、线程和 X Articles 转为 Markdown，使用 Python 标准库实现逆向 X Web API 客户端，支持登录 cookie、YAML front matter、媒体本地化和 JSON 输出。
+
+## `guige-to-wechat` 快速使用
+
+`guige-to-wechat` 是 `baoyu-post-to-wechat` 的 Python API 路径重写版，聚焦微信公众号官方接口发草稿；原版的 Chrome CDP 浏览器自动化和图文贴图发布没有移植到这个版本。
+
+凭据优先读取 `WECHAT_APP_ID` / `WECHAT_APP_SECRET`，也可以放到 `.guige-skills/.env`、`~/.guige-skills/.env`，或 `.guige-skills/guige-to-wechat/EXTEND.md` 的账号配置里。兼容读取已有的 `baoyu-post-to-wechat` 配置。
+
+不要把真实公众号凭据提交到仓库；个人机器上建议放在 `~/.guige-skills/.env`，并设置为仅当前用户可读写。
+
+```bash
+# 渲染并校验，不调用微信接口
+python3 skills/guige-to-wechat/scripts/main.py article.md --cover cover.jpg --dry-run --json
+
+# 发布 Markdown 到公众号草稿箱
+python3 skills/guige-to-wechat/scripts/main.py article.md --cover cover.jpg
+
+# 指定账号和样式
+python3 skills/guige-to-wechat/scripts/main.py article.md --account guige --theme simple --color teal --cover cover.jpg
+
+# HTML 或纯文本输入
+python3 skills/guige-to-wechat/scripts/main.py article.html --title "标题" --summary "摘要" --cover cover.jpg
+python3 skills/guige-to-wechat/scripts/main.py "一段要发布到公众号的内容" --title "标题" --cover cover.jpg
+```
+
+常用 front matter：
+
+```yaml
+---
+title: "文章标题"
+description: "摘要"
+author: "鬼哥"
+image: cover.webp
+---
+```
 
 ## `guige-x-2-md` 快速使用
 
