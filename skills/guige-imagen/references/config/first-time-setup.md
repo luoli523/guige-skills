@@ -27,6 +27,8 @@ OPENAI_IMAGE_MODEL=gpt-image-1.5
 
 The Python backend ignores provider values that are only present in the shell environment by default. Put provider API keys, base URLs, and model env overrides in one of the `.guige-skills/.env` files above.
 
+If no guige-scoped API key is configured, `scripts/main.py` cannot call provider APIs. In Codex sessions, use Codex's built-in imagen/image generation tool as the first fallback; in non-Codex interactive sessions, try that runtime's native image generation tool before reporting that no backend is available.
+
 To deliberately use already-exported shell provider values, set this in the shell for that run. This control flag is not loaded from `.guige-skills/.env`.
 
 ```bash

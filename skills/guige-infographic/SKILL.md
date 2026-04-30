@@ -1,6 +1,6 @@
 ---
 name: guige-infographic
-description: Generate infographics in Gui Ge's personal style as a standalone skill. Supports --layout, --style, --aspect, and --lang options; always uses the bundled Gui Ge character image from assets/guige.jpeg; creates analysis/structured content/prompts independently; generates the final infographic; and can optionally upload generated materials through guige-drive-upload. Use for 鬼哥信息图, 中文信息图, 信息图, 高密度信息大图, visual summary, or turning article/content into a Gui Ge branded infographic.
+description: Generate infographics in Gui Ge's personal style as a standalone skill. Supports --layout, --style, --aspect, and --lang options; always uses the bundled Gui Ge character image from assets/guige.jpeg; creates analysis/structured content/prompts independently; generates the final infographic through guige-imagen when keyed or deterministic output is required, and in no-key Codex sessions prefers Codex's built-in imagen/image generation tool before other runtime tools; can optionally upload generated materials through guige-drive-upload. Use for 鬼哥信息图, 中文信息图, 信息图, 高密度信息大图, visual summary, or turning article/content into a Gui Ge branded infographic.
 version: 0.3.2
 ---
 
@@ -191,10 +191,11 @@ Write the prompt file before invoking any image backend.
 
 Use the best image backend available in the current runtime:
 
-1. Native runtime image tool, if available.
-2. `guige-imagen` Python API backend, when API keys are configured or deterministic local output is required.
-3. Another configured local image generation skill or script, if the current runtime provides one.
-4. If no image backend exists, stop and report the prepared prompt path.
+1. `guige-imagen` Python API backend, when guige-scoped API keys are configured or deterministic local output is required.
+2. If no guige-scoped API key is configured and the session is running in Codex, use Codex's built-in imagen/image generation tool first.
+3. If no guige-scoped API key is configured and the session is not running in Codex, try the native image generation tool provided by the current interactive runtime.
+4. Another configured local image generation skill or script, if the current runtime provides one.
+5. If no image backend exists, stop and report the prepared prompt path.
 
 If the backend supports image references, pass `refs/01-ref-guige.jpeg`. If not, rely on the text character section in the prompt.
 

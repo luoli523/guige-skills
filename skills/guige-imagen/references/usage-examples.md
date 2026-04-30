@@ -9,6 +9,8 @@ python3 skills/guige-imagen/scripts/main.py \
 
 Provider is auto-detected from API keys in `.guige-skills/.env`. Google is preferred when both Google and OpenAI keys are present; pass `--provider` when you need deterministic routing.
 
+If no guige-scoped API key is configured, this CLI cannot generate images by itself. In Codex, use the built-in imagen/image generation tool first; outside Codex, try the current runtime's native image generation tool before reporting the prepared prompt.
+
 Final images are saved to:
 
 ```text

@@ -1,6 +1,6 @@
 ---
 name: guige-imagen
-description: Image generation foundation for Gui Ge skills. In interactive runtimes, can use the native image tool when available; for deterministic local output, uses the bundled Python API backend with OpenAI or Google from prompts, prompt files, or reference images. Supports provider/model selection, aspect ratio, size, quality, JSON output, and Gui Ge scoped EXTEND.md/.env configuration. Use when the user asks to generate, create, draw, render, or edit images through the guige-skills image backend.
+description: Image generation foundation for Gui Ge skills. Uses the bundled Python API backend with OpenAI or Google when guige-scoped API keys are configured or deterministic local output is required; when no API key is configured, Codex sessions should prefer Codex's built-in imagen/image generation tool before other runtime tools. Supports provider/model selection, aspect ratio, size, quality, JSON output, and Gui Ge scoped EXTEND.md/.env configuration. Use when the user asks to generate, create, draw, render, or edit images through the guige-skills image backend.
 version: 0.1.0
 metadata:
   openclaw:
@@ -19,11 +19,12 @@ This skill is a generic backend. It does not apply Gui Ge character style by def
 
 Use the best image backend available for the user's context:
 
-1. Native runtime image tool, when available and the user is working interactively.
-2. Python API backend, when API keys are configured or deterministic local output is required.
-3. If neither backend exists, write or report the prepared prompt and explain the missing backend.
+1. Python API backend, when guige-scoped API keys are configured or deterministic local output is required.
+2. If no guige-scoped API key is configured and the session is running in Codex, use Codex's built-in imagen/image generation tool first.
+3. If no guige-scoped API key is configured and the session is not running in Codex, try the native image generation tool provided by the current interactive runtime.
+4. If no API backend or native runtime image tool exists, write or report the prepared prompt and explain the missing backend.
 
-The native runtime image tool is not called by `scripts/main.py`; it is a skill-layer fallback. The Python backend is the stable automation path for workflows that need repeatable CLI behavior or future batch generation.
+The native runtime image tool is not called by `scripts/main.py`; it is a skill-layer fallback. Codex's built-in imagen/image generation tool is the preferred no-key fallback only when the skill is being used inside Codex. The Python backend is the stable automation path for workflows that need repeatable CLI behavior or future batch generation.
 
 All generated images should end up in:
 
@@ -49,7 +50,7 @@ python3 {baseDir}/scripts/main.py
 
 The v0.1 runtime uses only the Python standard library.
 
-The Python backend requires at least one provider API key. Codex/ChatGPT login state does not automatically grant API access to this script.
+The Python backend requires at least one provider API key. Codex/ChatGPT login state does not automatically grant API access to this script. When no guige-scoped API key is configured, do not run the Python backend as the first choice in Codex; use Codex's built-in imagen/image generation tool instead.
 
 ## Supported Providers
 
