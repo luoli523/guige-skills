@@ -1,12 +1,12 @@
 ---
 name: guige-hand-write-pic
-description: Generate one-page hand-drawn educational infographics in a warm cream-paper sketchnote style without the bundled Gui Ge character image by default. Use when the user asks for 手绘图, 手写风图片, 手绘知识图, sketchnote, hand-drawn educational infographic, slide-summary style images, or turning content into a warm unbranded visual summary. For Gui Ge branded narrator/character infographics, use guige-infographic instead. Creates source/analysis/structured-content/prompt files, generates the final image through the available guige image backend, and can optionally upload materials through guige-drive-upload.
-version: 0.1.1
+description: Generate one-page educational visual summaries in a warm cream-paper sketchnote default style without the bundled Gui Ge character image by default. Supports --layout, --style, --aspect, and --lang; --style accepts the guige-infographic style vocabulary but strips Gui Ge narrator/character branding. Use when the user asks for 手绘图, 手写风图片, 手绘知识图, sketchnote, hand-drawn educational infographic, slide-summary style images, or turning content into a warm unbranded visual summary. For Gui Ge branded narrator/character infographics, use guige-infographic instead. Creates source/analysis/structured-content/prompt files, generates the final image through the available guige image backend, and can optionally upload materials through guige-drive-upload.
+version: 0.2.0
 ---
 
 # Gui Ge Hand Write Pic
 
-Generate one-page hand-drawn educational infographics with a fixed warm cream-paper sketchnote style.
+Generate one-page educational visual summaries with a warm cream-paper sketchnote default style.
 
 This skill is for visual-first summaries. It should transform content into icons, doodles, simple diagrams, grouped cards, wavy arrows, and short labels rather than dense paragraphs.
 
@@ -22,14 +22,26 @@ This skill does not use the bundled Gui Ge character image by default. It should
 | Final image directory | `~/Downloads/guige-skill-imagen/` |
 | Final image filename | `{topic-slug}-hand-write-pic.png` |
 | Default layout | `auto` |
+| Default style | `hand-drawn-edu` / warm cream-paper sketchnote |
 | Default aspect | `landscape` (`16:9`) |
 | Upload behavior | Disabled by default; opt in per request or env |
 | Upload backend | `guige-drive-upload` |
 | Upload Drive folder | `guige-skills/guige-hand-write-pic/{topic-slug}/` |
 
-## Style Contract
+## Style Selection
 
-Always use the style in [prompt-template.md](references/prompt-template.md):
+Default style is the warm cream-paper sketchnote contract in [prompt-template.md](references/prompt-template.md). The skill also accepts the style values from [guige-infographic layouts-and-styles.md](../guige-infographic/references/layouts-and-styles.md), such as `lab-notes`, `social-pop`, `clean-explainer`, `dark-terminal`, `claymation`, `kawaii`, `chalkboard`, `technical-schematic`, `retro-pop-grid`, and `hand-drawn-edu`.
+
+When a non-default `--style` is provided, apply that visual treatment while preserving this skill's core constraints:
+
+- one-page visual summary
+- concise labels instead of paragraphs
+- source facts and important numbers preserved exactly
+- no bundled Gui Ge character reference
+
+For `guige-journal` or `morandi-journal`, interpret the style as an unbranded warm journal/sketchnote look. Do not add the Gui Ge character or `鬼哥` headband.
+
+Default `hand-drawn-edu` style contract:
 
 - warm cream paper background `#F5F0E8`
 - clean sketchnote style with slight hand-drawn wobble
@@ -49,6 +61,7 @@ Accept CLI-style options in the user's request.
 | Option | Values |
 |--------|--------|
 | `--layout` | `auto`, `flow`, `comparison`, `grouped-cards`, `cycle`, `timeline`, `matrix`, `pyramid` |
+| `--style` | Any style in [guige-infographic layouts-and-styles.md](../guige-infographic/references/layouts-and-styles.md), e.g. `hand-drawn-edu`, `guige-journal`, `lab-notes`, `social-pop`, `clean-explainer`, `dark-terminal`, `claymation`, `kawaii`, `chalkboard`, `technical-schematic`, `retro-pop-grid` |
 | `--aspect` | `landscape` (`16:9`), `portrait` (`9:16`), `square` (`1:1`), or custom ratio |
 | `--lang` | Output language, e.g. `zh`, `en`, `ja`, `ko`, or another language code/name |
 | `--upload` | Upload final image and materials to Google Drive after generation |
@@ -58,15 +71,19 @@ Accept CLI-style options in the user's request.
 Parameter handling:
 
 - Use `auto` layout unless the user explicitly asks for a structure or the content strongly implies one.
+- Use `hand-drawn-edu` style unless the user explicitly asks for a style. If the user says `默认`, use `hand-drawn-edu`.
+- If `--style` is provided, use it in `analysis.md`, `structured-content.md`, and `prompts/hand-write-pic.md`.
+- If a provided style is unknown, map it to the closest supported style and state the mapping before generation.
+- Style values inherited from `guige-infographic` must remain unbranded in this skill. Never add `refs/01-ref-guige.jpeg`, a Gui Ge narrator, or `鬼哥` headband unless switching to `guige-infographic`.
 - If only some options are provided, ask only about missing choices unless `--no-confirm` or `直接生成` is present.
-- If the user says `默认`, use `--layout auto --aspect landscape --lang zh`.
+- If the user says `默认`, use `--layout auto --style hand-drawn-edu --aspect landscape --lang zh`.
 
 ## Workflow
 
 ### Step 1: Setup
 
 1. Derive a short English `topic-slug` from the topic/title.
-2. Parse explicit options: `--layout`, `--aspect`, `--lang`, `--upload`, `--no-upload`, `--no-confirm`.
+2. Parse explicit options: `--layout`, `--style`, `--aspect`, `--lang`, `--upload`, `--no-upload`, `--no-confirm`.
 3. Create:
    - `hand-write-pic/{topic-slug}/`
    - `hand-write-pic/{topic-slug}/prompts/`
@@ -82,7 +99,7 @@ Create `analysis.md` with:
 - source language and output language
 - audience
 - content type
-- selected or recommended layout/aspect/language
+- selected or recommended layout/style/aspect/language
 - 1-3 learning objectives
 - key facts, numbers, entities, and quotes to preserve exactly
 - recommended visual metaphors
@@ -108,6 +125,7 @@ Confirm before generating unless the user explicitly says `--no-confirm`, `直�
 If confirmation is needed, ask for:
 
 - layout: default `auto`
+- style: default `hand-drawn-edu`
 - aspect: default `landscape`
 - language: default `zh`
 - upload: local only unless explicitly requested
@@ -121,6 +139,7 @@ prompts/hand-write-pic.md
 ```
 
 Replace `<insert your content here>` with the structured content. Add the chosen layout/aspect/language near the top of the prompt.
+Add the chosen style and style guidance near the top of the prompt. If the style came from `guige-infographic`, reuse only the visual treatment and explicitly remove Gui Ge narrator/character branding.
 
 ### Step 6: Generate Image
 
@@ -179,7 +198,7 @@ gdrive:guige-skills/guige-hand-write-pic/{topic-slug}/
 Report:
 
 - topic
-- layout, aspect, language, image backend
+- layout, style, aspect, language, image backend
 - local final image path
 - Google Drive path, upload skipped, or upload blocker
 - generated files: source, analysis, structured content, prompt
