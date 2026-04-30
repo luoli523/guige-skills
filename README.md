@@ -45,6 +45,33 @@
 - `guige-svg`：生成可编辑 SVG 图表和时间表，使用结构化 JSON spec 与 Python 确定性渲染器，支持矩阵、流程图、时间线和架构图，可按需导出 PNG 并上传到 Google Drive。
 - `guige-x-2-md`：将 X/Twitter 推文、线程和 X Articles 转为 Markdown，使用 Python 标准库实现逆向 X Web API 客户端，支持登录 cookie、YAML front matter、媒体本地化和 JSON 输出。
 
+## `guige-x-2-md` 快速使用
+
+`guige-x-2-md` 使用逆向的 X Web API，不是官方 API。首次运行会要求确认风险，并需要可用的 X 登录 cookie。优先读取环境变量 `X_AUTH_TOKEN` 和 `X_CT0`；如果没有 cookie，可先运行 `--login` 通过 Chrome/Edge 刷新本地缓存。
+
+```bash
+# 转换推文或线程
+python3 skills/guige-x-2-md/scripts/main.py https://x.com/username/status/1234567890
+
+# 转换并下载图片/视频到 Markdown 旁边的 imgs/、videos/
+python3 skills/guige-x-2-md/scripts/main.py https://x.com/username/status/1234567890 --download-media
+
+# 转换 X Article
+python3 skills/guige-x-2-md/scripts/main.py https://x.com/i/article/1234567890
+
+# 输出 JSON，便于 agent 获取 markdownPath/imageDir/videoDir
+python3 skills/guige-x-2-md/scripts/main.py https://x.com/username/status/1234567890 --json
+
+# 刷新登录 cookie
+python3 skills/guige-x-2-md/scripts/main.py --login
+```
+
+默认输出路径：
+
+```text
+x-to-markdown/{username-or-id}/{tweet-or-article-id}/{content-slug}.md
+```
+
 ## 本地初始化
 
 执行安装脚本会扫描 `skills/*/SKILL.md`，并把有效 skill 以软链接方式安装到本机 skill 目录。
