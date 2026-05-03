@@ -9,6 +9,9 @@
 ├── install.sh
 ├── README.md
 └── skills/
+    ├── guige-blog-post/
+    │   ├── SKILL.md
+    │   └── references/
     ├── guige-drive-upload/
     │   ├── SKILL.md
     │   └── scripts/
@@ -30,6 +33,8 @@
     ├── guige-x-2-md/
     │   ├── SKILL.md
     │   └── scripts/
+    ├── guige-x-to-blog/
+    │   └── SKILL.md
     └── guige-svg/
         ├── SKILL.md
         ├── agents/
@@ -41,6 +46,7 @@
 
 ## 当前 Skill
 
+- `guige-blog-post`：写作并发布文章到 `luoli523.github.io` Hugo 博客，覆盖选题/研究、文章结构、配图 prompt、图片转 WebP、Hugo 预览、提交推送，以及可选微信公众号同步。
 - `guige-drive-upload`：通用 Google Drive 上传后端，通过 `rclone` 把各 skill 生成的 materials 上传到 `guige-skills/<skill-name>/<task-folder>/`。
 - `guige-imagen`：鬼哥 skill set 的图片生成底座，支持 runtime 图片工具 fallback 和 OpenAI/Google Python API 后端，最终图片统一放到 `~/Downloads/guige-skill-imagen/`。
 - `guige-infographic`：生成鬼哥风格信息图，内置鬼哥角色图，支持 `--layout`、`--style`、`--aspect`、`--lang` 参数，并可按需通过 `guige-drive-upload` 上传到 Google Drive。
@@ -48,6 +54,7 @@
 - `guige-svg`：生成可编辑 SVG 图表和时间表，使用结构化 JSON spec 与 Python 确定性渲染器，支持矩阵、流程图、时间线和架构图，可按需导出 PNG 并上传到 Google Drive。
 - `guige-to-wechat`：将 Markdown、HTML 或纯文本发布到微信公众号草稿箱，Python 标准库实现官方 API 路径，支持 front matter、微信友好 HTML、正文图片上传、封面素材上传、草稿创建和 dry-run。
 - `guige-x-2-md`：将 X/Twitter 推文、线程和 X Articles 转为 Markdown，使用 Python 标准库实现逆向 X Web API 客户端，支持登录 cookie、YAML front matter、媒体本地化和 JSON 输出。
+- `guige-x-to-blog`：将 X 推文或 X Article 下载为 Markdown、复用原图整理成中文 Hugo 博客文章，并按本项目内 `guige-x-2-md`、`guige-blog-post`、`guige-to-wechat` 形成闭环工作流。
 
 ## `guige-to-wechat` 快速使用
 
