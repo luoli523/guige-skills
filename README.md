@@ -15,6 +15,10 @@
     ├── guige-drive-upload/
     │   ├── SKILL.md
     │   └── scripts/
+    ├── guige-disassembly-diagram/
+    │   ├── SKILL.md
+    │   ├── agents/
+    │   └── references/
     ├── guige-imagen/
     │   ├── SKILL.md
     │   ├── references/
@@ -48,6 +52,7 @@
 
 - `guige-blog-post`：写作并发布文章到 `luoli523.github.io` Hugo 博客，覆盖选题/研究、文章结构、配图 prompt、图片转 WebP、Hugo 预览、提交推送，以及可选微信公众号同步。
 - `guige-drive-upload`：通用 Google Drive 上传后端，通过 `rclone` 把各 skill 生成的 materials 上传到 `guige-skills/<skill-name>/<task-folder>/`。
+- `guige-disassembly-diagram`：生成中文拆解图、爆炸图、剖面图和产品结构科普知识卡片，覆盖整体外观、内部结构、关键部件、材质标注和工作原理流程图，复用 `guige-imagen` 生图底座，并可按需上传到 Google Drive。
 - `guige-imagen`：鬼哥 skill set 的图片生成底座，支持 runtime 图片工具 fallback 和 OpenAI/Google Python API 后端，最终图片统一放到 `~/Downloads/guige-skill-imagen/`。
 - `guige-infographic`：生成鬼哥风格信息图，内置鬼哥角色图，支持 `--layout`、`--style`、`--aspect`、`--lang` 参数，并可按需通过 `guige-drive-upload` 上传到 Google Drive。
 - `guige-hand-write-pic`：生成一页式手绘教育信息图，固定暖米色纸张、sketchnote、粉彩卡片和短标签风格；复用 `guige-imagen` 生图底座，并可按需通过 `guige-drive-upload` 上传到 Google Drive。
@@ -55,6 +60,24 @@
 - `guige-to-wechat`：将 Markdown、HTML 或纯文本发布到微信公众号草稿箱，Python 标准库实现官方 API 路径，支持 front matter、微信友好 HTML、正文图片上传、封面素材上传、草稿创建和 dry-run。
 - `guige-x-2-md`：将 X/Twitter 推文、线程和 X Articles 转为 Markdown，使用 Python 标准库实现逆向 X Web API 客户端，支持登录 cookie、YAML front matter、媒体本地化和 JSON 输出。
 - `guige-x-to-blog`：将 X 推文或 X Article 下载为 Markdown、复用原图整理成中文 Hugo 博客文章，并按本项目内 `guige-x-2-md`、`guige-blog-post`、`guige-to-wechat` 形成闭环工作流。
+
+## `guige-disassembly-diagram` 快速使用
+
+`guige-disassembly-diagram` 用来生成中文教学拆解图、爆炸图、剖面图和产品结构知识卡片。默认输出 `hybrid + landscape + zh`，会把主题整理成整体外观、内部结构、关键部件、材质特征和工作原理流程图，再交给 `guige-imagen` 或当前 runtime 的图片生成工具出图。
+
+```text
+/guige-disassembly-diagram 生成一张关于空气炸锅的中文拆解图 --no-confirm
+/guige-disassembly-diagram cybertruck --mode hybrid --aspect landscape --no-confirm --upload
+/guige-disassembly-diagram 机械键盘 --mode exploded --aspect 4:3
+```
+
+常用参数：
+
+- `--mode hybrid|exploded|cutaway|auto`：控制拆解图重点，默认 `hybrid`。
+- `--aspect landscape|portrait|square|4:3|自定义比例`：控制画幅，默认 `landscape`。
+- `--lang zh|en|...`：控制图中文字语言，默认简体中文。
+- `--upload`：生成后通过 `guige-drive-upload` 上传到 Google Drive。
+- `--no-confirm`：跳过参数确认，直接生成。
 
 ## `guige-to-wechat` 快速使用
 

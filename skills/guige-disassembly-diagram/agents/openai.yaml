@@ -1,0 +1,5 @@
+interface:
+  display_name: "Gui Ge Disassembly Diagram"
+  short_description: "Generate Chinese teardown explainer cards."
+  default_prompt: "Use $guige-disassembly-diagram to create a Chinese product teardown explainer image."
+  brand_color: "#2563EB"
