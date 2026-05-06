@@ -34,6 +34,10 @@
     ├── guige-to-wechat/
     │   ├── SKILL.md
     │   └── scripts/
+    ├── guige-video-download/
+    │   ├── SKILL.md
+    │   ├── references/
+    │   └── scripts/
     ├── guige-x-2-md/
     │   ├── SKILL.md
     │   └── scripts/
@@ -58,6 +62,7 @@
 - `guige-hand-write-pic`：生成一页式手绘教育信息图，固定暖米色纸张、sketchnote、粉彩卡片和短标签风格；复用 `guige-imagen` 生图底座，并可按需通过 `guige-drive-upload` 上传到 Google Drive。
 - `guige-svg`：生成可编辑 SVG 图表和时间表，使用结构化 JSON spec 与 Python 确定性渲染器，支持矩阵、流程图、时间线和架构图，可按需导出 PNG 并上传到 Google Drive。
 - `guige-to-wechat`：将 Markdown、HTML 或纯文本发布到微信公众号草稿箱，Python 标准库实现官方 API 路径，支持 front matter、微信友好 HTML、正文图片上传、封面素材上传、草稿创建和 dry-run。
+- `guige-video-download`：使用自包含的 Gui Ge 工作流封装 `yt-dlp`，下载 YouTube、YouTube Shorts、X.com 和 Twitter 视频，支持视频、音频、封面、字幕、metadata、JSON 输出和可选 Google Drive 上传。
 - `guige-x-2-md`：将 X/Twitter 推文、线程和 X Articles 转为 Markdown，使用 Python 标准库实现逆向 X Web API 客户端，支持登录 cookie、YAML front matter、媒体本地化和 JSON 输出。
 - `guige-x-to-blog`：将 X 推文或 X Article 下载为 Markdown、复用原图整理成中文 Hugo 博客文章，并按本项目内 `guige-x-2-md`、`guige-blog-post`、`guige-to-wechat` 形成闭环工作流。
 
@@ -139,6 +144,50 @@ python3 skills/guige-x-2-md/scripts/main.py --login
 ```text
 x-to-markdown/{username-or-id}/{tweet-or-article-id}/{content-slug}.md
 ```
+
+## `guige-video-download` 快速使用
+
+`guige-video-download` 用来下载 YouTube、YouTube Shorts、X.com 和 Twitter 视频素材。它使用 `yt-dlp` 作为下载引擎，默认下载 best MP4、封面和 metadata，并把结果保存到 `~/Downloads/guige-skill-video/`。`ffmpeg` 用于高质量音视频合并和音频格式转换。
+
+安全边界：只用于用户有权访问和保存的公开视频、自己的内容或已获授权内容；不要用于绕过 DRM、付费墙、私有账号权限或平台访问限制。`--cookies-from-browser` 只用于用户本人浏览器里已经能正常访问的内容。
+
+```bash
+# 默认下载：best MP4 + 封面 + metadata
+python3 skills/guige-video-download/scripts/main.py 'https://www.youtube.com/watch?v=VIDEO_ID' --json
+
+# 下载 X/Twitter 视频
+python3 skills/guige-video-download/scripts/main.py 'https://x.com/user/status/1234567890' --json
+
+# 指定清晰度上限
+python3 skills/guige-video-download/scripts/main.py 'https://youtu.be/VIDEO_ID' --quality 1080p --json
+
+# 只下载音频
+python3 skills/guige-video-download/scripts/main.py 'https://www.youtube.com/watch?v=VIDEO_ID' --audio-only --audio-format mp3 --json
+
+# 下载字幕
+python3 skills/guige-video-download/scripts/main.py 'https://www.youtube.com/watch?v=VIDEO_ID' --subtitles --languages zh,en --json
+
+# 使用浏览器 cookies 下载用户本人可访问的内容
+python3 skills/guige-video-download/scripts/main.py 'https://x.com/user/status/1234567890' --cookies-from-browser chrome --json
+
+# 下载后上传整个输出目录到 Google Drive
+python3 skills/guige-video-download/scripts/main.py 'https://www.youtube.com/watch?v=VIDEO_ID' --upload --json
+```
+
+默认输出路径：
+
+```text
+~/Downloads/guige-skill-video/{platform}/{author-or-channel}/{title-or-id}/
+```
+
+常见输出文件：
+
+- `video.mp4`：最终视频文件。
+- `audio.mp3` / `audio.m4a`：音频模式输出。
+- `video.jpg` / `video.webp`：封面图。
+- `video.info.json`：`yt-dlp` metadata。
+- `source-url.txt`：原始 URL。
+- `download-result.json`：Gui Ge 下载结果摘要，便于 agent 读取路径和上传信息。
 
 ## 本地初始化
 
