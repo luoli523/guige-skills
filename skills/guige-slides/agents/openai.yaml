@@ -1,0 +1,5 @@
+interface:
+  display_name: "guige-slides"
+  short_description: "Generate shareable slide image decks."
+  default_prompt: "Use $guige-slides to turn this content into a reading-friendly slide deck."
+  brand_color: "#2563EB"

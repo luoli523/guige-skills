@@ -31,6 +31,11 @@
     ├── guige-hand-write-pic/
     │   ├── SKILL.md
     │   └── references/
+    ├── guige-slides/
+    │   ├── SKILL.md
+    │   ├── agents/
+    │   ├── references/
+    │   └── scripts/
     ├── guige-to-wechat/
     │   ├── SKILL.md
     │   └── scripts/
@@ -60,6 +65,7 @@
 - `guige-imagen`：鬼哥 skill set 的图片生成底座，支持 runtime 图片工具 fallback 和 OpenAI/Google Python API 后端，最终图片统一放到 `~/Downloads/guige-skill-imagen/`。
 - `guige-infographic`：生成鬼哥风格信息图，内置鬼哥角色图，支持 `--layout`、`--style`、`--aspect`、`--lang` 参数，并可按需通过 `guige-drive-upload` 上传到 Google Drive。
 - `guige-hand-write-pic`：生成一页式手绘教育信息图，固定暖米色纸张、sketchnote、粉彩卡片和短标签风格；复用 `guige-imagen` 生图底座，并可按需通过 `guige-drive-upload` 上传到 Google Drive。
+- `guige-slides`：把文章、主题或素材整理成适合阅读和分享的图片式幻灯片，生成 outline、逐页 prompt、PNG slide，并用 Python 标准库脚本合并为 PPTX/PDF，可按需上传到 Google Drive。
 - `guige-svg`：生成可编辑 SVG 图表和时间表，使用结构化 JSON spec 与 Python 确定性渲染器，支持矩阵、流程图、时间线和架构图，可按需导出 PNG 并上传到 Google Drive。
 - `guige-to-wechat`：将 Markdown、HTML 或纯文本发布到微信公众号草稿箱，Python 标准库实现官方 API 路径，支持 front matter、微信友好 HTML、正文图片上传、封面素材上传、草稿创建和 dry-run。
 - `guige-video-download`：使用自包含的 Gui Ge 工作流封装 `yt-dlp`，下载 YouTube、YouTube Shorts、X.com 和 Twitter 视频，支持视频、音频、封面、字幕、metadata、JSON 输出和可选 Google Drive 上传。
@@ -188,6 +194,46 @@ python3 skills/guige-video-download/scripts/main.py 'https://www.youtube.com/wat
 - `video.info.json`：`yt-dlp` metadata。
 - `source-url.txt`：原始 URL。
 - `download-result.json`：Gui Ge 下载结果摘要，便于 agent 读取路径和上传信息。
+
+## `guige-slides` 快速使用
+
+`guige-slides` 用来把内容转成图片式幻灯片：先生成 `analysis.md` 和 `outline.md`，再为每页写入 `prompts/NN-slide-*.md`，然后逐页生成为 PNG，最后合并为 PPTX/PDF。PPTX 每页是一张完整图片，适合分享和阅读，不是可逐字编辑的普通 PPT 排版。
+
+```text
+/guige-slides 把这篇文章做成 12 页中文幻灯片 --style blueprint --no-confirm
+/guige-slides 生成一套给高管看的 AI agent 趋势简报 --audience executives --slides 10 --upload
+/guige-slides 根据 slide-deck/my-topic/prompts 重新生成第 3 页 --regenerate 3
+```
+
+常用参数：
+
+- `--style blueprint|sketch-notes|hand-drawn-edu|notion|minimal|corporate|...`：控制视觉预设。
+- `--audience general|beginners|experts|executives`：控制信息密度和表达方式。
+- `--slides N`：目标页数，建议 5-25 页。
+- `--outline-only`：只生成大纲。
+- `--prompts-only`：只生成逐页生图 prompt。
+- `--images-only`：用已有 prompts 生成图片。
+- `--regenerate 3`：重新生成某一页或若干页。
+- `--upload`：生成后通过 `guige-drive-upload` 上传整个 deck 文件夹。
+
+合并脚本：
+
+```bash
+python3 skills/guige-slides/scripts/merge_to_pptx.py slide-deck/{topic-slug}
+python3 skills/guige-slides/scripts/merge_to_pdf.py slide-deck/{topic-slug}
+```
+
+默认输出结构：
+
+```text
+slide-deck/{topic-slug}/
+├── outline.md
+├── prompts/
+├── 01-slide-cover.png
+├── NN-slide-{slug}.png
+├── {topic-slug}.pptx
+└── {topic-slug}.pdf
+```
 
 ## 本地初始化
 
