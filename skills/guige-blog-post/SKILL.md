@@ -227,7 +227,8 @@ Create `image-prompts.md` in the same post directory. This file serves as a spec
 - Tertiary accents: purple `#a78bfa`, red `#f87171`
 - Style keywords: "clean tech illustration", "dark mode aesthetic", "minimal and elegant"
 - Aspect ratio: 16:9
-- Always end with: "No text. 16:9 aspect ratio." (for cover) or specify text needs
+- Do not add a blanket ban on text. Text is allowed when it improves clarity; if text is needed, specify the exact wording and keep it short and legible.
+- Keep 16:9 aspect ratio by default
 - Match the blog's Ghost Protocol dark palette
 
 ### Step 5: Wait for User to Generate Images
