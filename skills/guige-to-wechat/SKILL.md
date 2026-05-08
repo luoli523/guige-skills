@@ -13,17 +13,17 @@ metadata:
 
 Publish articles to WeChat Official Account drafts through the official API.
 
-This is a Python rewrite of the API article path from `baoyu-post-to-wechat`. It intentionally focuses on the stable API workflow:
+This is a standalone Python publisher for the stable WeChat Official Account API workflow:
 
 - Markdown / HTML / plain text input
 - Markdown frontmatter extraction
-- WeChat-friendly HTML rendering
+- WeChat-friendly HTML rendering with code-block formatting
 - Local/remote inline image upload through `media/uploadimg`
 - Cover upload through `material/add_material`
 - `draft/add` creation with comment controls
 - JSON and dry-run output
 
-Browser automation and image-text paste posting are not included in this Python version.
+Browser automation and image-text paste posting are not included in this Python version. This skill does not call other publishing skills.
 
 ## Runtime
 
@@ -41,13 +41,15 @@ Load preferences from the first existing file:
 2. `${XDG_CONFIG_HOME:-$HOME/.config}/guige-skills/guige-to-wechat/EXTEND.md`
 3. `$HOME/.guige-skills/guige-to-wechat/EXTEND.md`
 
-For compatibility, the script also falls back to existing `baoyu-post-to-wechat` config paths when no Gui Ge config exists.
+For migration compatibility, legacy config paths may also be read when no Gui Ge config exists.
 
 Supported keys:
 
 ```yaml
 default_theme: default
 default_color: blue
+default_code_theme: github
+mac_code_block: true
 default_author: 鬼哥
 need_open_comment: 1
 only_fans_can_comment: 0
@@ -67,7 +69,7 @@ Credentials are resolved in this order:
 3. Generic env vars `WECHAT_APP_ID` / `WECHAT_APP_SECRET`
 4. Project `.guige-skills/.env`
 5. User `~/.guige-skills/.env`
-6. Compatibility fallback: `.baoyu-skills/.env` and `~/.baoyu-skills/.env`
+6. Legacy credential fallback for migration: `.baoyu-skills/.env` and `~/.baoyu-skills/.env`
 
 ## Usage
 
@@ -85,7 +87,10 @@ python3 skills/guige-to-wechat/scripts/main.py article.html --title "标题" --s
 python3 skills/guige-to-wechat/scripts/main.py "这是一段要发布到公众号的内容" --title "标题" --cover cover.jpg
 
 # Select account and style
-python3 skills/guige-to-wechat/scripts/main.py article.md --account guige --theme simple --color teal
+python3 skills/guige-to-wechat/scripts/main.py article.md --account guige --theme default --color green
+
+# Disable the mac-style header on code blocks
+python3 skills/guige-to-wechat/scripts/main.py article.md --no-mac-code-block --cover cover.jpg
 
 # Disable bottom citations for ordinary external links
 python3 skills/guige-to-wechat/scripts/main.py article.md --no-cite --cover cover.jpg
@@ -103,11 +108,30 @@ python3 skills/guige-to-wechat/scripts/main.py article.md --no-cite --cover cove
 | `--cover <path-or-url>` | Cover image. Required for `news` unless first inline image can be used |
 | `--theme <name>` | `default`, `simple`, `grace`, or `modern` |
 | `--color <name-or-hex>` | Primary accent color |
+| `--code-theme <name>` | Code highlight theme. Default: `github` |
 | `--account <alias>` | Select account from `EXTEND.md` |
 | `--no-cite` | Keep normal external links inline |
+| `--no-mac-code-block` | Disable mac-style code block header |
 | `--dry-run` | Render and validate only |
 | `--output-html <path>` | Save rendered/final HTML to a path |
 | `--json` | Print machine-readable result |
+
+## Code Blocks
+
+Markdown fenced code blocks are rendered as WeChat-compatible HTML with inline styles, preserved spaces, `<br>` line breaks, optional mac-style header, and lightweight syntax highlighting.
+
+Supported language aliases:
+
+```text
+bash, sh, shell, zsh, console, terminal
+yaml, yml
+json
+toml
+markdown, md
+text, txt, plain
+```
+
+Use `--color green` for the Gui Ge WeChat green preset (`#009874`).
 
 ## Markdown Fields
 

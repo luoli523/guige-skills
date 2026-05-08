@@ -29,7 +29,7 @@ BODY_IMAGE_MAX_SIZE = 1024 * 1024
 DEFAULT_THEME = "default"
 DEFAULT_COLORS = {
     "blue": "#2563eb",
-    "green": "#16a34a",
+    "green": "#009874",
     "vermilion": "#dc2626",
     "yellow": "#ca8a04",
     "purple": "#7c3aed",
@@ -77,6 +77,8 @@ class Account:
 class Config:
     default_theme: str = DEFAULT_THEME
     default_color: str = ""
+    default_code_theme: str = "github"
+    mac_code_block: bool = True
     default_author: str = ""
     need_open_comment: int = 1
     only_fans_can_comment: int = 0
@@ -213,6 +215,10 @@ def parse_extend_config(content: str, source_path: str = "") -> Config:
             config.default_theme = value
         elif key == "default_color":
             config.default_color = value
+        elif key == "default_code_theme":
+            config.default_code_theme = value
+        elif key == "mac_code_block":
+            config.mac_code_block = bool01(value, 1) == 1
         elif key == "default_author":
             config.default_author = value
         elif key == "need_open_comment":
@@ -419,17 +425,327 @@ def resolve_color(color: str = "") -> str:
     return DEFAULT_COLORS.get(color.lower(), color)
 
 
+LANGUAGE_ALIASES = {
+    "": "text",
+    "txt": "text",
+    "plain": "text",
+    "plaintext": "text",
+    "console": "bash",
+    "terminal": "bash",
+    "shell": "bash",
+    "sh": "bash",
+    "zsh": "bash",
+    "yml": "yaml",
+    "md": "markdown",
+    "mkd": "markdown",
+    "js": "javascript",
+    "ts": "typescript",
+    "py": "python",
+}
+
+CODE_THEME_COLORS = {
+    "github": {
+        "attr": "#005cc5",
+        "built_in": "#e36209",
+        "bullet": "#735c0f",
+        "comment": "#6a737d",
+        "keyword": "#d73a49",
+        "literal": "#005cc5",
+        "meta": "#005cc5",
+        "number": "#005cc5",
+        "section": "#005cc5",
+        "string": "#032f62",
+        "symbol": "#005cc5",
+        "variable": "#005cc5",
+    }
+}
+
+BASH_BUILTINS = {
+    "awk",
+    "brew",
+    "bun",
+    "cat",
+    "cd",
+    "chmod",
+    "claude",
+    "codex",
+    "cp",
+    "curl",
+    "echo",
+    "export",
+    "find",
+    "git",
+    "grep",
+    "jq",
+    "ln",
+    "ls",
+    "mkdir",
+    "mv",
+    "npm",
+    "npx",
+    "pip",
+    "pnpm",
+    "python",
+    "python3",
+    "rg",
+    "rm",
+    "rsync",
+    "sed",
+    "ssh",
+    "tar",
+    "uv",
+    "vim",
+    "yarn",
+}
+
+BASH_KEYWORDS = {
+    "case",
+    "do",
+    "done",
+    "elif",
+    "else",
+    "esac",
+    "fi",
+    "for",
+    "function",
+    "if",
+    "in",
+    "then",
+    "until",
+    "while",
+}
+
+
+def normalize_code_language(language: str = "") -> str:
+    language = (language or "").strip().lower()
+    language = re.sub(r"^\{?\.?", "", language).rstrip("}")
+    return LANGUAGE_ALIASES.get(language, language or "text")
+
+
+def code_theme_colors(theme: str = "") -> Dict[str, str]:
+    return CODE_THEME_COLORS.get((theme or "github").lower(), CODE_THEME_COLORS["github"])
+
+
+def code_escape(text: str) -> str:
+    escaped = html.escape(text.replace("\t", "    "), quote=False)
+    return escaped.replace(" ", "&nbsp;")
+
+
+def code_span(kind: str, text: str, colors: Dict[str, str]) -> str:
+    color = colors.get(kind, colors["literal"])
+    class_name = "hljs-" + kind.replace("_", "-")
+    return f'<span class="{class_name}" style="color:{color};">{code_escape(text)}</span>'
+
+
+def split_comment(line: str, marker: str = "#") -> Tuple[str, str]:
+    quote = ""
+    escaped = False
+    for idx, char in enumerate(line):
+        if escaped:
+            escaped = False
+            continue
+        if char == "\\":
+            escaped = True
+            continue
+        if quote:
+            if char == quote:
+                quote = ""
+            continue
+        if char in {"'", '"'}:
+            quote = char
+            continue
+        if char == marker and (marker != "#" or idx == 0 or line[idx - 1].isspace()):
+            return line[:idx], line[idx:]
+    return line, ""
+
+
+def highlight_shell_line(line: str, colors: Dict[str, str]) -> str:
+    prefix, comment = split_comment(line)
+    token_re = re.compile(
+        r"""('(?:\\.|[^'])*'|"(?:\\.|[^"])*"|\$\{?[A-Za-z_][A-Za-z0-9_]*\}?|\$[0-9@#?*-]|--?[A-Za-z0-9][A-Za-z0-9_-]*|\b[A-Za-z_][A-Za-z0-9_.-]*\b)"""
+    )
+    output: List[str] = []
+    pos = 0
+    for match in token_re.finditer(prefix):
+        output.append(code_escape(prefix[pos : match.start()]))
+        token = match.group(0)
+        bare = token.strip()
+        if bare.startswith(("'", '"')):
+            kind = "string"
+        elif bare.startswith("$"):
+            kind = "variable"
+        elif bare.startswith("-"):
+            kind = "attr"
+        elif bare in BASH_KEYWORDS:
+            kind = "keyword"
+        elif bare in BASH_BUILTINS:
+            kind = "built_in"
+        else:
+            kind = ""
+        output.append(code_span(kind, token, colors) if kind else code_escape(token))
+        pos = match.end()
+    output.append(code_escape(prefix[pos:]))
+    if comment:
+        output.append(code_span("comment", comment, colors))
+    return "".join(output)
+
+
+def highlight_scalar(value: str, colors: Dict[str, str]) -> str:
+    token_re = re.compile(
+        r"""("(?:\\.|[^"])*"|'(?:\\.|[^'])*'|\b(?:true|false|null|yes|no|on|off)\b|-?\b\d+(?:\.\d+)?\b)""",
+        flags=re.I,
+    )
+    output: List[str] = []
+    pos = 0
+    prefix, comment = split_comment(value)
+    for match in token_re.finditer(prefix):
+        output.append(code_escape(prefix[pos : match.start()]))
+        token = match.group(0)
+        if token.startswith(("'", '"')):
+            kind = "string"
+        elif re.match(r"-?\d", token):
+            kind = "number"
+        else:
+            kind = "literal"
+        output.append(code_span(kind, token, colors))
+        pos = match.end()
+    output.append(code_escape(prefix[pos:]))
+    if comment:
+        output.append(code_span("comment", comment, colors))
+    return "".join(output)
+
+
+def highlight_yaml_line(line: str, colors: Dict[str, str]) -> str:
+    stripped = line.strip()
+    if not stripped:
+        return ""
+    if stripped.startswith("#"):
+        return code_span("comment", line, colors)
+    if stripped in {"---", "..."}:
+        return code_span("meta", line, colors)
+    bullet = re.match(r"^(\s*)(-\s+)(.*)$", line)
+    if bullet:
+        return (
+            code_escape(bullet.group(1))
+            + code_span("bullet", bullet.group(2), colors)
+            + highlight_yaml_line(bullet.group(3), colors)
+        )
+    key_value = re.match(r"^(\s*)([^:#][^:]*?)(\s*:\s*)(.*)$", line)
+    if key_value:
+        return (
+            code_escape(key_value.group(1))
+            + code_span("attr", key_value.group(2), colors)
+            + code_escape(key_value.group(3))
+            + highlight_scalar(key_value.group(4), colors)
+        )
+    return highlight_scalar(line, colors)
+
+
+def highlight_json_line(line: str, colors: Dict[str, str]) -> str:
+    token_re = re.compile(r'"(?:\\.|[^"\\])*"|-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b|\b(?:true|false|null)\b')
+    output: List[str] = []
+    pos = 0
+    for match in token_re.finditer(line):
+        output.append(code_escape(line[pos : match.start()]))
+        token = match.group(0)
+        if token.startswith('"'):
+            tail = line[match.end() :].lstrip()
+            kind = "attr" if tail.startswith(":") else "string"
+        elif re.match(r"-?\d", token):
+            kind = "number"
+        else:
+            kind = "literal"
+        output.append(code_span(kind, token, colors))
+        pos = match.end()
+    output.append(code_escape(line[pos:]))
+    return "".join(output)
+
+
+def highlight_toml_line(line: str, colors: Dict[str, str]) -> str:
+    stripped = line.strip()
+    if not stripped:
+        return ""
+    if stripped.startswith("#"):
+        return code_span("comment", line, colors)
+    if stripped.startswith("[") and stripped.endswith("]"):
+        prefix = line[: len(line) - len(line.lstrip())]
+        return code_escape(prefix) + code_span("section", stripped, colors)
+    prefix, comment = split_comment(line)
+    key_value = re.match(r"^(\s*)([A-Za-z0-9_.-]+)(\s*=\s*)(.*)$", prefix)
+    if key_value:
+        rendered = (
+            code_escape(key_value.group(1))
+            + code_span("attr", key_value.group(2), colors)
+            + code_escape(key_value.group(3))
+            + highlight_scalar(key_value.group(4), colors)
+        )
+    else:
+        rendered = highlight_scalar(prefix, colors)
+    if comment:
+        rendered += code_span("comment", comment, colors)
+    return rendered
+
+
+def highlight_markdown_line(line: str, colors: Dict[str, str]) -> str:
+    stripped = line.lstrip()
+    indent = line[: len(line) - len(stripped)]
+    if not stripped:
+        return ""
+    if stripped.startswith("#"):
+        marker = re.match(r"^(#+\s*)", stripped)
+        if marker:
+            return code_escape(indent) + code_span("section", marker.group(1), colors) + code_escape(stripped[marker.end() :])
+    if stripped in {"---", "..."} or stripped.startswith("```"):
+        return code_escape(indent) + code_span("meta", stripped, colors)
+    if re.match(r"^[-*+]\s+", stripped):
+        return code_escape(indent) + code_span("bullet", stripped[:2], colors) + code_escape(stripped[2:])
+    return code_escape(line)
+
+
+def highlight_code(code: str, language: str = "", theme: str = "github") -> str:
+    language = normalize_code_language(language)
+    colors = code_theme_colors(theme)
+    if language == "bash":
+        highlighter = highlight_shell_line
+    elif language == "yaml":
+        highlighter = highlight_yaml_line
+    elif language == "json":
+        highlighter = highlight_json_line
+    elif language == "toml":
+        highlighter = highlight_toml_line
+    elif language == "markdown":
+        highlighter = highlight_markdown_line
+    else:
+        highlighter = lambda line, _: code_escape(line)
+    return "<br>".join(highlighter(line, colors) for line in code.split("\n"))
+
+
+MAC_SIGN_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" '
+    'x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">'
+    '<ellipse cx="50" cy="65" rx="50" ry="52" stroke="rgb(220,60,54)" '
+    'stroke-width="2" fill="rgb(237,108,96)"/>'
+    '<ellipse cx="225" cy="65" rx="50" ry="52" stroke="rgb(218,151,33)" '
+    'stroke-width="2" fill="rgb(247,193,81)"/>'
+    '<ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" '
+    'stroke-width="2" fill="rgb(100,200,86)"/>'
+    "</svg>"
+)
+
+
 def theme_styles(theme: str, color: str) -> Dict[str, str]:
     primary = resolve_color(color)
     base = {
-        "article": "font-size:16px;line-height:1.85;color:#1f2937;",
+        "article": "font-size:16px;line-height:1.85;color:#3f3f3f;",
         "h1": f"font-size:24px;line-height:1.35;font-weight:700;color:#111827;border-bottom:3px solid {primary};padding-bottom:0.35em;margin:1.2em 0 0.8em;",
-        "h2": f"font-size:21px;line-height:1.4;font-weight:700;color:#111827;border-left:5px solid {primary};padding-left:0.65em;margin:1.8em 0 0.8em;",
-        "h3": f"font-size:18px;font-weight:700;color:{primary};margin:1.5em 0 0.7em;",
-        "p": "margin:0.9em 0;",
-        "blockquote": f"border-left:4px solid {primary};background:#f8fafc;color:#475569;padding:0.8em 1em;margin:1.2em 0;",
-        "code": "font-family:Menlo,Consolas,monospace;background:#f3f4f6;border-radius:4px;padding:0.1em 0.35em;",
-        "pre": "font-family:Menlo,Consolas,monospace;background:#111827;color:#f9fafb;border-radius:8px;padding:1em;overflow-x:auto;line-height:1.6;",
+        "h2": f"display:table;margin:4em auto 2em;color:#fff;background:{primary};font-size:19px;font-weight:700;text-align:center;padding:0.25em 0.75em;",
+        "h3": f"font-size:18px;font-weight:700;color:#3f3f3f;margin:2em 8px 0.75em 0;padding-left:8px;border-left:3px solid {primary};line-height:1.2;",
+        "p": "margin:1.2em 8px;color:#3f3f3f;",
+        "blockquote": f"border-left:4px solid {primary};border-radius:6px;background:#f7f7f7;color:rgba(0,0,0,0.6);padding:1em;margin:1.2em 0;",
+        "code": "font-size:90%;color:#d14;background:rgba(27,31,35,0.05);padding:3px 5px;border-radius:4px;",
+        "pre": "color:#24292e;background:#fff;font-size:90%;overflow-x:auto;border-radius:8px;line-height:1.5;margin:10px 8px;box-shadow:inset 0 0 10px rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.04);padding:0;",
+        "pre_code": "font-family:'Fira Code',Menlo,Operator Mono,Consolas,Monaco,monospace;font-size:90%;border-radius:4px;display:-webkit-box;padding:0.5em 1em 1em;overflow-x:auto;text-indent:0;color:inherit;background:none;white-space:nowrap;margin:0;",
+        "mac_sign": "display:flex;padding:10px 14px 0;",
         "img": "display:block;width:100%;height:auto;margin:1.5em auto;border-radius:8px;",
         "hr": f"border:none;border-top:1px solid {primary};opacity:0.35;margin:2em 0;",
         "table": "width:100%;border-collapse:collapse;margin:1.2em 0;font-size:14px;",
@@ -453,9 +769,18 @@ def theme_styles(theme: str, color: str) -> Dict[str, str]:
 
 
 class MarkdownRenderer:
-    def __init__(self, theme: str = DEFAULT_THEME, color: str = "", cite: bool = True) -> None:
+    def __init__(
+        self,
+        theme: str = DEFAULT_THEME,
+        color: str = "",
+        cite: bool = True,
+        code_theme: str = "github",
+        mac_code_block: bool = True,
+    ) -> None:
         self.styles = theme_styles(theme, color)
         self.cite = cite
+        self.code_theme = code_theme
+        self.mac_code_block = mac_code_block
         self.citations: List[Tuple[str, str]] = []
         self.inline_images: List[str] = []
 
@@ -466,6 +791,7 @@ class MarkdownRenderer:
         list_items: List[str] = []
         list_type = ""
         in_code = False
+        code_language = ""
         code_lines: List[str] = []
         table_lines: List[str] = []
 
@@ -493,17 +819,19 @@ class MarkdownRenderer:
 
         for raw in lines:
             line = raw.rstrip()
-            if line.strip().startswith("```"):
+            fence = re.match(r"^\s*```\s*([A-Za-z0-9_+.#-]+)?\s*$", line)
+            if fence:
                 flush_paragraph()
                 flush_list()
                 flush_table()
                 if in_code:
-                    code = html.escape("\n".join(code_lines))
-                    output.append(f'<pre style="{self.styles["pre"]}"><code>{code}</code></pre>')
+                    output.append(self.render_code_block(code_lines, code_language))
                     code_lines = []
+                    code_language = ""
                     in_code = False
                 else:
                     in_code = True
+                    code_language = normalize_code_language(fence.group(1) or "")
                     code_lines = []
                 continue
             if in_code:
@@ -570,12 +898,25 @@ class MarkdownRenderer:
         flush_list()
         flush_table()
         if in_code:
-            code = html.escape("\n".join(code_lines))
-            output.append(f'<pre style="{self.styles["pre"]}"><code>{code}</code></pre>')
+            output.append(self.render_code_block(code_lines, code_language))
 
         if self.citations and self.cite:
             output.append(self.render_citations())
         return f'<section style="{self.styles["article"]}">\n' + "\n".join(output) + "\n</section>"
+
+    def render_code_block(self, lines: List[str], language: str = "") -> str:
+        language = normalize_code_language(language)
+        highlighted = highlight_code("\n".join(lines), language, self.code_theme)
+        mac_sign = (
+            f'<span class="mac-sign" style="{self.styles["mac_sign"]}">{MAC_SIGN_SVG}</span>'
+            if self.mac_code_block
+            else ""
+        )
+        code_class = f"language-{html.escape(language or 'text', quote=True)}"
+        return (
+            f'<pre class="hljs code__pre" style="{self.styles["pre"]}">'
+            f'{mac_sign}<code class="{code_class}" style="{self.styles["pre_code"]}">{highlighted}</code></pre>'
+        )
 
     def is_table_line(self, line: str) -> bool:
         return "|" in line and line.strip().startswith("|") and line.strip().endswith("|")
@@ -698,7 +1039,13 @@ def render_input(
             or extract_summary_from_markdown(body)
         )
         author = args.author or str(frontmatter.get("author") or "") or account.default_author or config.default_author
-        renderer = MarkdownRenderer(theme=theme, color=color, cite=not args.no_cite)
+        renderer = MarkdownRenderer(
+            theme=theme,
+            color=color,
+            cite=not args.no_cite,
+            code_theme=args.code_theme or config.default_code_theme,
+            mac_code_block=config.mac_code_block and not args.no_mac_code_block,
+        )
         html_content = renderer.render(body)
         inline_images = renderer.inline_images
 
@@ -1039,8 +1386,10 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument("--cover")
     parser.add_argument("--theme")
     parser.add_argument("--color")
+    parser.add_argument("--code-theme")
     parser.add_argument("--account")
     parser.add_argument("--no-cite", action="store_true")
+    parser.add_argument("--no-mac-code-block", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--output-html", default="")
     parser.add_argument("--json", action="store_true")
@@ -1095,6 +1444,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             },
             "config": config.source_path or None,
             "account": account.alias or None,
+            "codeTheme": args.code_theme or config.default_code_theme,
+            "macCodeBlock": config.mac_code_block and not args.no_mac_code_block,
         }
         print(json.dumps(result, ensure_ascii=False, indent=2) if args.json else rendered.html_path)
         return 0

@@ -29,6 +29,8 @@ author: 鬼哥
         config = main.parse_extend_config(
             """default_theme: simple
 default_color: teal
+default_code_theme: github
+mac_code_block: 0
 default_author: 鬼哥
 need_open_comment: 0
 only_fans_can_comment: 1
@@ -45,6 +47,8 @@ accounts:
 
         self.assertEqual(config.default_theme, "simple")
         self.assertEqual(config.default_color, "teal")
+        self.assertEqual(config.default_code_theme, "github")
+        self.assertFalse(config.mac_code_block)
         self.assertEqual(config.need_open_comment, 0)
         self.assertEqual(config.only_fans_can_comment, 1)
         self.assertEqual(account.alias, "guige")
@@ -72,6 +76,43 @@ accounts:
         self.assertIn('src="imgs/cover.png"', rendered)
         self.assertIn("<table", rendered)
         self.assertEqual(renderer.inline_images, ["imgs/cover.png"])
+
+    def test_markdown_renderer_formats_fenced_code_blocks(self):
+        renderer = main.MarkdownRenderer(theme="default", color="green", cite=False)
+        rendered = renderer.render(
+            """```bash
+git clone https://github.com/luoli523/ai-convo-exporter
+export VAULT_DIR="$HOME/Documents/Obsidian Vault"
+```
+
+```yaml
+---
+title: AI 对话沉淀
+tags:
+  - AI
+---
+```
+"""
+        )
+
+        self.assertIn('class="hljs code__pre"', rendered)
+        self.assertIn('class="language-bash"', rendered)
+        self.assertIn('class="language-yaml"', rendered)
+        self.assertIn("mac-sign", rendered)
+        self.assertIn("&nbsp;", rendered)
+        self.assertIn("<br>", rendered)
+        self.assertIn("hljs-built-in", rendered)
+        self.assertIn("hljs-attr", rendered)
+
+    def test_markdown_renderer_can_disable_mac_code_header(self):
+        renderer = main.MarkdownRenderer(theme="default", color="green", cite=False, mac_code_block=False)
+        rendered = renderer.render("```bash\ngit status\n```")
+
+        self.assertIn('class="hljs code__pre"', rendered)
+        self.assertNotIn("mac-sign", rendered)
+
+    def test_green_color_matches_wechat_theme_reference(self):
+        self.assertEqual(main.resolve_color("green"), "#009874")
 
     def test_build_news_article_payload(self):
         article = main.build_draft_article(
