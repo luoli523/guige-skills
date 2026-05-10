@@ -107,6 +107,10 @@ python3 {baseDir}/scripts/main.py \
   --paths infographic/python-cli-pipeline
 ```
 
+If the uploaded directory name already matches the task slug, the directory contents are
+copied directly into `guige-skills/{skill-name}/{task-folder}/` instead of creating a
+duplicate nested task folder.
+
 JSON output:
 
 ```bash

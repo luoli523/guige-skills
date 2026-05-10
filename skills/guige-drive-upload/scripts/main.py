@@ -85,7 +85,12 @@ def build_upload_plan(paths: list[str], skill: str, task: str, target: str) -> U
     for raw_path in paths:
         source = resolve_existing_path(raw_path)
         if source.is_dir():
-            destination = join_remote(drive_folder, source.name)
+            source_slug = slugify(source.name, "materials")
+            destination = (
+                drive_folder
+                if source_slug == task_slug
+                else join_remote(drive_folder, source.name)
+            )
             items.append(UploadItem(str(source), destination, True))
         else:
             destination = join_remote(drive_folder, source.name)

@@ -51,6 +51,26 @@ class DriveUploadTests(unittest.TestCase):
         self.assertEqual(plan.items[1].destination, f"{plan.drive_folder}/materials")
         self.assertTrue(plan.items[1].is_dir)
 
+    def test_build_upload_plan_does_not_repeat_task_folder(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            folder = root / "python-cli-pipeline"
+            folder.mkdir()
+
+            plan = main.build_upload_plan(
+                [str(folder)],
+                "guige-infographic",
+                "Python CLI Pipeline",
+                "gdrive:",
+            )
+
+        self.assertEqual(
+            plan.drive_folder,
+            "gdrive:guige-skills/guige-infographic/python-cli-pipeline",
+        )
+        self.assertEqual(plan.items[0].destination, plan.drive_folder)
+        self.assertTrue(plan.items[0].is_dir)
+
 
 if __name__ == "__main__":
     unittest.main()
