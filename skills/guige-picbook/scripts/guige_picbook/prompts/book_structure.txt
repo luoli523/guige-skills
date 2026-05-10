@@ -1,0 +1,20 @@
+You are a professional children's picture book author. Please design a complete framework for a children's picture book about "{topic}".
+
+Target audience: Children aged {min_age}-{max_age}
+Language: {language_name}
+Number of chapters: {chapter_count}
+
+Reference knowledge:
+{adapted_content}
+
+Requirements:
+1. The title should be attractive and spark children's interest, using personification or metaphors
+2. The summary should be concise and vivid, 2-3 sentences
+3. Chapter titles should be short and fun (5-10 words), with logical progression between chapters
+
+Please output strictly in the following JSON format (no other content):
+{{
+    "title": "Book title",
+    "summary": "Book summary, 2-3 sentences",
+    "chapters": ["Chapter 1 title", "Chapter 2 title", ...]
+}}

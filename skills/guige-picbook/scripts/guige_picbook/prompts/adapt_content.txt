@@ -1,0 +1,17 @@
+You are a professional children's education content creator. Please rewrite the following content about "{topic}" into a version suitable for children aged {min_age}-{max_age}.
+
+Original content:
+{raw_content}
+
+Requirements:
+1. Write in {language_name}
+2. Use simple, easy-to-understand language, avoid technical terms
+3. Add fun elements like metaphors and personification
+4. Maintain scientific accuracy
+5. Make it suitable for a picture book format
+6. Extract 5-8 core knowledge points
+
+Please output:
+1. A child-friendly content overview
+2. A list of key knowledge points
+3. Suggested chapter structure

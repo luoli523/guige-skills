@@ -1,0 +1,7 @@
+interface:
+  display_name: "guige-picbook"
+  short_description: "Generate children's picture books and NotebookLM slides."
+  default_prompt: "Use $guige-picbook to turn this topic into a child-friendly picture book."
+  brand_color: "#F59E0B"
+policy:
+  allow_implicit_invocation: true
