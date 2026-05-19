@@ -7,8 +7,7 @@
 ```text
 .
 ├── .claude-plugin/
-│   ├── marketplace.json
-│   └── plugin.json
+│   └── marketplace.json
 ├── install.sh
 ├── README.md
 └── skills/

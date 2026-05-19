@@ -4,16 +4,30 @@
     "name": "Gui Ge"
   },
   "metadata": {
-    "description": "鬼哥个人 Claude Code skills 集合，覆盖图片生成、信息图、幻灯片、视频下载、内容发布等工作流。"
+    "description": "鬼哥个人 Claude Code skills 集合，覆盖图片生成、信息图、幻灯片、视频下载、内容发布等工作流。",
+    "version": "0.1.0"
   },
   "plugins": [
     {
       "name": "guige",
-      "source": {
-        "source": "github",
-        "repo": "luoli523/guige-skills"
-      },
-      "description": "Gui Ge skill set — image generation, infographics, slides, video download, WeChat publishing, and more."
+      "description": "Gui Ge skill set — image generation, infographics, slides, video download, WeChat publishing, and more.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/guige-blog-post",
+        "./skills/guige-disassembly-diagram",
+        "./skills/guige-drive-upload",
+        "./skills/guige-hand-write-pic",
+        "./skills/guige-imagen",
+        "./skills/guige-infographic",
+        "./skills/guige-picbook",
+        "./skills/guige-slides",
+        "./skills/guige-svg",
+        "./skills/guige-to-wechat",
+        "./skills/guige-video-download",
+        "./skills/guige-x-2-md",
+        "./skills/guige-x-to-blog"
+      ]
     }
   ]
 }
