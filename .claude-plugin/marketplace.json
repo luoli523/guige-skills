@@ -1,0 +1,19 @@
+{
+  "name": "guige-skills",
+  "owner": {
+    "name": "Gui Ge"
+  },
+  "metadata": {
+    "description": "鬼哥个人 Claude Code skills 集合，覆盖图片生成、信息图、幻灯片、视频下载、内容发布等工作流。"
+  },
+  "plugins": [
+    {
+      "name": "guige",
+      "source": {
+        "source": "github",
+        "repo": "luoli523/guige-skills"
+      },
+      "description": "Gui Ge skill set — image generation, infographics, slides, video download, WeChat publishing, and more."
+    }
+  ]
+}

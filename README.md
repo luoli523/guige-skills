@@ -6,6 +6,9 @@
 
 ```text
 .
+├── .claude-plugin/
+│   ├── marketplace.json
+│   └── plugin.json
 ├── install.sh
 ├── README.md
 └── skills/
@@ -192,9 +195,29 @@ slide-deck/{topic-slug}/
 └── {topic-slug}.pdf
 ```
 
-## 本地初始化
+## 安装
 
-执行安装脚本会扫描 `skills/*/SKILL.md`，并把有效 skill 以软链接方式安装到本机 skill 目录。
+### 方式一：Claude Code Plugin（推荐）
+
+适用于 Claude Code 用户，支持版本管理和 `/plugin update` 一键更新。
+
+```bash
+# 添加 marketplace（只需执行一次）
+/plugin add-marketplace luoli523/guige-skills
+
+# 安装
+/plugin install guige@guige-skills
+```
+
+更新：
+
+```bash
+/plugin update guige@guige-skills
+```
+
+### 方式二：本地 install.sh（兼容 Codex）
+
+适用于 Codex 或需要手动管理 skill 目录的场景。执行安装脚本会扫描 `skills/*/SKILL.md`，并把有效 skill 以软链接方式安装到本机 skill 目录。
 
 ```bash
 ./install.sh
