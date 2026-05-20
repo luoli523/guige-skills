@@ -11,23 +11,7 @@
     {
       "name": "guige",
       "description": "Gui Ge skill set — image generation, infographics, slides, video download, WeChat publishing, and more.",
-      "source": "./",
-      "strict": false,
-      "skills": [
-        "./skills/guige-blog-post",
-        "./skills/guige-disassembly-diagram",
-        "./skills/guige-drive-upload",
-        "./skills/guige-hand-write-pic",
-        "./skills/guige-imagen",
-        "./skills/guige-infographic",
-        "./skills/guige-picbook",
-        "./skills/guige-slides",
-        "./skills/guige-svg",
-        "./skills/guige-to-wechat",
-        "./skills/guige-video-download",
-        "./skills/guige-x-2-md",
-        "./skills/guige-x-to-blog"
-      ]
+      "source": "./"
     }
   ]
 }

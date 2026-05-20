@@ -1,0 +1,11 @@
+{
+  "name": "guige",
+  "version": "0.1.0",
+  "description": "Gui Ge skill set — image generation, infographics, slides, video download, WeChat publishing, and more.",
+  "author": {
+    "name": "Gui Ge"
+  },
+  "homepage": "https://github.com/luoli523/guige-skills",
+  "repository": "https://github.com/luoli523/guige-skills",
+  "license": "MIT"
+}
