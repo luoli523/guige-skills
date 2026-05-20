@@ -71,6 +71,24 @@ class DriveUploadTests(unittest.TestCase):
         self.assertEqual(plan.items[0].destination, plan.drive_folder)
         self.assertTrue(plan.items[0].is_dir)
 
+    def test_build_upload_plan_task_layout(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            folder = root / "世界主要国家"
+            folder.mkdir()
+
+            plan = main.build_upload_plan(
+                [str(folder)],
+                "guige-picbook",
+                "世界主要国家",
+                "drive:Rakuten Kobo/202605",
+                layout="task",
+            )
+
+        self.assertEqual(plan.drive_folder, "drive:Rakuten Kobo/202605/世界主要国家")
+        self.assertEqual(plan.items[0].destination, plan.drive_folder)
+        self.assertTrue(plan.items[0].is_dir)
+
 
 if __name__ == "__main__":
     unittest.main()

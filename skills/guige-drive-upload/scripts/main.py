@@ -73,13 +73,24 @@ def resolve_existing_path(value: str) -> Path:
     return path
 
 
-def build_upload_plan(paths: list[str], skill: str, task: str, target: str) -> UploadPlan:
+def build_upload_plan(
+    paths: list[str],
+    skill: str,
+    task: str,
+    target: str,
+    layout: str = "guige-skills",
+) -> UploadPlan:
     if not paths:
         raise ValueError("--paths is required")
     skill_slug = slugify(skill, "skill")
     task_slug = slugify(task, "task")
     target_root = normalize_target(target)
-    drive_folder = join_remote(target_root, "guige-skills", skill_slug, task_slug)
+    if layout == "guige-skills":
+        drive_folder = join_remote(target_root, "guige-skills", skill_slug, task_slug)
+    elif layout == "task":
+        drive_folder = join_remote(target_root, task_slug)
+    else:
+        raise ValueError(f"Unsupported upload layout: {layout}")
 
     items: list[UploadItem] = []
     for raw_path in paths:
@@ -131,6 +142,15 @@ def build_parser() -> argparse.ArgumentParser:
         default=os.environ.get("GUIGE_DRIVE_TARGET", DEFAULT_TARGET),
         help="rclone remote root, default: GUIGE_DRIVE_TARGET or gdrive:",
     )
+    parser.add_argument(
+        "--layout",
+        choices=("guige-skills", "task"),
+        default="guige-skills",
+        help=(
+            "Destination layout under --target. "
+            "guige-skills: guige-skills/<skill>/<task>; task: <task>."
+        ),
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print plan without uploading")
     parser.add_argument("--json", action="store_true", dest="json_output", help="Print JSON summary")
     return parser
@@ -139,7 +159,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(sys.argv[1:] if argv is None else argv)
     try:
-        plan = build_upload_plan(args.paths, args.skill, args.task, args.target)
+        plan = build_upload_plan(args.paths, args.skill, args.task, args.target, args.layout)
         run_upload(plan, args.dry_run)
         if args.json_output:
             print(json.dumps(asdict(plan), ensure_ascii=False, indent=2))

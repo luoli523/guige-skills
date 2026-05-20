@@ -85,6 +85,7 @@ gdrive:
 ```
 
 Uploads create the `guige-skills/` folder at the root of that Drive remote. To use another remote or base folder, set `GUIGE_DRIVE_TARGET` or pass `--target`.
+Use `--layout task` when a caller wants the destination to be `{target}/{task-folder}` instead of `{target}/guige-skills/{skill-name}/{task-folder}`.
 
 ## Usage
 
@@ -129,6 +130,7 @@ python3 {baseDir}/scripts/main.py \
 | `--skill <name>` | Source skill name, e.g. `guige-infographic`. Required |
 | `--task <text>` | Task/topic/folder name. Required |
 | `--target <remote>` | rclone remote root. Default: `GUIGE_DRIVE_TARGET` or `gdrive:` |
+| `--layout guige-skills\|task` | Destination layout. Default: `guige-skills` |
 | `--dry-run` | Print planned uploads without running rclone |
 | `--json` | Print JSON summary |
 
