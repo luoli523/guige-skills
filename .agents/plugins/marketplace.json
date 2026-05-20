@@ -1,0 +1,21 @@
+{
+  "name": "guige-skills",
+  "interface": {
+    "displayName": "Gui Ge Skills"
+  },
+  "plugins": [
+    {
+      "name": "guige",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/luoli523/guige-skills.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

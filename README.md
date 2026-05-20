@@ -6,8 +6,13 @@
 
 ```text
 .
+├── .agents/
+│   └── plugins/
+│       └── marketplace.json
 ├── .claude-plugin/
 │   └── marketplace.json
+├── .codex-plugin/
+│   └── plugin.json
 ├── install.sh
 ├── README.md
 └── skills/
@@ -196,7 +201,32 @@ slide-deck/{topic-slug}/
 
 ## 安装
 
-### 方式一：Claude Code Plugin（推荐）
+### 方式一：Codex Plugin（推荐给 Codex）
+
+适用于 Codex 用户。Codex 会把本仓库作为 Git marketplace 管理，并从 Git source 安装 `guige` plugin。
+
+```bash
+# 添加 Git marketplace（只需执行一次）
+codex plugin marketplace add luoli523/guige-skills --ref main
+
+# 查看 marketplace 内插件
+codex plugin list
+
+# 安装
+codex plugin add guige@guige-skills
+```
+
+更新：
+
+```bash
+codex plugin marketplace upgrade guige-skills
+codex plugin remove guige@guige-skills
+codex plugin add guige@guige-skills
+```
+
+说明：Codex 安装后会把 plugin 缓存到本机 `~/.codex/plugins/cache/`，运行时读取的是缓存副本，不是直接读取工作区。修改本仓库 skill 后，需要推送到 GitHub，再刷新 marketplace 并重新安装 plugin。
+
+### 方式二：Claude Code Plugin
 
 适用于 Claude Code 用户，支持版本管理和 `/plugin update` 一键更新。
 
@@ -214,9 +244,9 @@ slide-deck/{topic-slug}/
 /plugin update guige@guige-skills
 ```
 
-### 方式二：本地 install.sh（兼容 Codex）
+### 方式三：本地 install.sh（兼容模式）
 
-适用于 Codex 或需要手动管理 skill 目录的场景。执行安装脚本会扫描 `skills/*/SKILL.md`，并把有效 skill 以软链接方式安装到本机 skill 目录。
+适用于需要手动管理 skill 目录，或在插件机制不可用时的兼容场景。执行安装脚本会扫描 `skills/*/SKILL.md`，并把有效 skill 以软链接方式安装到本机 skill 目录。
 
 ```bash
 ./install.sh
@@ -250,7 +280,14 @@ GUIGE_SKILLS_TARGETS="$HOME/.codex/skills:$HOME/.claude/skills" ./install.sh
 
 ## 更新 Skill
 
-修改或新增 skill 后重新运行：
+如果使用 Codex Plugin 方式，修改或新增 skill 后重新安装 plugin：
+
+```bash
+codex plugin remove guige@guige-skills
+codex plugin add guige@guige-skills
+```
+
+如果使用本地 `install.sh` 方式，修改或新增 skill 后重新运行：
 
 ```bash
 ./install.sh

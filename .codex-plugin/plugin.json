@@ -1,0 +1,38 @@
+{
+  "name": "guige",
+  "version": "0.1.0",
+  "description": "Gui Ge skill set for image generation, infographics, slides, video download, WeChat publishing, and more.",
+  "author": {
+    "name": "Gui Ge",
+    "url": "https://github.com/luoli523"
+  },
+  "homepage": "https://github.com/luoli523/guige-skills",
+  "repository": "https://github.com/luoli523/guige-skills",
+  "keywords": [
+    "skills",
+    "image-generation",
+    "infographics",
+    "slides",
+    "wechat",
+    "x"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Gui Ge Skills",
+    "shortDescription": "Personal AI workflows for content and visual production",
+    "longDescription": "A reusable collection of Gui Ge Codex skills for image generation, infographics, slides, SVG diagrams, video download, X/Twitter conversion, Google Drive upload, and WeChat publishing.",
+    "developerName": "Gui Ge",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/luoli523/guige-skills",
+    "defaultPrompt": [
+      "Create a Gui Ge infographic from this article",
+      "Turn this topic into a slide deck",
+      "Convert this X thread to Markdown"
+    ],
+    "brandColor": "#2563EB"
+  }
+}
