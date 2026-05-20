@@ -1,14 +1,15 @@
 # Picture Book Style Guide
 
-Default target: curious children around ages 7-10.
+Default target: curious children around ages 8-12.
 
 Writing rules:
 
-- Keep sentences short and readable aloud.
+- Keep sentences clear and readable aloud, with enough depth for upper-primary readers.
 - Use concrete scenes, gentle dialogue, personification, and metaphors.
 - Preserve scientific accuracy; avoid overclaiming.
-- Each chapter should naturally teach 1-2 knowledge points.
+- Each page/chapter should naturally teach 1-2 knowledge points.
 - Include clear illustration prompts that describe scene, characters, mood, and style.
+- Default books should contain 30 pages/chapters with a coherent beginning, middle, and ending.
 
 Topic guidance:
 

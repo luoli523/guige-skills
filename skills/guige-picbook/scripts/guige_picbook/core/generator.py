@@ -59,8 +59,8 @@ class PictureBookGenerator:
             book = await self._create_book_structure(config, adapted_content)
             progress.update(task, completed=True)
 
-            # 步骤4: 生成各章节内容
-            task = progress.add_task("正在生成章节内容...", total=None)
+            # 步骤4: 生成各页内容
+            task = progress.add_task("正在生成页面内容...", total=None)
             book = await self._generate_chapters(book, config, adapted_content)
             progress.update(task, completed=True)
 
@@ -75,9 +75,9 @@ class PictureBookGenerator:
         一次LLM调用生成:
         1. 绘本标题
         2. 绘本简介
-        3. 章节大纲
+        3. 页面大纲
         """
-        # 一次调用生成标题、简介、章节大纲
+        # 一次调用生成标题、简介、页面大纲
         structure = await self.content_adapter.generate_book_structure(
             topic=config.topic,
             language=config.language,
@@ -101,10 +101,18 @@ class PictureBookGenerator:
             Language.JAPANESE: f"{config.topic}の不思議な世界",
             Language.KOREAN: f"{config.topic}의 신비로운 세계",
         }
+        default_page_titles = {
+            Language.ENGLISH: "Page {}",
+            Language.CHINESE: "第{}页",
+            Language.JAPANESE: "{}ページ",
+            Language.KOREAN: "{}쪽",
+        }
 
-        # 创建绘本对象（章节内容在Step 4中填充）
+        # 创建绘本对象（页面内容在Step 4中填充）
         return PictureBook(
-            title=structure.get("title", default_titles.get(config.language, default_titles[Language.ENGLISH])),
+            title=structure.get(
+                "title", default_titles.get(config.language, default_titles[Language.ENGLISH])
+            ),
             topic=config.topic,
             language=config.language,
             target_age=age_formats.get(config.language, age_formats[Language.ENGLISH]),
@@ -112,7 +120,13 @@ class PictureBookGenerator:
             chapters=[
                 Chapter(
                     number=i + 1,
-                    title=chapter_titles[i] if i < len(chapter_titles) else f"Chapter {i+1}",
+                    title=(
+                        chapter_titles[i]
+                        if i < len(chapter_titles)
+                        else default_page_titles.get(
+                            config.language, default_page_titles[Language.ENGLISH]
+                        ).format(i + 1)
+                    ),
                     content="",
                     knowledge_points=[],
                 )
@@ -124,17 +138,17 @@ class PictureBookGenerator:
     async def _generate_chapters(
         self, book: PictureBook, config: BookConfig, adapted_content: dict
     ) -> PictureBook:
-        """生成各章节详细内容
+        """生成各页详细内容
 
-        一次LLM调用生成所有章节:
-        1. 故事性内容（200-400字）
+        按批次生成所有页面:
+        1. 故事性内容
         2. 知识要点
         3. 插图描述（可选）
         """
-        # 收集章节标题
+        # 收集页面标题
         chapter_titles = [ch.title for ch in book.chapters]
 
-        # 一次调用生成所有章节内容
+        # 分批生成所有页面内容
         chapters_data = await self.content_adapter.generate_all_chapters(
             topic=config.topic,
             chapter_titles=chapter_titles,
@@ -144,7 +158,7 @@ class PictureBookGenerator:
             include_illustration=config.include_illustrations,
         )
 
-        # 更新章节内容
+        # 更新页面内容
         for i, chapter in enumerate(book.chapters):
             if i < len(chapters_data):
                 chapter_data = chapters_data[i]
@@ -154,4 +168,3 @@ class PictureBookGenerator:
                     chapter.illustration_prompt = chapter_data.get("illustration_prompt")
 
         return book
-

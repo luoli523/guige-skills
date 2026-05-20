@@ -51,7 +51,7 @@ class TestPictureBookGenerator:
         }
 
         mock_chapters = [
-            {"content": f"第{i+1}章内容", "knowledge_points": [f"知识点{i+1}"]}
+            {"content": f"第{i+1}页内容", "knowledge_points": [f"知识点{i+1}"]}
             for i in range(3)
         ]
 
@@ -90,7 +90,7 @@ class TestPictureBookGenerator:
         assert book.topic == "恐龙"
         assert book.language == Language.CHINESE
         assert len(book.chapters) == 3
-        assert book.chapters[0].content == "第1章内容"
+        assert book.chapters[0].content == "第1页内容"
         assert book.chapters[0].knowledge_points == ["知识点1"]
         assert book.sources == ["https://example.com"]
 
@@ -206,5 +206,5 @@ class TestPictureBookGenerator:
 
         md = book.to_markdown()
         assert "# Ocean World" in md
-        assert "## Chapter 1: Waves" in md
+        assert "## Page 1: Waves" in md
         assert "Content 1" in md

@@ -3,6 +3,8 @@
 from ..prompts import render_prompt
 from ..utils.config import Language, LLMProvider, Settings
 
+CHAPTER_BATCH_SIZE = 5
+
 
 class ContentAdapterService:
     """内容适配服务
@@ -37,6 +39,15 @@ class ContentAdapterService:
     def _get_language_name(self, language: Language) -> str:
         """获取语言的显示名称"""
         return self.LANGUAGE_NAMES.get(language, "English")
+
+    def _default_page_title(self, language: Language, page_number: int) -> str:
+        titles = {
+            Language.ENGLISH: "Page {}",
+            Language.CHINESE: "第{}页",
+            Language.JAPANESE: "{}ページ",
+            Language.KOREAN: "{}쪽",
+        }
+        return titles.get(language, titles[Language.ENGLISH]).format(page_number)
 
     def _get_client(self):
         """延迟初始化LLM客户端"""
@@ -227,18 +238,18 @@ class ContentAdapterService:
             if start != -1 and end != -1:
                 result = json.loads(response[start : end + 1])
                 return {
-                    "zh": result.get("zh", f"一本关于{topic}的儿童科普绘本，适合7-10岁阅读。"),
+                    "zh": result.get("zh", f"一本关于{topic}的儿童科普绘本，适合8-12岁阅读。"),
                     "en": result.get(
                         "en",
-                        f"A fun picture book about {topic} for kids ages 7-10.",
+                        f"A fun picture book about {topic} for kids ages 8-12.",
                     ),
                 }
         except json.JSONDecodeError:
             pass
 
         return {
-            "zh": f"一本关于{topic}的儿童科普绘本，适合7-10岁阅读。",
-            "en": f"A fun picture book about {topic} for kids ages 7-10.",
+            "zh": f"一本关于{topic}的儿童科普绘本，适合8-12岁阅读。",
+            "en": f"A fun picture book about {topic} for kids ages 8-12.",
         }
 
     async def generate_book_structure(
@@ -257,7 +268,7 @@ class ContentAdapterService:
             topic: 主题
             language: 目标语言
             age_range: 目标年龄范围
-            chapter_count: 章节数量
+            chapter_count: 页数/章节数量
             adapted_content: 适配后的知识内容
 
         Returns:
@@ -282,10 +293,15 @@ class ContentAdapterService:
             end = response.rfind("}")
             if start != -1 and end != -1:
                 result = json.loads(response[start : end + 1])
-                # 确保章节数量正确
+                # 确保页面数量正确
                 chapters = result.get("chapters", [])
                 if len(chapters) < chapter_count:
-                    chapters.extend([f"第{i+1}章" for i in range(len(chapters), chapter_count)])
+                    chapters.extend(
+                        [
+                            self._default_page_title(language, i + 1)
+                            for i in range(len(chapters), chapter_count)
+                        ]
+                    )
                 return {
                     "title": result.get("title", f"探索{topic}的奇妙世界"),
                     "summary": result.get("summary", ""),
@@ -310,29 +326,64 @@ class ContentAdapterService:
         adapted_content: str,
         include_illustration: bool = True,
     ) -> list[dict]:
-        """一次性生成所有章节内容
+        """生成所有页面内容
 
-        一次LLM调用生成所有章节的详细内容
+        按批次调用LLM，避免30页内容一次性生成时被截断。
 
         Args:
             topic: 绘本主题
-            chapter_titles: 章节标题列表
+            chapter_titles: 页面标题列表
             language: 目标语言
             age_range: 目标年龄范围
             adapted_content: 适配后的知识内容
             include_illustration: 是否生成插图描述
 
         Returns:
-            章节内容列表
+            页面内容列表
         """
         chapter_count = len(chapter_titles)
-        chapters_str = "\n".join([f"{i+1}. {title}" for i, title in enumerate(chapter_titles)])
+        if chapter_count == 0:
+            return []
+
+        chapters: list[dict] = []
+        for start_index in range(0, chapter_count, CHAPTER_BATCH_SIZE):
+            batch_titles = chapter_titles[start_index : start_index + CHAPTER_BATCH_SIZE]
+            batch = await self._generate_chapter_batch(
+                topic=topic,
+                chapter_titles=batch_titles,
+                language=language,
+                age_range=age_range,
+                adapted_content=adapted_content,
+                include_illustration=include_illustration,
+                start_index=start_index,
+                total_chapters=chapter_count,
+            )
+            chapters.extend(batch)
+
+        return chapters[:chapter_count]
+
+    async def _generate_chapter_batch(
+        self,
+        topic: str,
+        chapter_titles: list[str],
+        language: Language,
+        age_range: tuple[int, int],
+        adapted_content: str,
+        include_illustration: bool,
+        start_index: int,
+        total_chapters: int,
+    ) -> list[dict]:
+        """生成一批页面内容。"""
+        batch_count = len(chapter_titles)
+        chapters_str = "\n".join(
+            [f"{start_index + i + 1}. {title}" for i, title in enumerate(chapter_titles)]
+        )
 
         illustration_field = ""
         illustration_instruction = ""
         if include_illustration:
             illustration_field = ',\n            "illustration_prompt": "English illustration description, 50-100 words"'
-            illustration_instruction = "\n5. Provide English illustration descriptions for each chapter, suitable for AI image generation, including scene, characters, style, etc."
+            illustration_instruction = "\n- Provide English illustration descriptions for each page, suitable for AI image generation, including scene, characters, style, etc."
 
         prompt = render_prompt(
             "all_chapters",
@@ -340,6 +391,10 @@ class ContentAdapterService:
             min_age=age_range[0],
             max_age=age_range[1],
             language_name=self._get_language_name(language),
+            page_range=(
+                f"Pages {start_index + 1}-{start_index + batch_count} "
+                f"of {total_chapters}"
+            ),
             chapters_str=chapters_str,
             adapted_content=adapted_content[:2500],
             illustration_instruction=illustration_instruction,
@@ -360,9 +415,9 @@ class ContentAdapterService:
                 result = json.loads(json_str)
                 chapters = result.get("chapters", [])
 
-                # 确保返回正确数量的章节
+                # 确保返回正确数量的页面
                 parsed_chapters = []
-                for i in range(chapter_count):
+                for i in range(batch_count):
                     if i < len(chapters):
                         ch = chapters[i]
                         parsed_chapters.append({
@@ -372,7 +427,7 @@ class ContentAdapterService:
                         })
                     else:
                         parsed_chapters.append({
-                            "content": f"这是关于{topic}的精彩内容。",
+                            "content": f"这是关于{topic}的第{start_index + i + 1}页内容。",
                             "knowledge_points": [],
                             "illustration_prompt": None,
                         })
@@ -383,9 +438,9 @@ class ContentAdapterService:
         # 解析失败时返回默认值
         return [
             {
-                "content": f"这是关于{topic}的第{i+1}章内容。",
+                "content": f"这是关于{topic}的第{start_index + i + 1}页内容。",
                 "knowledge_points": [],
                 "illustration_prompt": None,
             }
-            for i in range(chapter_count)
+            for i in range(batch_count)
         ]

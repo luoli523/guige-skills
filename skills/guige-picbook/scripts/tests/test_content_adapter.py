@@ -193,6 +193,38 @@ class TestGenerateAllChapters:
 
         assert len(result) == 2
 
+    @pytest.mark.asyncio
+    async def test_generate_many_pages_in_batches(self, service):
+        """测试30页内容按批生成，避免单次响应过大"""
+        chapter_titles = [f"Page {i + 1}" for i in range(12)]
+        batch_responses = []
+        for start, count in [(0, 5), (5, 5), (10, 2)]:
+            batch_responses.append(json.dumps({
+                "chapters": [
+                    {
+                        "content": f"Page {start + i + 1} content",
+                        "knowledge_points": [f"Fact {start + i + 1}"],
+                    }
+                    for i in range(count)
+                ]
+            }))
+
+        with patch.object(service, "_call_llm", new_callable=AsyncMock) as mock_llm:
+            mock_llm.side_effect = batch_responses
+            result = await service.generate_all_chapters(
+                topic="space",
+                chapter_titles=chapter_titles,
+                language=Language.ENGLISH,
+                age_range=(8, 12),
+                adapted_content="content",
+                include_illustration=False,
+            )
+
+        assert len(result) == 12
+        assert result[0]["content"] == "Page 1 content"
+        assert result[-1]["content"] == "Page 12 content"
+        assert mock_llm.call_count == 3
+
 
 class TestGenerateSocialCaptions:
     @pytest.mark.asyncio

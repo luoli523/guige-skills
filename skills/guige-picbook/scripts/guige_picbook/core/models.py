@@ -6,23 +6,33 @@ from pydantic import BaseModel, Field
 
 from ..utils.config import Language
 
+DEFAULT_AGE_RANGE = (8, 12)
+DEFAULT_PAGE_COUNT = 30
+MIN_PAGE_COUNT = 3
+MAX_PAGE_COUNT = 30
+
 
 class BookConfig(BaseModel):
     """绘本配置"""
 
     topic: str = Field(..., description="绘本主题")
     language: Language = Field(default=Language.ENGLISH, description="目标语言")
-    age_range: tuple[int, int] = Field(default=(7, 10), description="目标年龄范围")
-    chapter_count: int = Field(default=5, ge=3, le=10, description="章节数量")
+    age_range: tuple[int, int] = Field(default=DEFAULT_AGE_RANGE, description="目标年龄范围")
+    chapter_count: int = Field(
+        default=DEFAULT_PAGE_COUNT,
+        ge=MIN_PAGE_COUNT,
+        le=MAX_PAGE_COUNT,
+        description="页数/章节数量",
+    )
     include_illustrations: bool = Field(default=True, description="是否包含插图描述")
 
 
 class Chapter(BaseModel):
-    """绘本章节"""
+    """绘本页面/章节"""
 
-    number: int = Field(..., description="章节编号")
-    title: str = Field(..., description="章节标题")
-    content: str = Field(..., description="章节内容")
+    number: int = Field(..., description="页面编号")
+    title: str = Field(..., description="页面标题")
+    content: str = Field(..., description="页面内容")
     illustration_prompt: Optional[str] = Field(None, description="插图生成提示词")
     knowledge_points: list[str] = Field(default_factory=list, description="知识要点")
 
@@ -35,7 +45,7 @@ class PictureBook(BaseModel):
     language: Language = Field(..., description="语言")
     target_age: str = Field(..., description="目标年龄")
     summary: str = Field(..., description="内容简介")
-    chapters: list[Chapter] = Field(default_factory=list, description="章节列表")
+    chapters: list[Chapter] = Field(default_factory=list, description="页面列表")
     sources: list[str] = Field(default_factory=list, description="知识来源")
 
     def _get_labels(self) -> dict:
@@ -46,7 +56,7 @@ class PictureBook(BaseModel):
                 "age": "Target Age",
                 "language": "Language",
                 "summary": "Summary",
-                "chapter": "Chapter",
+                "chapter": "Page",
                 "illustration": "Illustration",
                 "knowledge": "Key Points",
                 "sources": "References",
@@ -56,7 +66,7 @@ class PictureBook(BaseModel):
                 "age": "适合年龄",
                 "language": "语言",
                 "summary": "简介",
-                "chapter": "第{}章",
+                "chapter": "第{}页",
                 "illustration": "插图描述",
                 "knowledge": "知识要点",
                 "sources": "参考来源",
@@ -66,7 +76,7 @@ class PictureBook(BaseModel):
                 "age": "対象年齢",
                 "language": "言語",
                 "summary": "あらすじ",
-                "chapter": "第{}章",
+                "chapter": "{}ページ",
                 "illustration": "イラスト",
                 "knowledge": "ポイント",
                 "sources": "参考文献",
@@ -76,7 +86,7 @@ class PictureBook(BaseModel):
                 "age": "대상 연령",
                 "language": "언어",
                 "summary": "소개",
-                "chapter": "제{}장",
+                "chapter": "{}쪽",
                 "illustration": "삽화 설명",
                 "knowledge": "핵심 포인트",
                 "sources": "참고 자료",

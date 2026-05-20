@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 import typer
@@ -15,7 +16,14 @@ from rich.console import Console
 from rich.panel import Panel
 
 from .core.generator import PictureBookGenerator
-from .core.models import BookConfig, Language
+from .core.models import (
+    DEFAULT_AGE_RANGE,
+    DEFAULT_PAGE_COUNT,
+    MAX_PAGE_COUNT,
+    MIN_PAGE_COUNT,
+    BookConfig,
+    Language,
+)
 from .utils.config import get_settings
 
 app = typer.Typer(
@@ -25,10 +33,11 @@ app = typer.Typer(
 Quick start:
   guige-picbook generate ocean --no-slides
   guige-picbook generate 恐龙 --lang zh --slides
-  guige-picbook generate space --chapters 8 --min-age 8 --max-age 12
+  guige-picbook generate space --pages 30 --min-age 8 --max-age 12
 """,
 )
 console = Console()
+DEFAULT_UPLOAD_REMOTE_PREFIX = "drive:Rakuten Kobo"
 
 
 @dataclass
@@ -73,15 +82,16 @@ def generate(
         help="Output language: en, zh, ja, ko",
     ),
     chapters: int = typer.Option(
-        5,
+        DEFAULT_PAGE_COUNT,
         "--chapters",
+        "--pages",
         "-c",
-        help="Chapter count, 3-10",
-        min=3,
-        max=10,
+        help=f"Page/chapter count, {MIN_PAGE_COUNT}-{MAX_PAGE_COUNT}",
+        min=MIN_PAGE_COUNT,
+        max=MAX_PAGE_COUNT,
     ),
-    min_age: int = typer.Option(7, "--min-age", help="Minimum target age"),
-    max_age: int = typer.Option(10, "--max-age", help="Maximum target age"),
+    min_age: int = typer.Option(DEFAULT_AGE_RANGE[0], "--min-age", help="Minimum target age"),
+    max_age: int = typer.Option(DEFAULT_AGE_RANGE[1], "--max-age", help="Maximum target age"),
     output: str | None = typer.Option(
         None,
         "--output",
@@ -158,7 +168,7 @@ def generate(
             f"[bold]Topic:[/bold] {topic}\n"
             f"[bold]Language:[/bold] {lang.value}\n"
             f"[bold]Target age:[/bold] {min_age}-{max_age}\n"
-            f"[bold]Chapters:[/bold] {chapters}\n"
+            f"[bold]Pages:[/bold] {chapters}\n"
             f"[bold]Output:[/bold] {output_path}",
             title="guige-picbook",
             border_style="blue",
@@ -273,6 +283,42 @@ async def _send_pdf_to_telegram_async(settings, pdf_path: str) -> None:
         console.print(f"[yellow]Telegram send failed: {error}[/yellow]")
 
 
+def _default_upload_target(today: date | None = None) -> str:
+    current_day = today or date.today()
+    return f"{DEFAULT_UPLOAD_REMOTE_PREFIX}/{current_day:%Y%m}"
+
+
+def _resolve_upload_target() -> str:
+    return (
+        os.environ.get("GUIGE_PICBOOK_DRIVE_TARGET")
+        or os.environ.get("GUIGE_DRIVE_TARGET")
+        or _default_upload_target()
+    )
+
+
+def _build_upload_command(
+    drive_script: Path,
+    topic: str,
+    paths: list[str],
+    upload_target: str,
+) -> list[str]:
+    return [
+        sys.executable,
+        str(drive_script),
+        "--skill",
+        "guige-picbook",
+        "--task",
+        topic,
+        "--target",
+        upload_target,
+        "--layout",
+        "task",
+        "--paths",
+        *paths,
+        "--json",
+    ]
+
+
 def _maybe_upload(artifacts: GeneratedArtifacts, topic: str, upload: bool) -> str | None:
     should_upload = upload or os.environ.get("GUIGE_DRIVE_UPLOAD") == "1"
     if not should_upload:
@@ -293,19 +339,10 @@ def _maybe_upload(artifacts: GeneratedArtifacts, topic: str, upload: bool) -> st
         console.print("[yellow]guige-drive-upload script not found; upload skipped.[/yellow]")
         return None
 
-    command = [
-        sys.executable,
-        str(drive_script),
-        "--skill",
-        "guige-picbook",
-        "--task",
-        topic,
-        "--paths",
-        *paths,
-        "--json",
-    ]
+    upload_target = _resolve_upload_target()
+    command = _build_upload_command(drive_script, topic, paths, upload_target)
 
-    console.print("[cyan]Uploading generated materials to Google Drive...[/cyan]")
+    console.print(f"[cyan]Uploading generated materials to Google Drive: {upload_target}[/cyan]")
     result = subprocess.run(command, capture_output=True, text=True, check=False)
     if result.returncode != 0:
         console.print("[yellow]Upload failed; local files are kept.[/yellow]")

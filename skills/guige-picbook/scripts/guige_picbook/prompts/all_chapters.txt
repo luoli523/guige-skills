@@ -2,28 +2,30 @@ You are a professional children's picture book author. Please create all chapter
 
 Target audience: Children aged {min_age}-{max_age}
 Language: {language_name}
+Current section: {page_range}
 
-Chapter outline:
+Page/chapter outline:
 {chapters_str}
 
 Reference knowledge:
 {adapted_content}
 
 Writing requirements:
-1. Each chapter should be 200-400 words, vivid and engaging, suitable for reading aloud
-2. Use simple vocabulary and short sentences
-3. Use dialogue, personification, metaphors, and other techniques
-4. Naturally incorporate 1-2 knowledge points in each chapter{illustration_instruction}
+- Each page/chapter should be substantial enough for the expanded book: 120-220 words in alphabetic languages, or 180-320 characters in Chinese/Japanese/Korean
+- Use age-appropriate vocabulary for the target readers; explain necessary terms with concrete examples
+- Use dialogue, personification, metaphors, and other techniques
+- Naturally incorporate 1-2 knowledge points in each page/chapter{illustration_instruction}
+- Generate content only for the pages listed in the current section, and preserve the same order
 
 Please output strictly in the following JSON format (no other content):
 {{
     "chapters": [
         {{
-            "content": "Chapter 1 main content",
+            "content": "Page 1 main content",
             "knowledge_points": ["Point 1", "Point 2"]{illustration_field}
         }},
         {{
-            "content": "Chapter 2 main content",
+            "content": "Page 2 main content",
             "knowledge_points": ["Point 1"]{illustration_field}
         }}
     ]

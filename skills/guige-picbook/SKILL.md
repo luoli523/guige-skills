@@ -18,13 +18,13 @@ Generate child-friendly educational picture books from a topic. The skill uses i
 | Setting | Default |
 |---------|---------|
 | Language | `en` unless user asks otherwise |
-| Age range | 7-10 |
-| Chapters | 5 |
+| Age range | 8-12 |
+| Pages/chapters | 30 |
 | Working root | `picbook/{topic-slug}/` |
 | Markdown | `picbook/{topic-slug}/{topic-slug}.md` |
 | Slides | NotebookLM Slides enabled by default |
 | Notebook name | `儿童绘本` |
-| Upload | disabled unless `--upload` or `GUIGE_DRIVE_UPLOAD=1` |
+| Upload | disabled unless `--upload` or `GUIGE_DRIVE_UPLOAD=1`; default target root is `drive:Rakuten Kobo/YYYYMM` |
 | Python | 3.10+ |
 | Environment | Self-managed `.venv/` under this skill |
 
@@ -55,7 +55,7 @@ Accept CLI-style options in the user's request.
 | Option | Description |
 |--------|-------------|
 | `--lang en\|zh\|ja\|ko` | Output language |
-| `--chapters N` | Chapter count, 3-10 |
+| `--chapters N` / `--pages N` | Page/chapter count, 3-30 |
 | `--min-age N` / `--max-age N` | Target age range |
 | `--slides` / `--no-slides` | Enable or skip NotebookLM Slides |
 | `--nlm-instructions <text>` | NotebookLM custom slide prompt |
@@ -69,19 +69,20 @@ Accept CLI-style options in the user's request.
 ## Workflow
 
 1. Derive or accept a concrete topic. Prefer specific topics like `恐龙`, `太阳系`, `how music boxes work`; ask for clarification only if the topic is too broad to produce a coherent child-facing book.
-2. Choose language, age range, and chapter count from the request. If absent, use defaults.
+2. Choose language, age range, and page/chapter count from the request. If absent, use defaults.
 3. Run:
 
 ```bash
 python3 skills/guige-picbook/scripts/main.py generate "{topic}" \
   --lang zh \
-  --chapters 5 \
-  --min-age 7 \
-  --max-age 10
+  --pages 30 \
+  --min-age 8 \
+  --max-age 12
 ```
 
 4. Use `--no-slides` when the user only wants the Markdown book or NotebookLM is unavailable.
 5. Use `--upload` only when the user asks to upload/share/save to Google Drive, or when `GUIGE_DRIVE_UPLOAD=1` is present.
+   By default, upload target root is `drive:Rakuten Kobo/YYYYMM`, where `YYYYMM` is the runtime year and month, for example `drive:Rakuten Kobo/202605`. Each book is uploaded into its topic folder under that monthly root.
 
 NotebookLM dependencies are installed and validated by default even when a run uses `--no-slides`. If NotebookLM dependency setup fails, report the setup failure. If Slides generation fails, the command must fail after keeping the Markdown file.
 
@@ -141,7 +142,7 @@ python3 skills/guige-picbook/scripts/main.py share picbook/solar-system/solar-sy
 
 - Keep generated materials under `picbook/{topic-slug}/` unless the user provides `--output`.
 - Do not store secrets in generated files.
-- Preserve Markdown and prompt-source traceability: final books should include title, topic, target age, summary, chapters, illustration prompts, knowledge points, and references.
+- Preserve Markdown and prompt-source traceability: final books should include title, topic, target age, summary, pages/chapters, illustration prompts, knowledge points, and references.
 - If NotebookLM fails, keep the Markdown result and report the failure reason.
 - If upload fails, keep local files and report the intended upload action.
 

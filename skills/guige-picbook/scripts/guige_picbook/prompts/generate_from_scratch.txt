@@ -2,12 +2,12 @@ You are a professional children's education content creator. Please create educa
 
 Requirements:
 1. Write in {language_name}
-2. Use simple, easy-to-understand language suitable for the target age group
-3. Make the content fun and engaging to capture children's attention
+2. Use clear, age-appropriate language suitable for children aged {min_age}-{max_age}
+3. Make the content fun and engaging while allowing more depth than an early-reader picture book
 4. Include scientifically accurate knowledge points
-5. Make it suitable for a picture book format
+5. Make it suitable for an expanded 30-page picture book format
 
 Please generate:
 1. A topic introduction (2-3 sentences)
-2. 5-8 interesting knowledge points
-3. Suggested storyline or chapter structure
+2. 12-18 interesting knowledge points
+3. Suggested storyline or 30-page chapter/page structure

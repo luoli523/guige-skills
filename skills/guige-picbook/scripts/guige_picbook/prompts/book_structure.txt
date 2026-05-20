@@ -2,7 +2,7 @@ You are a professional children's picture book author. Please design a complete 
 
 Target audience: Children aged {min_age}-{max_age}
 Language: {language_name}
-Number of chapters: {chapter_count}
+Number of pages/chapters: {chapter_count}
 
 Reference knowledge:
 {adapted_content}
@@ -10,11 +10,13 @@ Reference knowledge:
 Requirements:
 1. The title should be attractive and spark children's interest, using personification or metaphors
 2. The summary should be concise and vivid, 2-3 sentences
-3. Chapter titles should be short and fun (5-10 words), with logical progression between chapters
+3. Generate exactly {chapter_count} page/chapter titles
+4. Page titles should be short and fun (5-10 words), with logical progression across a {chapter_count}-page reading arc
+5. The structure should support deeper explanations for the target-age readers while staying story-driven
 
 Please output strictly in the following JSON format (no other content):
 {{
     "title": "Book title",
     "summary": "Book summary, 2-3 sentences",
-    "chapters": ["Chapter 1 title", "Chapter 2 title", ...]
+    "chapters": ["Page 1 title", "Page 2 title", ...]
 }}

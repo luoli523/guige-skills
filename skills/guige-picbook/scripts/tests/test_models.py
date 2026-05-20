@@ -14,8 +14,8 @@ class TestBookConfig:
         config = BookConfig(topic="恐龙")
         assert config.topic == "恐龙"
         assert config.language == Language.ENGLISH
-        assert config.age_range == (7, 10)
-        assert config.chapter_count == 5
+        assert config.age_range == (8, 12)
+        assert config.chapter_count == 30
 
     def test_custom_values(self):
         config = BookConfig(
@@ -50,7 +50,7 @@ class TestPictureBook:
             title="恐龙世界大冒险",
             topic="恐龙",
             language=Language.CHINESE,
-            target_age="7-10岁",
+            target_age="8-12岁",
             summary="这是一本关于恐龙的有趣绘本。",
             chapters=[
                 Chapter(
@@ -66,5 +66,5 @@ class TestPictureBook:
         markdown = book.to_markdown()
         assert "# 恐龙世界大冒险" in markdown
         assert "**主题**: 恐龙" in markdown
-        assert "## 第1章: 恐龙时代" in markdown
+        assert "## 第1页: 恐龙时代" in markdown
         assert "## 参考来源" in markdown
