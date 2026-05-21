@@ -16,8 +16,9 @@
 │   └── plugin.json
 ├── hooks/
 │   ├── hooks.json
-│   ├── session-start.sh
-│   └── pretool-bash-guard.sh
+│   └── session-start.sh
+├── references/
+│   └── README.md
 ├── install.sh
 ├── README.md
 ├── CLAUDE.md
