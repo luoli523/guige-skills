@@ -10,11 +10,17 @@
 │   └── plugins/
 │       └── marketplace.json
 ├── .claude-plugin/
-│   └── marketplace.json
+│   ├── marketplace.json
+│   └── plugin.json
 ├── .codex-plugin/
 │   └── plugin.json
+├── hooks/
+│   ├── hooks.json
+│   ├── session-start.sh
+│   └── pretool-bash-guard.sh
 ├── install.sh
 ├── README.md
+├── CLAUDE.md
 └── skills/
     ├── guige-drive-upload/
     │   ├── SKILL.md

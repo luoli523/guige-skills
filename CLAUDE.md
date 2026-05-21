@@ -8,6 +8,7 @@
 .claude-plugin/         → Claude Code plugin manifest + marketplace 声明
 .codex-plugin/          → Codex 专属 plugin 配置
 .agents/plugins/        → Anthropic Code marketplace 声明
+hooks/                  → Claude Code 生命周期钩子（SessionStart 提示 / PreToolUse 保护运行时目录）
 skills/<skill-name>/    → 每个 skill 一个子目录，必含 SKILL.md
   ├── SKILL.md          → 必需，frontmatter 含 name + description
   ├── references/       → skill 私有参考资料
