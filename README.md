@@ -323,3 +323,13 @@ codex plugin add guige@guige-skills
 ```
 
 `--cleanup` 只清理指向本仓库的失效软链接，不会删除真实的 skill 源目录。
+
+## 本地校验
+
+提交前可跑校验脚本，检查 SKILL.md frontmatter、3 套 plugin manifest 同步、脚本可执行位等：
+
+```bash
+python3 scripts/validate.py
+```
+
+CI 在 push 到 `main` 与每个 pull request 上自动运行同一脚本（见 `.github/workflows/validate.yml`）。

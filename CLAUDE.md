@@ -24,7 +24,9 @@ README.md               → 用户文档
 
 - 每个 skill 在 `skills/<name>/SKILL.md`，frontmatter 至少含 `name` 与 `description`
 - skill 名一律 `guige-` 前缀，kebab-case
-- 三套 plugin 配置（`.claude-plugin/plugin.json`、`.codex-plugin/plugin.json`、`.agents/plugins/marketplace.json`）的 `name`、`version`、`description` 必须同步
+- 三套 plugin 配置的 `name` 必须同步：`.claude-plugin/plugin.json`、`.codex-plugin/plugin.json` 顶层 `name`；`.agents/plugins/marketplace.json` 的 `plugins[0].name`（全部应为 `guige`）
+- 版本号 `version` 在两份 `plugin.json` 与 `.claude-plugin/marketplace.json` 的 `metadata.version` 之间同步（`.agents` schema 无 version 字段，不参与）
+- 各 manifest 的 `description` 允许按平台调整文案，不强制同步
 - 路径引用使用相对路径或 `${CLAUDE_PLUGIN_ROOT}`，禁止硬编码绝对路径
 - skill 间不复制粘贴内容；共享资源放顶层 `references/`（如果有）
 - skill 间通过明确 CLI 接口调用（如 `guige-drive-upload`），不读对方私有目录
