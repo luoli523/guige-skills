@@ -56,6 +56,18 @@
 
 每个 skill 都放在 `skills/<skill-name>/` 下，并包含必需的 `SKILL.md`。资源文件、参考文档和辅助脚本分别放在该 skill 自己的 `assets/`、`references/` 和 `scripts/` 目录中。
 
+## 多平台 Plugin 配置
+
+本仓库同时支持 3 套 plugin 分发机制，对应不同 Agent 客户端：
+
+| 目录 | 平台 | 作用 |
+|---|---|---|
+| `.claude-plugin/` | Claude Code | `plugin.json` 是 plugin manifest；`marketplace.json` 把本仓库声明为 Claude Marketplace。 |
+| `.codex-plugin/` | OpenAI Codex | `plugin.json` 是 Codex 专属配置，包含 `interface`、`capabilities`、`defaultPrompt` 等字段。 |
+| `.agents/plugins/` | Anthropic Code | `marketplace.json` 用 Anthropic Code 的 `policy/category` 模型声明插件来源。 |
+
+3 套配置中的 `name`、`version`、`description` 保持同步更新。
+
 ## 当前 Skill
 
 | Skill | 定位 | 说明 |
@@ -69,6 +81,10 @@
 | `guige-svg` | 可编辑图表 | 生成可编辑 SVG 图表和时间表，使用结构化 JSON spec 与 Python 确定性渲染器，支持矩阵、流程图、时间线和架构图，可按需导出 PNG 并上传到 Google Drive。 |
 | `guige-video-download` | 视频下载 | 使用自包含的 Gui Ge 工作流封装 `yt-dlp`，下载 YouTube、YouTube Shorts、X.com 和 Twitter 视频，支持视频、音频、封面、字幕、metadata、JSON 输出和可选 Google Drive 上传。 |
 | `guige-x-2-md` | X 转 Markdown | 将 X/Twitter 推文、线程和 X Articles 转为 Markdown，使用 Python 标准库实现逆向 X Web API 客户端，支持登录 cookie、YAML front matter、媒体本地化和 JSON 输出。 |
+| `guige-blog-post` | 博客写作发布 | 端到端写作、配图、发布到 `luoli523.github.io` Hugo 博客。触发词 `/blog-post`、`writing blog post`、`publish post`。 |
+| `guige-picbook` | 儿童科普绘本 | 从主题生成儿童教育绘本，输出结构化 Markdown 章节与插图 prompts，可选上传到 NotebookLM 生成 Slides PDF、推送到 Telegram，或通过 `guige-drive-upload` 上传材料。 |
+| `guige-to-wechat` | 微信公众号发布 | 用 Python 客户端把 Markdown/HTML/纯文本发布到微信公众号草稿箱，支持 Markdown→微信 HTML 转换、封面图与正文图片上传。 |
+| `guige-x-to-blog` | X 推文转博客 | 将 X 推文下载、整理并改写为中文博客文章，复用原图，按既有博客发布流程交付。触发词 `/x-to-blog`、`x 推文转博客`、`tweet to blog`。 |
 
 ## `guige-disassembly-diagram` 快速使用
 

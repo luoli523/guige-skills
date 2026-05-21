@@ -1,11 +1,23 @@
 {
   "name": "guige",
   "version": "0.1.0",
-  "description": "Gui Ge skill set — image generation, infographics, slides, video download, WeChat publishing, and more.",
+  "description": "Gui Ge skill set — image generation, infographics, slides, SVG diagrams, video download, X/Twitter conversion, Google Drive upload, and WeChat publishing.",
   "author": {
-    "name": "Gui Ge"
+    "name": "Gui Ge",
+    "url": "https://github.com/luoli523"
   },
   "homepage": "https://github.com/luoli523/guige-skills",
   "repository": "https://github.com/luoli523/guige-skills",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "image-generation",
+    "infographics",
+    "slides",
+    "svg",
+    "wechat",
+    "x-twitter",
+    "video-download"
+  ],
+  "skills": "./skills/"
 }
