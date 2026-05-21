@@ -1,7 +1,7 @@
 ---
 name: guige-hand-write-pic
-description: Generate one-page educational visual summaries in a warm cream-paper sketchnote default style without the bundled Gui Ge character image by default. Supports --layout, --style, --aspect, and --lang; --style accepts the guige-infographic style vocabulary but strips Gui Ge narrator/character branding. Use when the user asks for 手绘图, 手写风图片, 手绘知识图, sketchnote, hand-drawn educational infographic, slide-summary style images, or turning content into a warm unbranded visual summary. For Gui Ge branded narrator/character infographics, use guige-infographic instead. Creates source/analysis/structured-content/prompt files, generates the final image through the available guige image backend, and can optionally upload materials through guige-drive-upload.
-version: 0.2.0
+description: Generate one-page educational visual summaries in a warm cream-paper sketchnote default style without the bundled Gui Ge character image by default. Supports --layout, --style, --aspect, --lang, and --density high for compact high-information hand-drawn infographics; --style accepts the guige-infographic style vocabulary but strips Gui Ge narrator/character branding. Use when the user asks for 手绘图, 手写风图片, 手绘知识图, sketchnote, hand-drawn educational infographic, slide-summary style images, high-density unbranded hand-drawn infographic, or turning content into a warm unbranded visual summary. For Gui Ge branded narrator/character infographics, use guige-infographic instead. Creates source/analysis/structured-content/prompt files, generates the final image through the available guige image backend, and can optionally upload materials through guige-drive-upload.
+version: 0.3.0
 ---
 
 # Gui Ge Hand Write Pic
@@ -24,6 +24,7 @@ This skill does not use the bundled Gui Ge character image by default. It should
 | Default layout | `auto` |
 | Default style | `hand-drawn-edu` / warm cream-paper sketchnote |
 | Default aspect | `landscape` (`16:9`) |
+| Default density | `normal` |
 | Upload behavior | Disabled by default; opt in per request or env |
 | Upload backend | `guige-drive-upload` |
 | Upload Drive folder | `guige-skills/guige-hand-write-pic/{topic-slug}/` |
@@ -54,16 +55,32 @@ Default `hand-drawn-edu` style contract:
 - plenty of whitespace and one bold centered takeaway sentence in the footer
 - no Gui Ge/`鬼哥` character, narrator sticker, headband, hoodie, guitar prop, or bundled character reference unless the user explicitly asks to switch to `guige-infographic`
 
+## Density Selection
+
+Default density is `normal`, which keeps the current sketchnote behavior: 3-6 visual sections, short labels, icons, diagrams, and generous whitespace.
+
+Use `--density high` when the user asks for 高密度, 信息量大, dense, compact, more details, or an infographic closer to `guige-infographic` density without Gui Ge branding.
+
+High-density mode:
+
+- uses 6-8 compact visual modules
+- keeps a tight modular grid, compact cards, metric chips, quote strips, process boxes, and warning/takeaway blocks
+- allows 3-6 concise labels per module, plus important numbers and short copied quotes
+- reduces large doodles, oversized icons, footer space, and decorative whitespace
+- keeps text small but readable, grouped cleanly, and visually prioritized
+- preserves the hand-drawn/unbranded style and still avoids Gui Ge/`鬼哥` character references
+
 ## Options
 
 Accept CLI-style options in the user's request.
 
 | Option | Values |
 |--------|--------|
-| `--layout` | `auto`, `flow`, `comparison`, `grouped-cards`, `cycle`, `timeline`, `matrix`, `pyramid` |
+| `--layout` | `auto`, `flow`, `comparison`, `grouped-cards`, `cycle`, `timeline`, `matrix`, `pyramid`, `dense-modules` |
 | `--style` | Any style in [guige-infographic layouts-and-styles.md](../guige-infographic/references/layouts-and-styles.md), e.g. `hand-drawn-edu`, `guige-journal`, `lab-notes`, `social-pop`, `clean-explainer`, `dark-terminal`, `claymation`, `kawaii`, `chalkboard`, `technical-schematic`, `retro-pop-grid` |
 | `--aspect` | `landscape` (`16:9`), `portrait` (`9:16`), `square` (`1:1`), or custom ratio |
 | `--lang` | Output language, e.g. `zh`, `en`, `ja`, `ko`, or another language code/name |
+| `--density` | `normal` or `high`. Use `high` for compact high-information hand-drawn infographics |
 | `--upload` | Upload final image and materials to Google Drive after generation |
 | `--no-upload` | Force local-only delivery even if `GUIGE_DRIVE_UPLOAD=1` |
 | `--no-confirm` | Skip confirmation |
@@ -71,19 +88,21 @@ Accept CLI-style options in the user's request.
 Parameter handling:
 
 - Use `auto` layout unless the user explicitly asks for a structure or the content strongly implies one.
+- Treat `--layout dense-modules` as `--density high` unless the user explicitly sets `--density normal`.
+- When density is `high` and layout is `auto`, use `dense-modules` unless the content clearly calls for `matrix`, `timeline`, or `comparison`.
 - Use `hand-drawn-edu` style unless the user explicitly asks for a style. If the user says `默认`, use `hand-drawn-edu`.
-- If `--style` is provided, use it in `analysis.md`, `structured-content.md`, and `prompts/hand-write-pic.md`.
+- If `--style` or `--density` is provided, use it in `analysis.md`, `structured-content.md`, and `prompts/hand-write-pic.md`.
 - If a provided style is unknown, map it to the closest supported style and state the mapping before generation.
 - Style values inherited from `guige-infographic` must remain unbranded in this skill. Never add `refs/01-ref-guige.jpeg`, a Gui Ge narrator, or `鬼哥` headband unless switching to `guige-infographic`.
 - If only some options are provided, ask only about missing choices unless `--no-confirm` or `直接生成` is present.
-- If the user says `默认`, use `--layout auto --style hand-drawn-edu --aspect landscape --lang zh`.
+- If the user says `默认`, use `--layout auto --style hand-drawn-edu --aspect landscape --lang zh --density normal`.
 
 ## Workflow
 
 ### Step 1: Setup
 
 1. Derive a short English `topic-slug` from the topic/title.
-2. Parse explicit options: `--layout`, `--style`, `--aspect`, `--lang`, `--upload`, `--no-upload`, `--no-confirm`.
+2. Parse explicit options: `--layout`, `--style`, `--aspect`, `--lang`, `--density`, `--upload`, `--no-upload`, `--no-confirm`.
 3. Create:
    - `hand-write-pic/{topic-slug}/`
    - `hand-write-pic/{topic-slug}/prompts/`
@@ -99,7 +118,7 @@ Create `analysis.md` with:
 - source language and output language
 - audience
 - content type
-- selected or recommended layout/style/aspect/language
+- selected or recommended layout/style/aspect/language/density
 - 1-3 learning objectives
 - key facts, numbers, entities, and quotes to preserve exactly
 - recommended visual metaphors
@@ -108,7 +127,7 @@ Strip secrets, credentials, API keys, and tokens if present.
 
 ### Step 3: Structure Content
 
-Create `structured-content.md` with:
+For normal density, create `structured-content.md` with:
 
 - title and one-line subtitle
 - 3-6 visual sections
@@ -117,6 +136,17 @@ Create `structured-content.md` with:
 - one bold centered takeaway sentence for the footer
 
 Keep section labels short. Prefer 2-5 word labels. Do not overload the image with paragraphs.
+
+For high density, create `structured-content.md` with:
+
+- title, subtitle, and one compact overview line
+- 6-8 compact visual modules
+- for each module: key concept, 3-6 concise labels, important exact numbers, and a visual treatment
+- metric chips, quote strips, process boxes, comparison cells, or warning/takeaway blocks when useful
+- required text labels grouped by module
+- optional one-line takeaway footer only if it does not reduce useful content space
+
+Keep high-density module copy concise, but do not over-compress away source facts, numbers, entities, or short quotes.
 
 ### Step 4: Confirm
 
@@ -128,6 +158,7 @@ If confirmation is needed, ask for:
 - style: default `hand-drawn-edu`
 - aspect: default `landscape`
 - language: default `zh`
+- density: default `normal`, or `high` when the user asks for 高密度/信息量大
 - upload: local only unless explicitly requested
 
 ### Step 5: Generate Prompt
@@ -139,7 +170,7 @@ prompts/hand-write-pic.md
 ```
 
 Replace `<insert your content here>` with the structured content. Add the chosen layout/aspect/language near the top of the prompt.
-Add the chosen style and style guidance near the top of the prompt. If the style came from `guige-infographic`, reuse only the visual treatment and explicitly remove Gui Ge narrator/character branding.
+Add the chosen style, density, style guidance, and density guidance near the top of the prompt. If the style came from `guige-infographic`, reuse only the visual treatment and explicitly remove Gui Ge narrator/character branding.
 
 ### Step 6: Generate Image
 
