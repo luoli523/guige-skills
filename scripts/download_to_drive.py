@@ -336,7 +336,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Download chapters into PDFs and upload them.")
     parser.add_argument("url", nargs="?", help="Comic detail page URL.")
     parser.add_argument("--list", dest="list_file", help="File with one comic URL per line.")
-    parser.add_argument("--output", default="/private/tmp/comic-downloads", help="Output base directory.")
+    parser.add_argument("--output", default="/tmp/comic-downloads", help="Output base directory.")
     parser.add_argument("--target", default=DEFAULT_UPLOAD_TARGET, help="rclone target directory.")
     parser.add_argument("--workers", type=int, default=4, help="Number of chapters to process in parallel.")
     parser.add_argument("--no-upload", action="store_true", help="Skip remote upload.")
