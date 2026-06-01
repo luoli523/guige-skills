@@ -20,6 +20,7 @@ Generate child-friendly educational picture books from a topic. The skill uses i
 | Language | `en` unless user asks otherwise |
 | Age range | 8-12 |
 | Pages/chapters | 30 |
+| Illustration aspect ratio | `9:16` portrait |
 | Working root | `picbook/{topic-slug}/` |
 | Markdown | `picbook/{topic-slug}/{topic-slug}.md` |
 | Slides | NotebookLM Slides enabled by default |

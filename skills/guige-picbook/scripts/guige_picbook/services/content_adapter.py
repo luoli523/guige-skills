@@ -382,8 +382,8 @@ class ContentAdapterService:
         illustration_field = ""
         illustration_instruction = ""
         if include_illustration:
-            illustration_field = ',\n            "illustration_prompt": "English illustration description, 50-100 words"'
-            illustration_instruction = "\n- Provide English illustration descriptions for each page, suitable for AI image generation, including scene, characters, style, etc."
+            illustration_field = ',\n            "illustration_prompt": "English illustration description, 50-100 words, 9:16 portrait aspect ratio"'
+            illustration_instruction = "\n- Provide English illustration descriptions for each page, suitable for AI image generation, including scene, characters, style, etc. Each illustration should be composed for a 9:16 portrait aspect ratio."
 
         prompt = render_prompt(
             "all_chapters",
