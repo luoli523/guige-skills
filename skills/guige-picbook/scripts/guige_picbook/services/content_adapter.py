@@ -3,6 +3,7 @@
 from ..prompts import render_prompt
 from ..utils.config import Language, LLMProvider, Settings
 
+DEFAULT_ILLUSTRATION_ASPECT_RATIO = "3:4"
 CHAPTER_BATCH_SIZE = 5
 
 
@@ -382,8 +383,16 @@ class ContentAdapterService:
         illustration_field = ""
         illustration_instruction = ""
         if include_illustration:
-            illustration_field = ',\n            "illustration_prompt": "English illustration description, 50-100 words, 9:16 portrait aspect ratio"'
-            illustration_instruction = "\n- Provide English illustration descriptions for each page, suitable for AI image generation, including scene, characters, style, etc. Each illustration should be composed for a 9:16 portrait aspect ratio."
+            illustration_field = (
+                ',\n            "illustration_prompt": "English illustration description, '
+                f'50-100 words, {DEFAULT_ILLUSTRATION_ASPECT_RATIO} portrait aspect ratio"'
+            )
+            illustration_instruction = (
+                "\n- Provide English illustration descriptions for each page, suitable for "
+                "AI image generation, including scene, characters, style, etc. Each "
+                "illustration should be composed for a "
+                f"{DEFAULT_ILLUSTRATION_ASPECT_RATIO} portrait aspect ratio."
+            )
 
         prompt = render_prompt(
             "all_chapters",

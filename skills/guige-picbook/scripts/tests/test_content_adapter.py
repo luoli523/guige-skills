@@ -225,6 +225,33 @@ class TestGenerateAllChapters:
         assert result[-1]["content"] == "Page 12 content"
         assert mock_llm.call_count == 3
 
+    @pytest.mark.asyncio
+    async def test_default_illustration_aspect_ratio_is_3_by_4(self, service):
+        """测试默认插图提示使用3:4竖版比例。"""
+        llm_response = json.dumps({
+            "chapters": [
+                {
+                    "content": "Page content",
+                    "knowledge_points": ["Fact"],
+                    "illustration_prompt": "A child-friendly science scene",
+                }
+            ]
+        })
+
+        with patch.object(service, "_call_llm", new_callable=AsyncMock) as mock_llm:
+            mock_llm.return_value = llm_response
+            await service.generate_all_chapters(
+                topic="space",
+                chapter_titles=["Page 1"],
+                language=Language.ENGLISH,
+                age_range=(8, 12),
+                adapted_content="content",
+            )
+
+        prompt = mock_llm.call_args.args[0]
+        assert "3:4 portrait aspect ratio" in prompt
+        assert "9:16 portrait aspect ratio" not in prompt
+
 
 class TestGenerateSocialCaptions:
     @pytest.mark.asyncio
