@@ -1,7 +1,7 @@
 ---
 name: guige-picbook
 description: Generate children's educational picture books from a topic or source idea. Searches kid-friendly knowledge, adapts it with an LLM, writes structured Markdown chapters with illustration prompts and sources, and can optionally upload to NotebookLM to create Slides PDF, send the PDF to Telegram, or upload generated materials through guige-drive-upload. Use for 儿童绘本, 科普绘本, picture book, kids educational book, NotebookLM 绘本 slides, or turning a topic into a child-friendly illustrated reading script.
-version: 0.1.0
+version: 0.1.1
 metadata:
   openclaw:
     requires:
