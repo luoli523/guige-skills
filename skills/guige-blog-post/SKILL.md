@@ -214,7 +214,7 @@ Create `image-prompts.md` in the same post directory. This file serves as a spec
 ## 使用说明
 
 1. 将上述 prompt 分别输入 AI 图片生成工具（如 Midjourney, DALL-E, Ideogram 等）
-2. 建议使用 16:9 比例，分辨率至少 1920x1080
+2. 建议使用 9:16 比例，分辨率至少 1080x1920
 3. 生成后保存到本目录（PNG 或 WebP 均可，后续会统一转为 WebP）
 4. 文章中已经用 `![描述](文件名.webp)` 格式引用了这些图片
 ```
@@ -226,9 +226,9 @@ Create `image-prompts.md` in the same post directory. This file serves as a spec
 - Secondary accent: amber `#f59e0b`
 - Tertiary accents: purple `#a78bfa`, red `#f87171`
 - Style keywords: "clean tech illustration", "dark mode aesthetic", "minimal and elegant"
-- Aspect ratio: 16:9
+- Aspect ratio: 9:16
 - Do not add a blanket ban on text. Text is allowed when it improves clarity; if text is needed, specify the exact wording and keep it short and legible.
-- Keep 16:9 aspect ratio by default
+- Keep 9:16 aspect ratio by default
 - Match the blog's Ghost Protocol dark palette
 
 ### Step 5: Wait for User to Generate Images

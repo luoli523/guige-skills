@@ -30,7 +30,7 @@
 Style: clean tech illustration, dark mode aesthetic, minimal and elegant.
 Background: deep dark navy (#07090f or #0d1117).
 Primary accent: teal (#2dd4bf).
-No text unless specified. 16:9 aspect ratio.
+No text unless specified. 9:16 aspect ratio.
 ```
 
 **Cover images**: Should be visually striking, convey the article's core concept at a glance. No text overlay.
@@ -44,8 +44,8 @@ No text unless specified. 16:9 aspect ratio.
 | Property | Value |
 |----------|-------|
 | Format | WebP (q80 via cwebp) |
-| Aspect ratio | 16:9 |
-| Min resolution | 1920x1080 |
+| Aspect ratio | 9:16 |
+| Min resolution | 1080x1920 |
 | Naming | kebab-case, descriptive |
 | Cover filename | `cover.webp` (mandatory) |
 
