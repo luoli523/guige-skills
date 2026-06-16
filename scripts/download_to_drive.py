@@ -164,6 +164,19 @@ def configured_host_aliases(source_host: str) -> list[str]:
         if host.strip() != source_host:
             continue
         aliases.extend(value.strip() for value in values.split(",") if value.strip())
+    if re.fullmatch(r"p\d+\.jmpic\.xyz", source_host):
+        aliases.extend(
+            [
+                "p4.jmpic.xyz",
+                "p6.jmpic.xyz",
+                "p8.jmpic.xyz",
+                "p7.jmpic.xyz",
+                "p5.jmpic.xyz",
+                "p1.jmpic.xyz",
+                "p2.jmpic.xyz",
+                "p3.jmpic.xyz",
+            ]
+        )
     return [host for host in aliases if host != source_host]
 
 
