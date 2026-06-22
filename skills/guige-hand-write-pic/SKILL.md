@@ -31,7 +31,7 @@ This skill does not use the bundled Gui Ge character image by default. It should
 
 ## Style Selection
 
-Default style is the warm cream-paper sketchnote contract in [prompt-template.md](references/prompt-template.md). The skill also accepts the style values from [guige-infographic layouts-and-styles.md](../guige-infographic/references/layouts-and-styles.md), such as `lab-notes`, `social-pop`, `clean-explainer`, `dark-terminal`, `claymation`, `kawaii`, `chalkboard`, `technical-schematic`, `retro-pop-grid`, and `hand-drawn-edu`.
+Default style is the warm cream-paper sketchnote contract in [prompt-template.md](references/prompt-template.md). The skill also accepts local hand-write-pic styles such as `chubby-sketch`, plus the style values from [guige-infographic layouts-and-styles.md](../guige-infographic/references/layouts-and-styles.md), such as `lab-notes`, `social-pop`, `clean-explainer`, `dark-terminal`, `claymation`, `kawaii`, `chalkboard`, `technical-schematic`, `retro-pop-grid`, and `hand-drawn-edu`.
 
 When a non-default `--style` is provided, apply that visual treatment while preserving this skill's core constraints:
 
@@ -41,6 +41,19 @@ When a non-default `--style` is provided, apply that visual treatment while pres
 - no bundled Gui Ge character reference
 
 For `guige-journal` or `morandi-journal`, interpret the style as an unbranded warm journal/sketchnote look. Do not add the Gui Ge character or `鬼哥` headband.
+
+Local `chubby-sketch` style contract, based on [chubby-sketch-style.jpeg](references/chubby-sketch-style.jpeg):
+
+- bright white or very light warm paper background `#FCFBF7`, framed as a tall rounded poster card with soft drop shadow
+- cute high-density hand-drawn knowledge poster, closer to a playful one-page cheat sheet than a sparse sketchnote
+- oversized rounded black marker title, optional blue wavy underline under the title and section headings
+- compact stacked modules separated by dotted horizontal rules, dashed vertical rules, thin blue boxes, and light divider lines
+- pastel numbered circles and pill labels: light blue, soft yellow, pale pink, mint, and warm cream
+- simple black-outline icons for each module, with small sparkle, flower, star, underline, and checkmark doodles
+- allowed unbranded cute cat mascot doodles as teacher/helper characters, but never use the bundled Gui Ge character, `鬼哥` text, orange headband, blue hoodie, or guitar prop
+- use short Chinese labels, micro-bullets, arrows, chips, and command/code boxes when useful
+- best for high-information tool summaries, workflow maps, skill lists, learning cards, and practical checklists
+- recommended aspect is `portrait` (`9:16`) for mobile/social sharing unless the user specifies another aspect
 
 Default `hand-drawn-edu` style contract:
 
@@ -77,7 +90,7 @@ Accept CLI-style options in the user's request.
 | Option | Values |
 |--------|--------|
 | `--layout` | `auto`, `flow`, `comparison`, `grouped-cards`, `cycle`, `timeline`, `matrix`, `pyramid`, `dense-modules` |
-| `--style` | Any style in [guige-infographic layouts-and-styles.md](../guige-infographic/references/layouts-and-styles.md), e.g. `hand-drawn-edu`, `guige-journal`, `lab-notes`, `social-pop`, `clean-explainer`, `dark-terminal`, `claymation`, `kawaii`, `chalkboard`, `technical-schematic`, `retro-pop-grid` |
+| `--style` | Local styles such as `chubby-sketch`, or any style in [guige-infographic layouts-and-styles.md](../guige-infographic/references/layouts-and-styles.md), e.g. `hand-drawn-edu`, `guige-journal`, `lab-notes`, `social-pop`, `clean-explainer`, `dark-terminal`, `claymation`, `kawaii`, `chalkboard`, `technical-schematic`, `retro-pop-grid` |
 | `--aspect` | `landscape` (`16:9`), `portrait` (`9:16`), `square` (`1:1`), or custom ratio |
 | `--lang` | Output language, e.g. `zh`, `en`, `ja`, `ko`, or another language code/name |
 | `--density` | `normal` or `high`. Use `high` for compact high-information hand-drawn infographics |
@@ -91,6 +104,7 @@ Parameter handling:
 - Treat `--layout dense-modules` as `--density high` unless the user explicitly sets `--density normal`.
 - When density is `high` and layout is `auto`, use `dense-modules` unless the content clearly calls for `matrix`, `timeline`, or `comparison`.
 - Use `hand-drawn-edu` style unless the user explicitly asks for a style. If the user says `默认`, use `hand-drawn-edu`.
+- When style is `chubby-sketch` and the user does not specify layout/aspect/density, prefer `--layout dense-modules --aspect portrait --density high`.
 - If `--style` or `--density` is provided, use it in `analysis.md`, `structured-content.md`, and `prompts/hand-write-pic.md`.
 - If a provided style is unknown, map it to the closest supported style and state the mapping before generation.
 - Style values inherited from `guige-infographic` must remain unbranded in this skill. Never add `refs/01-ref-guige.jpeg`, a Gui Ge narrator, or `鬼哥` headband unless switching to `guige-infographic`.
