@@ -55,7 +55,7 @@ cat /Users/luoli/dev/git/luoli523.github.io/CLAUDE.md
 | Category | AI |
 | Image format | WebP |
 | Cover filename | cover.webp |
-| Design palette | Dark mode: `#07090f` bg, `#2dd4bf` teal accent |
+| Visual direction | Adaptive: choose from local Guige image skills by article content |
 
 ### Step 1: Determine Input Type
 
@@ -195,15 +195,30 @@ Create `image-prompts.md` in the same post directory. This file serves as a spec
 
 生成后将图片保存到本目录，格式为 .webp 或 .png（会自动转为 .webp），文件名与文章中引用一致。
 
+## 视觉方案
+
+- Primary skill: `<guige-infographic | guige-hand-write-pic | guige-disassembly-diagram | guige-svg | guige-imagen>`
+- Primary style/layout/aspect: `<selected style, layout, mode, theme, and aspect>`
+- Why: `<why this visual direction fits this article>`
+- Per-image overrides: `<none, or list filename -> skill/style override>`
+
 ---
 
 ## 1. cover.webp — 文章封面
+
+Skill/style: `<skill> / <style-or-mode> / <aspect>`
+Role: cover
+Intent: `<what the cover must communicate>`
 
 {prompt}
 
 ---
 
 ## 2. <filename>.webp — <描述>
+
+Skill/style: `<skill> / <style-or-mode> / <aspect>`
+Role: `<section explainer | comparison | timeline | architecture | teardown | metaphor | ...>`
+Intent: `<what this image must communicate>`
 
 {prompt}
 
@@ -214,22 +229,29 @@ Create `image-prompts.md` in the same post directory. This file serves as a spec
 ## 使用说明
 
 1. 将上述 prompt 分别输入 AI 图片生成工具（如 Midjourney, DALL-E, Ideogram 等）
-2. 建议使用 9:16 比例，分辨率至少 1080x1920
+2. 默认使用 9:16 竖图；如果 prompt 中指定 16:9、1:1 或 SVG，则按 prompt 的画幅执行
 3. 生成后保存到本目录（PNG 或 WebP 均可，后续会统一转为 WebP）
 4. 文章中已经用 `![描述](文件名.webp)` 格式引用了这些图片
 ```
 
-**Image prompt style guide** (maintain visual consistency across posts):
+**Adaptive image prompt style guide**:
 
-- Background: deep dark navy `#07090f` or `#0d1117`
-- Primary accent: teal `#2dd4bf`
-- Secondary accent: amber `#f59e0b`
-- Tertiary accents: purple `#a78bfa`, red `#f87171`
-- Style keywords: "clean tech illustration", "dark mode aesthetic", "minimal and elegant"
-- Aspect ratio: 9:16
-- Do not add a blanket ban on text. Text is allowed when it improves clarity; if text is needed, specify the exact wording and keep it short and legible.
-- Keep 9:16 aspect ratio by default
-- Match the blog's Ghost Protocol dark palette
+Before writing `image-prompts.md`, choose a visual direction from the local Guige image skill set. Read `references/style-guide.md` for the selection matrix and prompt contracts.
+
+1. Analyze the article's topic, audience, emotional tone, and image plan.
+2. Select one primary visual skill/style for the whole post to keep the article coherent.
+3. Override per image only when the image's job clearly differs from the article-level direction, such as a teardown diagram inside a warm essay.
+4. In `image-prompts.md`, add a short `## 视觉方案` section before the image list:
+   - `Primary skill`: one of `guige-infographic`, `guige-hand-write-pic`, `guige-disassembly-diagram`, `guige-svg`, or `guige-imagen`
+   - `Primary style/layout/aspect`: selected options, if applicable
+   - `Why`: one sentence explaining why this fits the article
+   - `Per-image overrides`: list only images that use another skill/style
+5. For each image prompt, include a compact metadata line before the prompt:
+   - `Skill/style`: e.g. `guige-hand-write-pic / hand-drawn-edu / portrait`
+   - `Role`: cover, section explainer, comparison, timeline, architecture, teardown, metaphor, etc.
+6. Do not default to the old dark-tech palette. Use `dark-terminal`, `cyberpunk-neon`, `technical-schematic`, or `guige-svg` `dark-tech` only when the content actually calls for code, infrastructure, terminal logs, cybersecurity, or futuristic tech.
+7. Text is allowed when it improves clarity; specify exact wording and keep it short and legible.
+8. Blog images default to `9:16` portrait for mobile reading. Use `16:9` for architecture diagrams, SVG exports, and dense technical maps when landscape is more readable.
 
 ### Step 5: Wait for User to Generate Images
 

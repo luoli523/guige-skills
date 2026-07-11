@@ -1,20 +1,31 @@
 # Blog Visual Style Guide
 
-## Design System: Ghost Protocol Dark Palette
+## Adaptive Visual Direction
 
-### Colors
+Blog images should adapt to the article instead of always using a dark technology look. Choose from the local Guige image skill set, then write prompts that follow the selected skill's visual contract.
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| `--bg-void` | `#07090f` | Deepest background |
-| `--bg-surface` | `#0d1117` | Surface background |
-| `--bg-card` | `#0f151e` | Card background |
-| `--teal` | `#2dd4bf` | Primary accent |
-| `--amber` | `#f59e0b` | Secondary accent (tools, projects) |
-| `--purple` | `#a78bfa` | Tertiary accent |
-| `--red` | `#f87171` | Alert / life category |
-| `--text-primary` | `#e8eaf0` | Primary text |
-| `--text-secondary` | `#8b9ab0` | Secondary text |
+### Selection Matrix
+
+| Article / image need | Preferred skill | Recommended style / options | Use when |
+|----------------------|-----------------|-----------------------------|----------|
+| High-density article summary, product analysis, trend explainer | `guige-infographic` | `dense-modules` + `guige-journal`, `clean-explainer`, `social-pop`, or `lab-notes` | The image should summarize many points in one shareable poster |
+| Warm knowledge card, practical checklist, essay-like concept explainer | `guige-hand-write-pic` | `hand-drawn-edu`, `chubby-sketch`, `morandi-journal`, or `craft-handmade` | The article is educational, reflective, or non-hardcore technical |
+| Code, benchmark, CLI, infrastructure, model internals | `guige-infographic` or `guige-hand-write-pic` | `lab-notes`, `dark-terminal`, `technical-schematic`, or `pop-laboratory` | Technical precision matters more than warmth |
+| Architecture, workflow, dependency map, timeline, comparison matrix | `guige-svg` | `architecture`, `flowchart`, `timeline`, or `matrix`; theme `guige-light`, `dark-tech` only for infrastructure/code | A deterministic editable diagram is better than a generated illustration |
+| Product anatomy, hardware, physical objects, model/system component teardown | `guige-disassembly-diagram` | `hybrid`, `exploded`, or `cutaway`; light technical education poster | The image needs labeled parts, internals, material cues, or working principle |
+| Emotional cover, metaphor, story scene, abstract article mood | `guige-imagen` | Natural editorial illustration, watercolor, claymation, bold graphic, cinematic, or other article-specific style | The image should create a first-glance mood rather than explain details |
+| Personal life, travel, memory, family, reflective writing | `guige-hand-write-pic` or `guige-imagen` | `storybook-watercolor`, `craft-handmade`, `morandi-journal`, warm editorial illustration | Avoid dark tech unless the article itself is about technology |
+| Strong opinion, social sharing, contrarian argument | `guige-infographic` | `social-pop`, `bold-graphic`, `retro-pop-grid`, or `comparison-board` | The visual needs punch, contrast, and fast comprehension |
+
+### Selection Rules
+
+1. Pick one primary skill/style for the article.
+2. Use per-image overrides only when the image role changes substantially.
+3. Prefer light or warm styles for general essays, education, life, and reflective posts.
+4. Prefer technical styles for code, agents, models, tools, architecture, and benchmarks.
+5. Prefer `guige-svg` when exact layout, editable output, or legible diagrams matter.
+6. Prefer `guige-disassembly-diagram` for object/system anatomy and component labels.
+7. Use dark palettes only when justified by the content, not as the default blog identity.
 
 ### Typography
 
@@ -25,27 +36,33 @@
 
 ### Image Prompt Conventions
 
-**Standard suffix for all prompts**:
-```
-Style: clean tech illustration, dark mode aesthetic, minimal and elegant.
-Background: deep dark navy (#07090f or #0d1117).
-Primary accent: teal (#2dd4bf).
-No text unless specified. 9:16 aspect ratio.
+Each prompt should start with a compact routing header:
+
+```text
+Skill/style: <skill> / <style-or-mode> / <aspect>
+Role: <cover | section explainer | comparison | timeline | architecture | teardown | metaphor>
+Intent: <one sentence describing what this image must communicate>
 ```
 
-**Cover images**: Should be visually striking, convey the article's core concept at a glance. No text overlay.
+Then write the actual image prompt using the selected skill's vocabulary. Keep the prompt content-specific: name the article's core entities, visual metaphors, labels, and structure. Do not paste a generic dark-tech suffix.
 
-**Diagram images**: Clean, diagrammatic style. Use teal for primary elements, amber for secondary, purple for tertiary. Dark background. Icon-based, not photorealistic.
+**Cover images**: Should be visually striking and convey the article's core concept at a glance. Text is allowed only when it functions as a short title or label and the exact wording is specified.
+
+**Diagram images**: Use `guige-svg` for deterministic diagrams or `guige-infographic` / `guige-hand-write-pic` for generated explanatory diagrams. Choose the layout from the content: flowchart, timeline, matrix, architecture, comparison, hub-spoke, bridge, funnel, or circular-flow.
 
 **Comparison images**: Split-screen or side-by-side layout. Use color contrast to distinguish sides.
+
+**Teardown images**: Use `guige-disassembly-diagram` and require clear Simplified Chinese labels, readable callouts, exploded/cutaway structure when useful, and no overlapping text.
+
+**Metaphor images**: Use `guige-imagen` or a gentle `guige-hand-write-pic` style. Keep the metaphor grounded in the article's actual argument.
 
 ### Image Specifications
 
 | Property | Value |
 |----------|-------|
 | Format | WebP (q80 via cwebp) |
-| Aspect ratio | 9:16 |
-| Min resolution | 1080x1920 |
+| Default aspect ratio | 9:16 for blog reading; use 16:9 when the selected skill/layout is more readable in landscape |
+| Min resolution | At least 1080px on the short edge for raster images |
 | Naming | kebab-case, descriptive |
 | Cover filename | `cover.webp` (mandatory) |
 
