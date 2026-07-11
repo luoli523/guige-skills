@@ -23,6 +23,9 @@
 ├── README.md
 ├── CLAUDE.md
 └── skills/
+    ├── guige-blog-post/
+    │   ├── SKILL.md
+    │   └── references/
     ├── guige-drive-upload/
     │   ├── SKILL.md
     │   └── scripts/
@@ -42,10 +45,23 @@
     ├── guige-hand-write-pic/
     │   ├── SKILL.md
     │   └── references/
+    ├── guige-picbook/
+    │   ├── SKILL.md
+    │   ├── agents/
+    │   ├── references/
+    │   └── scripts/
     ├── guige-slides/
     │   ├── SKILL.md
     │   ├── agents/
     │   ├── references/
+    │   └── scripts/
+    ├── guige-svg/
+    │   ├── SKILL.md
+    │   ├── agents/
+    │   ├── references/
+    │   └── scripts/
+    ├── guige-to-wechat/
+    │   ├── SKILL.md
     │   └── scripts/
     ├── guige-video-download/
     │   ├── SKILL.md
@@ -54,11 +70,8 @@
     ├── guige-x-2-md/
     │   ├── SKILL.md
     │   └── scripts/
-    └── guige-svg/
-        ├── SKILL.md
-        ├── agents/
-        ├── references/
-        └── scripts/
+    └── guige-x-to-blog/
+        └── SKILL.md
 ```
 
 每个 skill 都放在 `skills/<skill-name>/` 下，并包含必需的 `SKILL.md`。资源文件、参考文档和辅助脚本分别放在该 skill 自己的 `assets/`、`references/` 和 `scripts/` 目录中。
