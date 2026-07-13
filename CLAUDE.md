@@ -53,3 +53,13 @@ README.md               → 用户文档
 - 本地测试：`claude --plugin-dir .`
 - 安装到本机：`./install.sh`（软链接到 `~/.claude/skills` 和 `~/.codex/skills`）
 - 公开分发：通过 GitHub `luoli523/guige-skills` marketplace
+
+<!-- OPENWIKI:START -->
+
+## OpenWiki
+
+This repository uses OpenWiki for recurring code documentation. Start with `openwiki/quickstart.md`, then follow its links to architecture, workflows, domain concepts, operations, integrations, testing guidance, and source maps.
+
+The push-triggered OpenWiki GitHub Actions workflow refreshes the repository wiki. Do not hand-edit generated OpenWiki pages unless explicitly asked; prefer updating source code/docs and letting OpenWiki regenerate.
+
+<!-- OPENWIKI:END -->
