@@ -285,18 +285,39 @@ codex plugin add guige@guige-skills
 /plugin update guige@guige-skills
 ```
 
-### 方式三：本地 install.sh（兼容模式）
+### 方式三：install.sh（一键脚本）
 
-适用于需要手动管理 skill 目录，或在插件机制不可用时的兼容场景。执行安装脚本会扫描 `skills/*/SKILL.md`，并把有效 skill 以软链接方式安装到本机 skill 目录。
+`install.sh` 支持两种模式。**默认走 marketplace 模式**，等价于自动执行方式一/方式二的 plugin CLI 命令：给 `claude` 和 `codex` 两个 CLI 添加/更新 Git marketplace，并安装/更新 `guige` plugin（幂等，某个 CLI 不在 PATH 会跳过并提示）。
 
 ```bash
+# marketplace 安装到 claude + codex（默认）
 ./install.sh
+
+# 只装某一侧
+./install.sh --target codex
+./install.sh --target claude
+
+# 预览将执行的命令，不实际改动
+./install.sh --dry-run
+
+# 查看当前安装状态
+./install.sh --list
 ```
 
-默认目标目录：
+需要本地开发即时生效（软链接 `skills/*` 到本机 skill 目录、改源码不用重装）时，用 symlink 模式：
 
-- `${CODEX_HOME:-~/.codex}/skills`
-- `~/.claude/skills`
+```bash
+# 软链接模式
+./install.sh --mode symlink
+
+# 自定义目标目录（可重复），或清理失效软链
+./install.sh --mode symlink --target ~/.claude/skills
+./install.sh --mode symlink --cleanup
+```
+
+symlink 模式默认目标目录：`${CODEX_HOME:-~/.codex}/skills`、`~/.claude/skills`。
+
+可用环境变量覆盖：`GUIGE_MARKETPLACE_REPO`（marketplace repo，默认 `luoli523/guige-skills`）、`GUIGE_MARKETPLACE_REF`（Codex 分支，默认 `main`）、`GUIGE_SKILLS_TARGETS`（symlink 模式冒号分隔目标目录）。
 
 常用命令：
 
