@@ -1,7 +1,7 @@
 {
   "name": "guige",
-  "version": "0.1.1",
-  "description": "Gui Ge skill set for image generation, infographics, slides, video download, WeChat publishing, and more.",
+  "version": "0.2.0",
+  "description": "Gui Ge skill set for image generation, infographics, slides, video download, digital-human videos, WeChat publishing, and more.",
   "author": {
     "name": "Gui Ge",
     "url": "https://github.com/luoli523"
@@ -14,7 +14,8 @@
     "infographics",
     "slides",
     "wechat",
-    "x"
+    "x",
+    "digital-human"
   ],
   "skills": "./skills/",
   "interface": {

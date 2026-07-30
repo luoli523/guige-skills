@@ -37,7 +37,7 @@ README.md               → 用户文档
 
 - `infographic/`、`hand-write-pic/`、`imagen/`、`svg/`、`slide-deck/`
 - `x-to-markdown/`、`post-to-wechat/`、`wechat/`
-- `downloads/`、`generated/`
+- `downloads/`、`generated/`、`digital-human/`
 - `~/Downloads/guige-skill-imagen/`、`~/Downloads/guige-skill-video/`
 
 ## Boundaries

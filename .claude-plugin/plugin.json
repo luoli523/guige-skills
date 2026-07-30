@@ -1,7 +1,7 @@
 {
   "name": "guige",
-  "version": "0.1.1",
-  "description": "Gui Ge skill set — image generation, infographics, slides, SVG diagrams, video download, X/Twitter conversion, Google Drive upload, and WeChat publishing.",
+  "version": "0.2.0",
+  "description": "Gui Ge skill set — image generation, infographics, slides, SVG diagrams, video download, digital-human videos, X/Twitter conversion, Google Drive upload, and WeChat publishing.",
   "author": {
     "name": "Gui Ge",
     "url": "https://github.com/luoli523"
@@ -17,7 +17,8 @@
     "svg",
     "wechat",
     "x-twitter",
-    "video-download"
+    "video-download",
+    "digital-human"
   ],
   "skills": "./skills/"
 }

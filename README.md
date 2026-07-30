@@ -26,6 +26,10 @@
     ├── guige-blog-post/
     │   ├── SKILL.md
     │   └── references/
+    ├── guige-digital-human/
+    │   ├── SKILL.md
+    │   ├── references/
+    │   └── scripts/
     ├── guige-drive-upload/
     │   ├── SKILL.md
     │   └── scripts/
@@ -104,6 +108,7 @@
 | `guige-blog-post` | 博客写作发布 | 端到端写作、配图、发布到 `luoli523.github.io` Hugo 博客。触发词 `/blog-post`、`writing blog post`、`publish post`。 |
 | `guige-picbook` | 儿童科普绘本 | 从主题生成儿童教育绘本，输出结构化 Markdown 章节与插图 prompts，可选上传到 NotebookLM 生成 Slides PDF、推送到 Telegram，或通过 `guige-drive-upload` 上传材料。 |
 | `guige-to-wechat` | 微信公众号发布 | 用 Python 客户端把 Markdown/HTML/纯文本发布到微信公众号草稿箱，支持 Markdown→微信 HTML 转换、封面图与正文图片上传。 |
+| `guige-digital-human` | 数字人口播视频 | MiniMax 声音克隆配音 + HeyGen Image-to-Video 的数字人口播生产线，内置资产校验、15 秒预览 gate、job-state 断点续跑，触发词 `/digital-human`、数字人、口播视频。 |
 | `guige-x-to-blog` | X 推文转博客 | 将 X 推文下载、整理并改写为中文博客文章，复用原图，按既有博客发布流程交付。触发词 `/x-to-blog`、`x 推文转博客`、`tweet to blog`。 |
 
 ## `guige-disassembly-diagram` 快速使用

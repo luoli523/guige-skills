@@ -20,4 +20,5 @@ post-to-wechat/
 wechat/
 downloads/
 generated/
+digital-human/
 *.wechat.html
