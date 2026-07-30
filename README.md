@@ -289,6 +289,8 @@ codex plugin add guige@guige-skills
 
 `install.sh` 支持两种模式。**默认走 marketplace 模式**，等价于自动执行方式一/方式二的 plugin CLI 命令：给 `claude` 和 `codex` 两个 CLI 添加/更新 Git marketplace，并安装/更新 `guige` plugin（幂等，某个 CLI 不在 PATH 会跳过并提示）。
 
+marketplace 模式默认会**先清理本仓库遗留的本地软链接**（之前用 symlink 模式装过的 `guige-*` 软链），避免软链和 plugin 缓存同时加载造成重复。不想清理时加 `--no-purge-symlinks`。清理只删指向本仓库的软链，不碰其他插件。
+
 ```bash
 # marketplace 安装到 claude + codex（默认）
 ./install.sh

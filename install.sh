@@ -19,6 +19,7 @@ MODE=marketplace
 DRY_RUN=false
 CLEANUP=false
 LIST=false
+PURGE_SYMLINKS=true
 TARGET_ARGS=()
 
 if [[ -t 1 ]]; then
@@ -39,6 +40,8 @@ Options:
                   In symlink mode: a directory to install into (repeatable).
   --dry-run       Show what would be done without making changes
   --cleanup       (symlink mode) Remove stale managed symlinks
+  --no-purge-symlinks  (marketplace mode) Keep this repo's local symlinks
+                  instead of removing them before installing the plugin
   --list          List install status for the selected mode
   --repo OWNER/REPO  Marketplace repo slug (default: $MARKETPLACE_REPO)
   -h, --help      Show this help message
@@ -73,6 +76,8 @@ while [[ $# -gt 0 ]]; do
         --mode=*) MODE="${1#--mode=}"; shift ;;
         --dry-run) DRY_RUN=true; shift ;;
         --cleanup) CLEANUP=true; shift ;;
+        --purge-symlinks) PURGE_SYMLINKS=true; shift ;;
+        --no-purge-symlinks) PURGE_SYMLINKS=false; shift ;;
         --list) LIST=true; shift ;;
         --repo) MARKETPLACE_REPO="${2:-}"; shift 2 ;;
         --repo=*) MARKETPLACE_REPO="${1#--repo=}"; shift ;;
@@ -194,6 +199,35 @@ marketplace_status() {
     done
 }
 
+cli_skills_dir() {
+    case "$1" in
+        claude) expand_path "$HOME/.claude/skills" ;;
+        codex) expand_path "${CODEX_HOME:-$HOME/.codex}/skills" ;;
+    esac
+}
+
+# Remove symlinks in <dir> that this repo created (point into SKILLS_ROOT or
+# SCRIPT_DIR), so a marketplace install does not double-load skills already
+# linked by a prior `--mode symlink` run. Other symlinks are left untouched.
+purge_repo_symlinks() {
+    local dir="$1" link current removed=0
+    [[ -d "$dir" ]] || return 0
+    shopt -s nullglob
+    for link in "$dir"/*; do
+        [[ -L "$link" ]] || continue
+        current="$(readlink "$link")"
+        case "$current" in
+            "$SKILLS_ROOT"/*|"$SCRIPT_DIR"/*)
+                echo -e "  ${YELLOW}Purge symlink:${NC} $(basename "$link") -> $current"
+                $DRY_RUN || rm "$link"
+                removed=$((removed + 1)) ;;
+        esac
+    done
+    shopt -u nullglob
+    [[ $removed -gt 0 ]] && echo "  Removed $removed managed symlink(s) from $dir"
+    return 0
+}
+
 run_marketplace() {
     if $LIST; then
         marketplace_status
@@ -210,6 +244,12 @@ run_marketplace() {
         echo -e "${RED}Error:${NC} none of the selected plugin CLIs ($(echo $targets | tr '\n' ' ')) are in PATH." >&2
         echo -e "Install Claude Code / Codex first, or run local symlink install: ${YELLOW}./install.sh --mode symlink${NC}" >&2
         exit 1
+    fi
+    if $PURGE_SYMLINKS; then
+        echo -e "${BLUE}=== Purge local symlinks ===${NC}"
+        for cli in $targets; do
+            purge_repo_symlinks "$(cli_skills_dir "$cli")"
+        done
     fi
     for cli in $targets; do
         echo -e "${BLUE}Target:${NC} $cli"
