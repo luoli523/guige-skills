@@ -1,6 +1,6 @@
 # 叙事物件生命周期
 
-本模块研究器物怎样跨场景保存物理状态、持有关系、信息权限和情感债务，并在重现、转手、损坏与使用中不断变义。一般线索的公平误导与揭示见 `information-control.md`，物件承载情感的方法见 `emotional-subtext.md`，长篇伏笔与回收见 `macro-narrative.md`。
+本模块研究器物怎样跨场景保存物理状态、持有关系、信息权限和情感债务，并在重现、转手、损坏与使用中不断变义。一般线索的公平误导与揭示见 `information-control.md`，物件承载情感的方法见 `emotional-subtext.md`，长篇伏笔与回收见 `macro-narrative.md`，器物正式名、匠人名、俗称和敌称的生成见 `naming-and-semantic-networks.md`。
 
 ## 目录
 

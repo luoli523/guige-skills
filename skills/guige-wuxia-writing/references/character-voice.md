@@ -14,7 +14,7 @@ tags:
 
 # 金庸写作风格卡·人物专属语言系统
 
-本模块由 `SKILL.md` 按任务类型加载；人物的信息权限与感知中心见 `viewpoint-distance.md`。
+本模块由 `SKILL.md` 按任务类型加载；人物的信息权限与感知中心见 `viewpoint-distance.md`，本名、法号、绰号、官称和化名的生成与变义见 `naming-and-semantic-networks.md`。
 
 ## 一、核心结论
 
