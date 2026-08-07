@@ -383,7 +383,7 @@ reference条目必须标记：`fact`、`contested`、`legend`、`literary`、`ad
 
 #### 修正
 
-在危险、诙谐、关系、掌故、宁静和新线索之间换味。
+在危险、诙谐、关系、掌故、宁静和新线索之间换味。人物诙谐机制、换挡铰链与伦理边界见 `humor-and-tonal-shifts.md`。
 
 ### 27. 收束后继续解释
 
