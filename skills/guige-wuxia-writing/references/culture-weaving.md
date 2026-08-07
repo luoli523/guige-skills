@@ -16,7 +16,7 @@ tags:
 
 > 本文只记录“文化材料怎样进入故事”的写法机制。具体诗词、史料、典故、传说、礼俗、地域风物等素材，后续分别建立 reference 库，不与规则层混写。
 
-本模块由 `SKILL.md` 按任务类型加载；素材的数据结构见 `reference-library.md`。
+本模块由 `SKILL.md` 按任务类型加载；素材的数据结构见 `reference-library.md`。文化器物进入长篇后怎样保存权属、状态、关系与因果，见 `object-lifecycle.md`。
 
 ## 一、核心原则
 

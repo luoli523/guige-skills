@@ -1,6 +1,6 @@
 ---
 name: guige-wuxia-writing
-description: Use when planning, drafting, rewriting, diagnosing, or enriching original Chinese wuxia and historical-adventure fiction. Trigger on 武侠写作、历史冒险、故事梗概、章节规划、场景扩写、文风改写、人物声口、情感表达、潜台词、诵读感、诙谐、幽默、张弛、情绪换挡、信息差、悬念、误会、线索、揭秘、文化素材入库、武侠文稿诊断，以及借鉴金庸式或传统说书体技法的请求。
+description: Use when planning, drafting, rewriting, diagnosing, or enriching original Chinese wuxia and historical-adventure fiction. Trigger on 武侠写作、历史冒险、故事梗概、章节规划、场景扩写、文风改写、人物声口、情感表达、潜台词、诵读感、诙谐、幽默、张弛、情绪换挡、信息差、悬念、误会、线索、揭秘、叙事物件、道具、信物、遗物、物证、器物伏笔、物件回收、文化素材入库、武侠文稿诊断，以及借鉴金庸式或传统说书体技法的请求。
 ---
 
 # 鬼哥武侠写作
@@ -35,6 +35,8 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 
 用户要求设计或诊断诙谐、机锋、轻松场景、情绪换挡或长篇张弛时，额外读取 `humor-and-tonal-shifts.md`，并在人物卡和章节计划中维护专属诙谐机制与语气弧线。
 
+用户要求设计或诊断叙事物件、道具、信物、遗物、物证、权力凭证、知识载体、器物伏笔或物件回收时，额外读取 `object-lifecycle.md`，并更新项目的 `objects-and-clues.md`；发生转手、损坏、污染、修补或失效时同步 `timeline.md`，人物认知改变时同步 `knowledge-and-beliefs.md`。
+
 ## 载入项目上下文
 
 若用户提供了小说项目，优先读取与当前任务直接相关的文件：
@@ -60,6 +62,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - 场景中谁知道什么、误解什么；
 - 读者此刻领先、同步还是落后于人物；
 - 场景的主调、现实压力和计划换挡的具体铰链；
+- 本场有哪些物件改变位置、持有人、物理状态、用途或意义；
 - 人物必须作出什么选择；
 - 结尾改变了哪一种状态：关系、信息、危险、目标或代价。
 
@@ -79,6 +82,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - 叙述距离遵循“外部动作—感知入心—短促判断—回到动作”的基本循环。
 - 把客观事实、人物感知和人物解释分开；误判必须来自真实证据与人物盲点，揭示后立即改变行动。
 - 诙谐从人物欲望、关系、信息或规则错位中发生，并改变场景；转调时同步改变称谓、句法、动作或叙述距离，保留前一情绪的余味。
+- 把重要物件当作跨场景状态载体：先按现实用途使用，再通过转手、损坏、附着物和人物处理动作累积关系与因果；知识型物件不能等同于即时能力，权力型物件不能等同于自动合法。
 
 ### 第三遍：清除伪腔
 
@@ -92,6 +96,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - 检查对白遮名后能否分辨人物；不能则重写声口与策略。
 - 删除情绪形容词后，若无法判断情感对象、克制原因与行动后果，则补足情感结构，不要只换更浓烈的词。
 - 检查武打是否改变局势或显露人物，不能则压缩。
+- 核对重要物件的精确位置、持有人、取用条件、物理状态与见证者；删除属性空降、自动复原、无来由转手和物件瞬移。
 - 检查段末是否落在有效动作、判断、悬念或余味上。
 - 与用户设定和既有章节做连续性核对。
 
@@ -134,6 +139,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - 视角、知识边界、时间、地点、伤势、物件和伏笔连续。
 - 客观事实、人物信念、公开说法和读者认知彼此不混淆。
 - 轻松段仍推进关系、信息或行动；情绪换挡有现场铰链、表达变化和残留余味。
+- 重要物件每次重现都改变至少一种状态；最终回收同时依赖既有物理规则、关系历史与人物主动选择。
 - 文本具有原创人物、原创世界细节和独立表达。
 
 ## References
@@ -148,6 +154,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - `references/viewpoint-distance.md`：叙述视角、信息权限和距离伸缩。
 - `references/information-control.md`：知识账本、合理误判、线索生命周期与揭示阶梯。
 - `references/humor-and-tonal-shifts.md`：人物诙谐机制、权力方向、情绪换挡铰链与长篇张弛。
+- `references/object-lifecycle.md`：叙事物件的物理状态、权属资格、转手变义、延迟因果与回收退场。
 - `references/character-voice.md`：人物专属语言系统。
 - `references/emotional-subtext.md`：情感显影链、潜台词、关系动作、物件与延迟释放。
 - `references/reference-library.md`：文化素材库的数据结构、准入与调用规范。

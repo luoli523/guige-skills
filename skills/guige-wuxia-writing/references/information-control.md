@@ -1,6 +1,6 @@
 # 信息差与认知控制
 
-本模块研究怎样区分客观事实、人物认知、读者认知和叙述者权限，并让线索、误判与揭示持续产生行动后果。视角进入方式见 `viewpoint-distance.md`，长期因果和伏笔见 `macro-narrative.md`。
+本模块研究怎样区分客观事实、人物认知、读者认知和叙述者权限，并让线索、误判与揭示持续产生行动后果。视角进入方式见 `viewpoint-distance.md`，长期因果和伏笔见 `macro-narrative.md`，器物的持有、损坏、转手与跨章状态见 `object-lifecycle.md`。
 
 ## 目录
 

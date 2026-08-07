@@ -1,6 +1,6 @@
 # 情感的间接表达机制
 
-本模块研究怎样让情感通过人物可见的反应、关系动作、物件、沉默和选择显现，而不是依靠抽象形容词替读者总结。它与 `viewpoint-distance.md`、`character-voice.md`、`rhythm-and-prosody.md` 配合使用；诙谐怎样掩饰情感、怎样转入温情或悲悯，见 `humor-and-tonal-shifts.md`。
+本模块研究怎样让情感通过人物可见的反应、关系动作、物件、沉默和选择显现，而不是依靠抽象形容词替读者总结。它与 `viewpoint-distance.md`、`character-voice.md`、`rhythm-and-prosody.md` 配合使用；诙谐怎样掩饰情感、怎样转入温情或悲悯，见 `humor-and-tonal-shifts.md`；物件的长期转手、损伤、权属与回收见 `object-lifecycle.md`。
 
 ## 目录
 

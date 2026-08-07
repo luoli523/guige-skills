@@ -14,7 +14,7 @@ tags:
 
 # 金庸写作风格卡·宏观叙事总原则
 
-本模块由 `SKILL.md` 按任务类型加载；长篇秘密、误判链、线索变义和读者认知管理见 `information-control.md`，张弛、诙谐与具体换挡铰链见 `humor-and-tonal-shifts.md`。
+本模块由 `SKILL.md` 按任务类型加载；长篇秘密、误判链、线索变义和读者认知管理见 `information-control.md`，张弛、诙谐与具体换挡铰链见 `humor-and-tonal-shifts.md`，核心器物的转手、状态持续和最终清账见 `object-lifecycle.md`。
 
 ## 一、核心公式
 
