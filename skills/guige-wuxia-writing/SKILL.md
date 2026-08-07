@@ -1,6 +1,6 @@
 ---
 name: guige-wuxia-writing
-description: Use when planning, drafting, rewriting, diagnosing, or enriching original Chinese wuxia and historical-adventure fiction. Trigger on 武侠写作、历史冒险、故事梗概、章节规划、场景扩写、文风改写、人物声口、文化素材入库、武侠文稿诊断，以及借鉴金庸式或传统说书体技法的请求。
+description: Use when planning, drafting, rewriting, diagnosing, or enriching original Chinese wuxia and historical-adventure fiction. Trigger on 武侠写作、历史冒险、故事梗概、章节规划、场景扩写、文风改写、人物声口、情感表达、潜台词、文化素材入库、武侠文稿诊断，以及借鉴金庸式或传统说书体技法的请求。
 ---
 
 # 鬼哥武侠写作
@@ -22,9 +22,9 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 |---|---|---|
 | 故事构思 | premise、人物矛盾、长篇主线 | `macro-narrative.md`、`culture-weaving.md` |
 | 篇章规划 | 卷、章、场景链与悬念 | `macro-narrative.md`、`viewpoint-distance.md` |
-| 场景创作 | 新写一场戏或扩写梗概 | `viewpoint-distance.md`、`character-voice.md`、`sentence-blocks.md`、`narrative-connectors.md`、`rhythm-and-prosody.md`、`anti-patterns.md` |
-| 文稿改写 | 改语言、节奏、对白或叙述 | `sentence-blocks.md`、`narrative-connectors.md`、`rhythm-and-prosody.md`、`character-voice.md`、`anti-patterns.md` |
-| 文稿诊断 | 找出结构、视角、声口与文风问题 | `anti-patterns.md`，再按问题读取相应模块 |
+| 场景创作 | 新写一场戏或扩写梗概 | `viewpoint-distance.md`、`character-voice.md`、`emotional-subtext.md`、`sentence-blocks.md`、`narrative-connectors.md`、`rhythm-and-prosody.md`、`anti-patterns.md` |
+| 文稿改写 | 改语言、节奏、对白、情感或叙述 | `sentence-blocks.md`、`narrative-connectors.md`、`rhythm-and-prosody.md`、`character-voice.md`、`emotional-subtext.md`、`anti-patterns.md` |
+| 文稿诊断 | 找出结构、视角、声口、情感与文风问题 | `anti-patterns.md`，再按问题读取相应模块；情感直白或潜台词问题读取 `emotional-subtext.md` |
 | 素材入库 | 整理典故、传说、习俗和风物 | `culture-weaving.md`、`reference-library.md` |
 
 读取所选 reference 的完整内容后再动笔。不要一次加载与任务无关的全部模块。
@@ -61,6 +61,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 按需应用以下机制：
 
 - 用人物的身份、知识边界和策略生成对白，而不是给所有人同一套古风口吻。
+- 让情感先受到人物身份、责任和自尊的约束，再从身体、称谓、物件、关系动作和选择中泄漏；情绪词只作短促校准。
 - 以意义自足的短语块组织较长句子；四字格只承担压缩、定调或收束作用。
 - 用连接词切换镜头、认知、因果和意外，不把连接词当装饰。
 - 长短句交替，重音落在动作、状态或判断上；朗读时应能自然换气。
@@ -75,6 +76,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - 修正无动机的视角跳跃与全知泄密。
 - 去掉百科式典故、导游式风物和与行动无关的历史说明。
 - 检查对白遮名后能否分辨人物；不能则重写声口与策略。
+- 删除情绪形容词后，若无法判断情感对象、克制原因与行动后果，则补足情感结构，不要只换更浓烈的词。
 - 检查武打是否改变局势或显露人物，不能则压缩。
 - 检查段末是否落在有效动作、判断、悬念或余味上。
 - 与用户设定和既有章节做连续性核对。
@@ -111,6 +113,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 
 - 故事动力来自人物选择，而非作者强推。
 - 每个主要人物的语言受身份、关系、情绪和策略共同约束。
+- 情感有具体对象、人物专属泄漏方式和实际行动后果。
 - 句子清楚优先于古雅，节奏服务于意义。
 - 文化素材对当前戏剧任务有实际作用。
 - 视角、知识边界、时间、地点、伤势、物件和伏笔连续。
@@ -126,4 +129,5 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - `references/culture-weaving.md`：典故、传说、习俗与地方风物的叙事化方法。
 - `references/viewpoint-distance.md`：叙述视角、信息权限和距离伸缩。
 - `references/character-voice.md`：人物专属语言系统。
+- `references/emotional-subtext.md`：情感显影链、潜台词、关系动作、物件与延迟释放。
 - `references/reference-library.md`：文化素材库的数据结构、准入与调用规范。
