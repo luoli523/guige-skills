@@ -1,6 +1,6 @@
 ---
 name: guige-wuxia-writing
-description: Use when planning, drafting, rewriting, diagnosing, or enriching original Chinese wuxia and historical-adventure fiction. Trigger on 武侠写作、历史冒险、故事梗概、章节规划、场景扩写、文风改写、人物声口、情感表达、潜台词、诵读感、朗读节奏、文化素材入库、武侠文稿诊断，以及借鉴金庸式或传统说书体技法的请求。
+description: Use when planning, drafting, rewriting, diagnosing, or enriching original Chinese wuxia and historical-adventure fiction. Trigger on 武侠写作、历史冒险、故事梗概、章节规划、场景扩写、文风改写、人物声口、情感表达、潜台词、诵读感、信息差、悬念、误会、线索、揭秘、文化素材入库、武侠文稿诊断，以及借鉴金庸式或传统说书体技法的请求。
 ---
 
 # 鬼哥武侠写作
@@ -20,8 +20,8 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 
 | 模式 | 适用任务 | 必读 references |
 |---|---|---|
-| 故事构思 | premise、人物矛盾、长篇主线 | `macro-narrative.md`、`culture-weaving.md` |
-| 篇章规划 | 卷、章、场景链与悬念 | `macro-narrative.md`、`viewpoint-distance.md` |
+| 故事构思 | premise、人物矛盾、长篇主线 | `macro-narrative.md`、`culture-weaving.md`；以秘密或旧案驱动时增加 `information-control.md` |
+| 篇章规划 | 卷、章、场景链与悬念 | `macro-narrative.md`、`viewpoint-distance.md`、`information-control.md` |
 | 场景创作 | 新写一场戏或扩写梗概 | `viewpoint-distance.md`、`character-voice.md`、`emotional-subtext.md`、`sentence-blocks.md`、`narrative-connectors.md`、`rhythm-and-prosody.md`、`anti-patterns.md` |
 | 文稿改写 | 改语言、节奏、对白、情感或叙述 | `sentence-blocks.md`、`narrative-connectors.md`、`rhythm-and-prosody.md`、`character-voice.md`、`emotional-subtext.md`、`anti-patterns.md` |
 | 文稿诊断 | 找出结构、视角、声口、情感与文风问题 | `anti-patterns.md`，再按问题读取相应模块；情感直白或潜台词问题读取 `emotional-subtext.md` |
@@ -31,6 +31,8 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 
 用户明确要求“诵读感、唇齿留香、朗读节奏、文气或声音结构”时，在相应模式的基础上额外读取 `sound-and-cadence.md`；一般写作只读取 `rhythm-and-prosody.md`，避免重复加载。
 
+用户要求设计或诊断秘密、悬念、误会、调查、线索、身份揭示或认知错位时，额外读取 `information-control.md`，并更新项目的 `knowledge-and-beliefs.md`。
+
 ## 载入项目上下文
 
 若用户提供了小说项目，优先读取与当前任务直接相关的文件：
@@ -39,7 +41,8 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 2. `story-outline.md` 与对应 `chapter-plans/`：本场戏在因果链中的位置。
 3. 当前出场人物卡和 `relationships.md`：欲望、义务、知识边界、声口及关系状态。
 4. `world.md`、`timeline.md`、`objects-and-clues.md`：仅在场景涉及相关事实、时间或伏笔时读取。
-5. `reference-manifest.md`：仅加载本场实际会用到的文化素材条目。
+5. `knowledge-and-beliefs.md`：涉及秘密、误会、调查或揭示时，核对客观事实、人物信念和读者认知。
+6. `reference-manifest.md`：仅加载本场实际会用到的文化素材条目。
 
 没有项目结构且用户要求开始一部长篇时，可将 `assets/project-template/` 复制到用户指定目录；未经请求不要创建项目文件。模板中的 `00-使用指南.md` 是给用户的随项目速查页，复制时必须保留。创建完成后，只需告诉用户下一步最适合使用的一个指令，不要一次讲解全部流程。
 
@@ -53,6 +56,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - 他此刻想得到什么；
 - 哪两种以上的力量或义务互相冲突；
 - 场景中谁知道什么、误解什么；
+- 读者此刻领先、同步还是落后于人物；
 - 人物必须作出什么选择；
 - 结尾改变了哪一种状态：关系、信息、危险、目标或代价。
 
@@ -70,6 +74,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - 用户重视诵读效果时，进一步安排轻重拍、句法复现、对白轮次与具体收音，不强行押韵或凑平仄。
 - 文化材料必须进入人物行动、社会规则、冲突、机关或主题，不能只是知识展示。
 - 叙述距离遵循“外部动作—感知入心—短促判断—回到动作”的基本循环。
+- 把客观事实、人物感知和人物解释分开；误判必须来自真实证据与人物盲点，揭示后立即改变行动。
 
 ### 第三遍：清除伪腔
 
@@ -77,6 +82,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 
 - 删去不承担功能的古词、成语、四字格和感叹。
 - 修正无动机的视角跳跃与全知泄密。
+- 检查知情人物是否自然隐瞒、误判是否公平、关键证据是否提前植入，避免作者藏牌和新证据空降。
 - 去掉百科式典故、导游式风物和与行动无关的历史说明。
 - 检查对白遮名后能否分辨人物；不能则重写声口与策略。
 - 删除情绪形容词后，若无法判断情感对象、克制原因与行动后果，则补足情感结构，不要只换更浓烈的词。
@@ -121,6 +127,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - 朗读时重音可辨、换气自然，句群有建立、转折与落地。
 - 文化素材对当前戏剧任务有实际作用。
 - 视角、知识边界、时间、地点、伤势、物件和伏笔连续。
+- 客观事实、人物信念、公开说法和读者认知彼此不混淆。
 - 文本具有原创人物、原创世界细节和独立表达。
 
 ## References
@@ -133,6 +140,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - `references/anti-patterns.md`：伪古风、伪金庸腔及修正方法。
 - `references/culture-weaving.md`：典故、传说、习俗与地方风物的叙事化方法。
 - `references/viewpoint-distance.md`：叙述视角、信息权限和距离伸缩。
+- `references/information-control.md`：知识账本、合理误判、线索生命周期与揭示阶梯。
 - `references/character-voice.md`：人物专属语言系统。
 - `references/emotional-subtext.md`：情感显影链、潜台词、关系动作、物件与延迟释放。
 - `references/reference-library.md`：文化素材库的数据结构、准入与调用规范。

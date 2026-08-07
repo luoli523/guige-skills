@@ -14,7 +14,7 @@ tags:
 
 # 金庸写作风格卡·叙述视角与距离伸缩
 
-本模块由 `SKILL.md` 按任务类型加载；文化材料的叙事用法见 `culture-weaving.md`。
+本模块由 `SKILL.md` 按任务类型加载；文化材料的叙事用法见 `culture-weaving.md`，秘密、误判、线索和读者认知的长期控制见 `information-control.md`。
 
 ## 一、核心结论
 
