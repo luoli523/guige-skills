@@ -71,6 +71,11 @@
     │   ├── SKILL.md
     │   ├── references/
     │   └── scripts/
+    ├── guige-wuxia-writing/
+    │   ├── SKILL.md
+    │   ├── agents/
+    │   ├── assets/
+    │   └── references/
     ├── guige-x-2-md/
     │   ├── SKILL.md
     │   └── scripts/
@@ -109,6 +114,7 @@
 | `guige-picbook` | 儿童科普绘本 | 从主题生成儿童教育绘本，输出结构化 Markdown 章节与插图 prompts，可选上传到 NotebookLM 生成 Slides PDF、推送到 Telegram，或通过 `guige-drive-upload` 上传材料。 |
 | `guige-to-wechat` | 微信公众号发布 | 用 Python 客户端把 Markdown/HTML/纯文本发布到微信公众号草稿箱，支持 Markdown→微信 HTML 转换、封面图与正文图片上传。 |
 | `guige-digital-human` | 数字人口播视频 | MiniMax 声音克隆配音 + HeyGen Image-to-Video 的数字人口播生产线，内置资产校验、15 秒预览 gate、job-state 断点续跑，触发词 `/digital-human`、数字人、口播视频。 |
+| `guige-wuxia-writing` | 原创武侠写作 | 面向原创武侠与历史冒险的构思、篇章规划、场景创作、改写、诊断和文化素材入库工作流，沉淀宏观叙事、十二类句式、连接词、节奏、视角、人物声口、文化织入与反模式。 |
 | `guige-x-to-blog` | X 推文转博客 | 将 X 推文下载、整理并改写为中文博客文章，复用原图，按既有博客发布流程交付。触发词 `/x-to-blog`、`x 推文转博客`、`tweet to blog`。 |
 
 ## `guige-disassembly-diagram` 快速使用

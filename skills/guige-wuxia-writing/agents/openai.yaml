@@ -1,0 +1,4 @@
+interface:
+  display_name: "鬼哥武侠写作"
+  short_description: "原创武侠与历史冒险的构思、创作、改写和审校完整工作流"
+  default_prompt: "使用 $guige-wuxia-writing 根据我的故事设定规划并创作一个原创武侠场景。"

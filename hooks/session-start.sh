@@ -17,5 +17,6 @@ cat <<'EOF'
   /to-wechat           微信公众号草稿
   /video-download      视频 / 音频下载
   /digital-human       数字人口播视频 (MiniMax 声音克隆 + HeyGen)
+  /wuxia-writing       原创武侠构思、创作、改写与审校
   /drive-upload        上传到 Google Drive
 EOF
