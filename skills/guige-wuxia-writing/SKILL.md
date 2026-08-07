@@ -1,6 +1,6 @@
 ---
 name: guige-wuxia-writing
-description: Use when planning, drafting, rewriting, diagnosing, or enriching original Chinese wuxia and historical-adventure fiction. Trigger on 武侠写作、历史冒险、故事梗概、章节规划、场景扩写、文风改写、人物声口、情感表达、潜台词、文化素材入库、武侠文稿诊断，以及借鉴金庸式或传统说书体技法的请求。
+description: Use when planning, drafting, rewriting, diagnosing, or enriching original Chinese wuxia and historical-adventure fiction. Trigger on 武侠写作、历史冒险、故事梗概、章节规划、场景扩写、文风改写、人物声口、情感表达、潜台词、诵读感、朗读节奏、文化素材入库、武侠文稿诊断，以及借鉴金庸式或传统说书体技法的请求。
 ---
 
 # 鬼哥武侠写作
@@ -28,6 +28,8 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 | 素材入库 | 整理典故、传说、习俗和风物 | `culture-weaving.md`、`reference-library.md` |
 
 读取所选 reference 的完整内容后再动笔。不要一次加载与任务无关的全部模块。
+
+用户明确要求“诵读感、唇齿留香、朗读节奏、文气或声音结构”时，在相应模式的基础上额外读取 `sound-and-cadence.md`；一般写作只读取 `rhythm-and-prosody.md`，避免重复加载。
 
 ## 载入项目上下文
 
@@ -65,6 +67,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - 以意义自足的短语块组织较长句子；四字格只承担压缩、定调或收束作用。
 - 用连接词切换镜头、认知、因果和意外，不把连接词当装饰。
 - 长短句交替，重音落在动作、状态或判断上；朗读时应能自然换气。
+- 用户重视诵读效果时，进一步安排轻重拍、句法复现、对白轮次与具体收音，不强行押韵或凑平仄。
 - 文化材料必须进入人物行动、社会规则、冲突、机关或主题，不能只是知识展示。
 - 叙述距离遵循“外部动作—感知入心—短促判断—回到动作”的基本循环。
 
@@ -115,6 +118,7 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - 每个主要人物的语言受身份、关系、情绪和策略共同约束。
 - 情感有具体对象、人物专属泄漏方式和实际行动后果。
 - 句子清楚优先于古雅，节奏服务于意义。
+- 朗读时重音可辨、换气自然，句群有建立、转折与落地。
 - 文化素材对当前戏剧任务有实际作用。
 - 视角、知识边界、时间、地点、伤势、物件和伏笔连续。
 - 文本具有原创人物、原创世界细节和独立表达。
@@ -124,7 +128,8 @@ description: Use when planning, drafting, rewriting, diagnosing, or enriching or
 - `references/macro-narrative.md`：宏观叙事总原则、人物天性、冲突义务和长篇推进。
 - `references/sentence-blocks.md`：十二类句式与语块模板。
 - `references/narrative-connectors.md`：连接词的镜头、认知、因果与转折功能。
-- `references/rhythm-and-prosody.md`：句群节奏、换气、重音和诵读结构。
+- `references/rhythm-and-prosody.md`：语块、句长、换气和基础节奏参数。
+- `references/sound-and-cadence.md`：轻重拍、复现、对白轮次、听觉镜头与朗读收音。
 - `references/anti-patterns.md`：伪古风、伪金庸腔及修正方法。
 - `references/culture-weaving.md`：典故、传说、习俗与地方风物的叙事化方法。
 - `references/viewpoint-distance.md`：叙述视角、信息权限和距离伸缩。
