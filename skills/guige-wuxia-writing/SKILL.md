@@ -29,6 +29,8 @@ description: Use when planning, drafting, rewriting, diagnosing, naming, or enri
 
 读取所选 reference 的完整内容后再动笔。不要一次加载与任务无关的全部模块。
 
+处理具体作品的文化素材时，把项目素材库视为可靠锚点而非白名单。构思阶段允许调用模型已有知识提出库外候选，但仅凭模型记忆得到的具体史实必须先标为 `candidate`，保存到 `materials/candidates.md`，不得直接成为作品事实。核对来源、年代、地域和适用人群后建立独立素材卡并标为 `verified`；用户确认用于作品后改为 `adopted`，再登记到 `reference-manifest.md`。有意改编或纯属虚构时分别标为 `adapted` 或 `invented`，不要伪装成史实。
+
 用户明确要求“诵读感、唇齿留香、朗读节奏、文气或声音结构”时，在相应模式的基础上额外读取 `sound-and-cadence.md`；一般写作只读取 `rhythm-and-prosody.md`，避免重复加载。
 
 用户要求设计或诊断秘密、悬念、误会、调查、线索、身份揭示或认知错位时，额外读取 `information-control.md`，并更新项目的 `knowledge-and-beliefs.md`。
@@ -49,7 +51,7 @@ description: Use when planning, drafting, rewriting, diagnosing, naming, or enri
 4. `world.md`、`timeline.md`、`objects-and-clues.md`：仅在场景涉及相关事实、时间或伏笔时读取。
 5. `naming-system.md`：仅在新增人物、组织、武学、器物、地点、章名或称谓变义时读取。
 6. `knowledge-and-beliefs.md`：涉及秘密、误会、调查或揭示时，核对客观事实、人物信念和读者认知。
-7. `reference-manifest.md`：仅加载本场实际会用到的文化素材条目。
+7. `reference-manifest.md` 与对应 `materials/` 素材卡：仅加载本场实际会用到的已采用材料；只有在研究、发散或核验素材时才读取 `materials/candidates.md` 与 `materials/source-register.md`，不要为普通场景加载整个素材库。
 
 没有项目结构且用户要求开始一部长篇时，可将 `assets/project-template/` 复制到用户指定目录；未经请求不要创建项目文件。模板中的 `00-使用指南.md` 是随项目的一分钟速查页，`01-写作最佳实践.md` 是完整方法手册，复制时必须同时保留。创建完成后，只需告诉用户下一步最适合使用的一个指令，不要一次讲解全部流程。
 
@@ -83,6 +85,7 @@ description: Use when planning, drafting, rewriting, diagnosing, naming, or enri
 - 长短句交替，重音落在动作、状态或判断上；朗读时应能自然换气。
 - 用户重视诵读效果时，进一步安排轻重拍、句法复现、对白轮次与具体收音，不强行押韵或凑平仄。
 - 文化材料必须进入人物行动、社会规则、冲突、机关或主题，不能只是知识展示。
+- 已采用文化材料遵守素材卡的年代、地域、使用人群与改编边界；库外灵感先作为候选，不在正文中冒充已核验事实。
 - 叙述距离遵循“外部动作—感知入心—短促判断—回到动作”的基本循环。
 - 把客观事实、人物感知和人物解释分开；误判必须来自真实证据与人物盲点，揭示后立即改变行动。
 - 诙谐从人物欲望、关系、信息或规则错位中发生，并改变场景；转调时同步改变称谓、句法、动作或叙述距离，保留前一情绪的余味。
@@ -130,7 +133,7 @@ description: Use when planning, drafting, rewriting, diagnosing, naming, or enri
 
 ### 素材入库
 
-按照 `reference-library.md` 的字段保存来源、可信度、适用人物、感官细节、叙事用途和误用风险。事实、争议说法、传说和文学改写必须分开标记。
+先把模型知识、用户记忆或搜索线索保存为项目 `materials/candidates.md` 中的候选；核验后按照 `reference-library.md` 的字段建立素材卡，保存来源、可信度、适用人物、感官细节、叙事用途和误用风险。只有用户确认采用的条目进入 `reference-manifest.md`。事实、争议说法、传说、文学表达、艺术改编和纯虚构必须分开标记。
 
 ## 最终质量门
 
@@ -142,6 +145,7 @@ description: Use when planning, drafting, rewriting, diagnosing, naming, or enri
 - 句子清楚优先于古雅，节奏服务于意义。
 - 朗读时重音可辨、换气自然，句群有建立、转折与落地。
 - 文化素材对当前戏剧任务有实际作用。
+- 项目素材库没有被当作封闭白名单；库外具体史实在采用前经过核验或明确标记为艺术加工。
 - 视角、知识边界、时间、地点、伤势、物件和伏笔连续。
 - 客观事实、人物信念、公开说法和读者认知彼此不混淆。
 - 轻松段仍推进关系、信息或行动；情绪换挡有现场铰链、表达变化和残留余味。
