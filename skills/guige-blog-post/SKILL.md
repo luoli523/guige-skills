@@ -1,7 +1,7 @@
 ---
 name: guige-blog-post
-description: "Write and publish blog posts to luoli523.github.io Hugo blog. Trigger on: /blog-post, writing blog post, publish post, write article for blog."
-version: 0.1.0
+description: "Write distinctive, evidence-based, shareable blog posts in Guige's veteran AI/technology voice, then illustrate and publish them to the luoli523.github.io Hugo blog. Trigger on: /blog-post, writing blog post, publish post, write article for blog."
+version: 0.3.0
 ---
 
 # Blog Post Workflow
@@ -14,7 +14,14 @@ End-to-end workflow for writing, illustrating, and publishing blog posts to the 
 
 ## Blog Repository
 
-**Repo path**: `/Users/luoli/dev/git/luoli523.github.io`
+Resolve the blog repository before doing any work. Use, in order:
+
+1. A path explicitly provided by the user
+2. The `BLOG_REPO` environment variable
+3. A local sibling repository named `luoli523.github.io`
+
+If none can be resolved, ask the user for the repository path. Never hardcode a user home directory in generated files or scripts.
+
 **Generator**: Hugo 0.158.0 extended, theme `hugo-theme-stack`
 **Post path**: `content/post/<slug>/index.md`
 **Post URL**: `https://luoli523.github.io/p/<slug>/`
@@ -26,9 +33,9 @@ Copy this checklist and update as you progress:
 ```
 Blog Post Progress:
 - [ ] Step 0: Load preferences
-- [ ] Step 1: Determine input and research
-- [ ] Step 2: Create post structure
-- [ ] Step 3: Write article
+- [ ] Step 1: Define reader, brand angle, and evidence
+- [ ] Step 2: Develop thesis, titles, and structure
+- [ ] Step 3: Draft and complete editorial review
 - [ ] Step 4: Generate image prompts
 - [ ] Step 5: User generates images (manual, wait for user)
 - [ ] Step 6: Convert images to WebP
@@ -44,7 +51,7 @@ Blog Post Progress:
 Read the blog repo's CLAUDE.md for project rules:
 
 ```bash
-cat /Users/luoli/dev/git/luoli523.github.io/CLAUDE.md
+cat "$BLOG_REPO/CLAUDE.md"
 ```
 
 **Defaults** (can be overridden by user):
@@ -57,7 +64,9 @@ cat /Users/luoli/dev/git/luoli523.github.io/CLAUDE.md
 | Cover filename | cover.webp |
 | Visual direction | Adaptive: choose from local Guige image skills by article content |
 
-### Step 1: Determine Input Type
+Read `references/guige-editorial-guide.md` before planning or drafting an article.
+
+### Step 1: Define Reader, Brand Angle, and Evidence
 
 | User Input | Action |
 |------------|--------|
@@ -66,38 +75,104 @@ cat /Users/luoli/dev/git/luoli523.github.io/CLAUDE.md
 | An existing post directory | Skip to Step 6 (image conversion) |
 | `/blog-post` with no args | Ask user what they want to write about |
 
-**If researching a topic**:
+Before research, create an internal editorial brief. Do not put this planning block in the published article.
 
-1. Use `Agent` with `subagent_type=general-purpose` for web research — gather facts, perspectives, data
-2. Use `WebFetch` for specific URLs the user provides
-3. Collect enough material before writing — quality research makes quality articles
+```markdown
+Reader: <the specific AI/technology practitioner this article serves>
+Reader situation: <the problem, decision, or conversation they are facing>
+Surface topic: <what happened or what the article appears to discuss>
+Core thesis: <one arguable sentence, not a topic label>
+Guige angle: <what years of technical practice make visible here>
+Reader gain: <new judgment, reusable method, or useful information>
+Share trigger: <why a reader would send this to one specific colleague>
+Evidence needed: <facts, sources, examples, counterexamples>
+```
+
+The article must have one primary reader and one core thesis. If the thesis could be agreed with before reading the article, it is probably too generic.
+
+**Research and evidence rules**:
+
+1. Gather primary sources, concrete examples, relevant data, and credible opposing views.
+2. Separate verified facts, personal interpretation, and inference in the notes.
+3. Never invent first-hand experience, conversations, results, quotations, or statistics to make the story stronger.
+4. When the topic is current or factual claims may have changed, verify them before drafting.
+5. Research until the thesis can be supported and challenged, not until every corner of the topic has been summarized.
 
 **If user provides a URL or reference content**: Extract and summarize key points as source material.
 
-### Step 2: Create Post Structure
+### Step 2: Develop Thesis, Titles, and Structure
+
+#### 2.1 Stress-test the thesis
+
+Answer these questions before writing:
+
+- What is the article's single strongest claim?
+- What would an informed skeptic say?
+- Which evidence could change the conclusion?
+- Why is Guige the right person to make this observation?
+- What should the reader think or do differently afterward?
+
+If the article merely reports what happened, add a useful interpretation. If there is no defensible interpretation, publish a concise news note instead of stretching it into an essay.
+
+#### 2.2 Run the title lab
+
+Generate 8-12 working titles across at least four approaches:
+
+- Direct judgment: state the sharpest defensible conclusion
+- Conflict or tension: expose a tradeoff practitioners recognize
+- Concrete result: lead with a verified number, consequence, or decision
+- Narrative curiosity: reveal the setup but reserve the deeper meaning
+- Veteran perspective: show what experience changes about the interpretation
+
+Shortlist three titles and score each with the rubric in `references/guige-editorial-guide.md`. Select the strongest truthful title, not the loudest one. A title must create curiosity without withholding the article's subject or making a promise the body cannot fulfill.
+
+#### 2.3 Design the reading experience
+
+Choose the structure that fits the material. Do not force every article into the same template.
+
+| Article type | Recommended structure |
+|--------------|-----------------------|
+| Technical judgment | Real situation -> common interpretation -> Guige's disagreement -> evidence -> practical consequence |
+| Tool or product analysis | User problem -> hands-on observation -> what works -> hidden cost -> who should use it |
+| Industry commentary | Event -> why the obvious reading is incomplete -> underlying mechanism -> second-order effect |
+| Tutorial | Painful task -> smallest working path -> key decisions -> failure cases -> reusable checklist |
+| Reflective essay | Concrete scene -> tension -> widening interpretation -> restrained reversal -> opening callback |
+
+Plan these elements before drafting:
+
+- One opening scene, conflict, or surprising fact
+- Two to four evidence-backed movements in the argument
+- At least one credible counterargument or limitation
+- Two to four quotable sentences that emerge naturally from the reasoning
+- One reusable artifact when appropriate: checklist, model, comparison, code, or decision rule
+- A conclusion that changes or deepens the meaning of the opening
+
+#### 2.4 Create the post directory
 
 1. **Generate slug**: kebab-case, 2-4 English words (e.g., `karpathy-llm-wiki`, `gemma4-analysis`)
 
 2. **Create directory**:
 
 ```bash
-mkdir -p /Users/luoli/dev/git/luoli523.github.io/content/post/<slug>
+mkdir -p "$BLOG_REPO/content/post/<slug>"
 ```
 
 3. **Verify no conflict**:
 
 ```bash
-ls /Users/luoli/dev/git/luoli523.github.io/content/post/<slug>/
+ls "$BLOG_REPO/content/post/<slug>/"
 ```
 
-### Step 3: Write Article
+### Step 3: Draft and Complete Editorial Review
+
+The brand promise is: **an experienced AI/technology practitioner helps readers see what the excitement leaves out.** The voice is restrained and professional, with dry humor, self-deprecation, precise analogies, and occasional setup-payoff callbacks.
 
 **Frontmatter template** (YAML, between `---` delimiters):
 
 ```yaml
 ---
-title: "标题：副标题格式"
-description: "1-2 句话的 SEO 摘要，120 字以内。这句话本身就是一个钩子——抛出反常识/痛点/数字，而不是流水账概括。Hugo 首页和微信公众号摘要都会用到它，它是文章的'第二个钩子'。"
+title: "从标题实验室选出的最终标题"
+description: "120 字以内，独立表达文章对象、核心冲突和读者收益；不得重复标题或制造正文无法兑现的悬念。"
 date: YYYY-MM-DD
 slug: <slug>
 image: cover.webp
@@ -121,51 +196,49 @@ tags:
 | 随想 | purple | note |
 | 生活 | red | life |
 
-**文章骨架——三层结构（必须遵守，骨架比皮肤重要）**
+#### Opening: earn attention
 
-每篇博客都要有这三层，缺一层就不是合格的文章：
+Draft three openings, then keep the one that best combines specificity, tension, and trust. Good openings usually begin with a real scene, a concrete contradiction, a costly mistake, or a defensible observation. Within the first 150 Chinese characters, make clear what the article is about and why the reader should continue.
 
-**① 钩子（开头 1-3 句）—— 让人停下来**
+Avoid generic throat-clearing, invented drama, unsupported numbers, and formulas such as “你以为 X，其实 Y” unless the contrast is genuinely surprising.
 
-- 划走只需要 0.3 秒，第一句决定生死
-- 三选一：**反常识断言** / **痛点共鸣** / **无法忽略的数字**
-- 反例（平庸）：「今天我们来聊一聊 X 这个话题」、「本文将介绍 X」
-- 正例（有钩子）：
-  - 「150 行代码就能造一个数字分身，但它只会聊天，不会做事」（数字 + 反转）
-  - 「你以为你的推文没人看是因为算法？其实是因为你只在"写"，没在"设计"」（痛点 + 反常识）
-  - 「我用这个方法三天涨了 3000 粉，但没人告诉你它有个致命缺点」（数字 + 钩子）
+#### Body: deliver judgment, not coverage
 
-**② 认知增量（主体）—— 让人觉得值**
+- Build each section around a claim, evidence, and consequence.
+- Use concrete scenes and examples before abstract explanation when possible.
+- Distinguish observation from opinion; link claims to sources where appropriate.
+- Include uncertainty, tradeoffs, and failure conditions. Veteran credibility comes from knowing where an idea stops working.
+- Delete background knowledge the target reader already knows unless it is needed for the argument.
+- Let memorable lines summarize earned reasoning. Do not insert slogans that the article has not proved.
 
-- 光吸引眼球没用，点进来是废话，下次不会再点
-- 主体必须交付至少一样：**新视角** / **可复用方法** / **信息差**
-- 写每个章节前问自己："读者从这段能带走什么？" 如果答不上来，这段就要删
-- 规避"学术综述腔"：不做全景扫描，要做**有观点的取舍**
+#### Humor: setup, turn, and callback
 
-**③ Takeaway（结尾）—— 让人忍不住收藏/转发**
+- Prefer dry understatement, precise analogy, self-deprecation, and the occasional callback.
+- Humor should reveal a truth or release tension; it must not interrupt technical clarity.
+- One good line is better than jokes in every paragraph.
+- Do not imitate trending slang, force punchlines, ridicule beginners, or turn confidence into arrogance.
+- An O. Henry-style turn means the ending changes how the opening is understood. It does not require a surprise twist in every article.
 
-- 给一个明确的**行动指令**或**可复用的总结**
-- 三种常见收尾：
-  - **清单式总结**：「回顾一下，搭建 X 只需要做四件事：1... 2... 3... 4...」
-  - **FOMO 式**：「这个方法我用了三个月，效果是 XX——收藏这条，下次写的时候直接套」
-  - **挑战/留问**：「如果你也做了类似的项目，欢迎告诉我你的版本」
+#### Ending: create resonance and utility
 
-**自检清单**（写完对照一下）：
-- [ ] 第一句能让人 3 秒内想继续读？
-- [ ] 中间每个章节都有读者能带走的东西？
-- [ ] 结尾给了明确的 takeaway 或行动？
+Choose the ending that the argument has earned:
 
-**任何一层缺失 = 不发。**
+- Callback: return to the opening scene with a deeper interpretation
+- Decision rule: give practitioners a concise rule they can apply
+- Practical checklist: compress a complex method into a reusable artifact
+- Open consequence: show what changes next without fake urgency
+
+Do not end with a generic summary, engagement bait, or “收藏起来以后用”. A reader should want to share because the article expresses something useful or difficult to articulate, not because the article asks to be shared.
 
 ---
 
-**排版风格（形式）**：
+**Formatting follows meaning**:
 
 - 口语化但有技术深度，偶尔幽默
-- 大量使用 **加粗** 强调关键观点
-- 用表格对比概念
-- 用代码块展示技术细节
-- 每个大章节之间用 `---` 分隔
+- Use bold sparingly for conclusions and decision rules, normally no more than one key emphasis per short section
+- Use tables only for genuine comparison, code blocks only for executable or structurally useful content, and lists only when sequence or scanning matters
+- Use descriptive subheadings; avoid uniformly clever, symmetrical, or clickbait-style headings
+- Use section dividers only when the argument makes a substantial turn
 - 图片引用格式：`![描述](filename.webp)`
 - 文章末尾附参考资料链接
 
@@ -176,13 +249,43 @@ tags:
 - ❌ 结尾"以上就是全部内容，谢谢阅读"（没 takeaway）
 - ❌ 堆砌 ChatGPT 味的排比短句（"它不仅 X，还 Y，更重要的是 Z"）
 - ❌ 每个小标题都工整对仗——读起来像目录，不像文章
+- ❌ 先决定一个耸动结论，再挑选支持它的事实
+- ❌ 冒充亲历、编造对话，或把公开材料写成个人实测
+- ❌ 每隔几段强行造金句、抖包袱、要求读者收藏转发
+- ❌ 把“老兵视角”写成居高临下，或用资历代替论证
 
-**Image placement**: Plan 4-6 images at natural section breaks. For each image, note:
+**Image placement**: Plan only images that improve comprehension, memory, or emotional rhythm. A short post may need only a cover; a dense technical article may need several diagrams. For each image, note:
 - Filename (kebab-case, `.webp` suffix)
 - Position in article (after which section)
 - What it should depict
 
-Write the article to: `/Users/luoli/dev/git/luoli523.github.io/content/post/<slug>/index.md`
+Write the article to: `$BLOG_REPO/content/post/<slug>/index.md`
+
+Before planning images, run all four editorial passes in `references/guige-editorial-guide.md`: truth and evidence, brand and argument, reading and voice, utility and spread. Then:
+
+1. Score the article with the 40-point release scorecard and report the scores to the user.
+2. If it fails a threshold, revise the two lowest-scoring dimensions and score it again.
+3. Run the de-AI pass to remove repetitive sentence shapes, mechanical contrasts, generic transitions, and slogan-heavy endings.
+4. Treat the article as stable only after it clears the release thresholds. Generate images and distribution copy from this stable version.
+
+Create `$BLOG_REPO/content/post/<slug>/share-copy.md` after the article is stable:
+
+```markdown
+# Distribution Copy
+
+## 朋友圈（50-80 字）
+<personal, conversational context for sharing the article>
+
+## 公众号转发语（100-150 字）
+<state who this is useful for, the real tension, and what the reader will gain>
+
+## 可摘录观点
+1. <an earned sentence from the article>
+2. <an earned sentence from the article>
+3. <an earned sentence from the article>
+```
+
+Distribution copy should sound like Guige introducing his own thinking, not an advertising account praising the article. Do not use fake urgency or ask for likes and reposts.
 
 ### Step 4: Generate Image Prompts
 
@@ -261,6 +364,7 @@ Before writing `image-prompts.md`, choose a visual direction from the local Guig
 文章和配图 prompt 已就绪：
 - 文章: content/post/<slug>/index.md
 - 配图 prompt: content/post/<slug>/image-prompts.md
+- 转发文案: content/post/<slug>/share-copy.md
 
 请根据 image-prompts.md 中的 prompt 生成图片，保存到同一目录下。
 PNG 或 WebP 格式均可，我会统一转换。
@@ -275,7 +379,7 @@ PNG 或 WebP 格式均可，我会统一转换。
 1. **Check for non-WebP images**:
 
 ```bash
-ls /Users/luoli/dev/git/luoli523.github.io/content/post/<slug>/*.{png,jpg,jpeg} 2>/dev/null
+ls "$BLOG_REPO/content/post/<slug>"/*.{png,jpg,jpeg} 2>/dev/null
 ```
 
 2. **Convert using cwebp** (preferred) or sips (fallback):
@@ -300,22 +404,25 @@ ls content/post/<slug>/*.webp
 
 ### Step 7: Validate and Preview
 
-1. **Check frontmatter completeness**: title, description, date, slug, image, categories, tags
-2. **Check all images referenced in article exist as .webp files**
-3. **Check cover.webp exists** (required for announcement system)
-4. **Optionally run Hugo to verify**:
+1. Check frontmatter completeness: title, description, date, slug, image, categories, tags.
+2. Check all images referenced in the article exist as `.webp` files.
+3. Check `cover.webp` exists (required for announcement system).
+4. Check `share-copy.md` contains a Moments post, a WeChat forwarding note, and three excerpt candidates.
+5. Confirm images and distribution copy still match the final title and thesis. If the article changed materially after Step 3, repeat the editorial scorecard before publishing.
+6. Optionally run Hugo to verify:
 
 ```bash
-cd /Users/luoli/dev/git/luoli523.github.io && hugo server -D &
+cd "$BLOG_REPO"
+hugo server -D
 # Then user can preview at http://localhost:1313/p/<slug>/
 ```
 
 ### Step 8: Commit and Push
 
 ```bash
-cd /Users/luoli/dev/git/luoli523.github.io
+cd "$BLOG_REPO"
 
-# Stage all post files (article + images + image-prompts.md)
+# Stage all post files (article + images + prompts + distribution copy)
 git add content/post/<slug>/
 
 # Commit
@@ -336,7 +443,7 @@ git push origin master
 
 Ask the user: "需要同步发布到微信公众号吗？"
 
-If yes, invoke the `/post-to-wechat` skill with the article:
+If yes, invoke the `/to-wechat` skill with the article:
 
 **IMPORTANT**: WeChat API does not support WebP covers. Convert cover first:
 
@@ -344,7 +451,7 @@ If yes, invoke the `/post-to-wechat` skill with the article:
 sips -s format jpeg content/post/<slug>/cover.webp --out content/post/<slug>/cover-wechat.jpg
 ```
 
-Then pass to the post-to-wechat skill. The skill handles the rest (theme, metadata, API upload).
+Then pass to the `guige-to-wechat` skill. The skill handles the rest (theme, metadata, API upload).
 
 Key parameters to forward:
 - Input file: `content/post/<slug>/index.md`
@@ -369,6 +476,7 @@ Key parameters to forward:
 content/post/<slug>/
 ├── index.md              # Article (frontmatter + markdown)
 ├── image-prompts.md      # Image generation prompts
+├── share-copy.md         # Moments, forwarding note, and excerpt candidates
 ├── cover.webp            # Cover image (required)
 ├── *.webp                # Inline images
 └── cover-wechat.jpg      # WeChat cover (generated on demand, do NOT commit)

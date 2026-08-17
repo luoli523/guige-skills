@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "鬼哥个人 Claude Code skills 集合，覆盖图片生成、信息图、幻灯片、视频下载、数字人口播、内容发布等工作流。",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "plugins": [
     {
