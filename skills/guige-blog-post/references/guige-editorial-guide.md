@@ -143,14 +143,6 @@ Design for three legitimate reasons to share:
 
 Do not add explicit “please repost” language unless the user asks for a campaign-style call to action.
 
-After the article, prepare optional distribution copy outside `index.md`:
-
-- One 50-80 Chinese character Moments post
-- One 100-150 Chinese character WeChat forwarding note
-- Three excerpt candidates taken or lightly adapted from the article
-
-These are delivery assets, not part of the article body.
-
 ## Four-Pass Editorial Review
 
 Review the complete draft in four separate passes. Revise after each pass.

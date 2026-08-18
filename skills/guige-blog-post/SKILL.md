@@ -41,7 +41,6 @@ Blog Post Progress:
 - [ ] Step 6: Convert images to WebP
 - [ ] Step 7: Validate and preview
 - [ ] Step 8: Commit and push
-- [ ] Step 9: Publish to WeChat (optional)
 ```
 
 ---
@@ -266,26 +265,7 @@ Before planning images, run all four editorial passes in `references/guige-edito
 1. Score the article with the 40-point release scorecard and report the scores to the user.
 2. If it fails a threshold, revise the two lowest-scoring dimensions and score it again.
 3. Run the de-AI pass to remove repetitive sentence shapes, mechanical contrasts, generic transitions, and slogan-heavy endings.
-4. Treat the article as stable only after it clears the release thresholds. Generate images and distribution copy from this stable version.
-
-Create `$BLOG_REPO/content/post/<slug>/share-copy.md` after the article is stable:
-
-```markdown
-# Distribution Copy
-
-## 朋友圈（50-80 字）
-<personal, conversational context for sharing the article>
-
-## 公众号转发语（100-150 字）
-<state who this is useful for, the real tension, and what the reader will gain>
-
-## 可摘录观点
-1. <an earned sentence from the article>
-2. <an earned sentence from the article>
-3. <an earned sentence from the article>
-```
-
-Distribution copy should sound like Guige introducing his own thinking, not an advertising account praising the article. Do not use fake urgency or ask for likes and reposts.
+4. Treat the article as stable only after it clears the release thresholds. Generate images from this stable version.
 
 ### Step 4: Generate Image Prompts
 
@@ -364,7 +344,6 @@ Before writing `image-prompts.md`, choose a visual direction from the local Guig
 文章和配图 prompt 已就绪：
 - 文章: content/post/<slug>/index.md
 - 配图 prompt: content/post/<slug>/image-prompts.md
-- 转发文案: content/post/<slug>/share-copy.md
 
 请根据 image-prompts.md 中的 prompt 生成图片，保存到同一目录下。
 PNG 或 WebP 格式均可，我会统一转换。
@@ -407,9 +386,8 @@ ls content/post/<slug>/*.webp
 1. Check frontmatter completeness: title, description, date, slug, image, categories, tags.
 2. Check all images referenced in the article exist as `.webp` files.
 3. Check `cover.webp` exists (required for announcement system).
-4. Check `share-copy.md` contains a Moments post, a WeChat forwarding note, and three excerpt candidates.
-5. Confirm images and distribution copy still match the final title and thesis. If the article changed materially after Step 3, repeat the editorial scorecard before publishing.
-6. Optionally run Hugo to verify:
+4. Confirm images still match the final title and thesis. If the article changed materially after Step 3, repeat the editorial scorecard before publishing.
+5. Optionally run Hugo to verify:
 
 ```bash
 cd "$BLOG_REPO"
@@ -422,7 +400,7 @@ hugo server -D
 ```bash
 cd "$BLOG_REPO"
 
-# Stage all post files (article + images + prompts + distribution copy)
+# Stage all post files (article + images + prompts)
 git add content/post/<slug>/
 
 # Commit
@@ -439,28 +417,6 @@ git push origin master
 
 **After push**: GitHub Actions will auto-update `data/announcements.yaml` with a new homepage announcement entry.
 
-### Step 9: Publish to WeChat (Optional)
-
-Ask the user: "需要同步发布到微信公众号吗？"
-
-If yes, invoke the `/to-wechat` skill with the article:
-
-**IMPORTANT**: WeChat API does not support WebP covers. Convert cover first:
-
-```bash
-sips -s format jpeg content/post/<slug>/cover.webp --out content/post/<slug>/cover-wechat.jpg
-```
-
-Then pass to the `guige-to-wechat` skill. The skill handles the rest (theme, metadata, API upload).
-
-Key parameters to forward:
-- Input file: `content/post/<slug>/index.md`
-- Cover: `content/post/<slug>/cover-wechat.jpg`
-- Author: 鬼哥 (from EXTEND.md default)
-- Theme: from EXTEND.md (default: simple)
-
----
-
 ## Quick Commands
 
 | Command | Effect |
@@ -468,7 +424,7 @@ Key parameters to forward:
 | `/blog-post <topic>` | Full workflow: research → write → images → publish |
 | `/blog-post <file.md>` | Import existing markdown as blog post |
 | `/blog-post --images <slug>` | Convert images for existing post |
-| `/blog-post --publish <slug>` | Commit, push, and optionally WeChat publish |
+| `/blog-post --publish <slug>` | Commit and push the post to the Hugo site |
 
 ## File Structure Reference
 
@@ -476,8 +432,6 @@ Key parameters to forward:
 content/post/<slug>/
 ├── index.md              # Article (frontmatter + markdown)
 ├── image-prompts.md      # Image generation prompts
-├── share-copy.md         # Moments, forwarding note, and excerpt candidates
 ├── cover.webp            # Cover image (required)
-├── *.webp                # Inline images
-└── cover-wechat.jpg      # WeChat cover (generated on demand, do NOT commit)
+└── *.webp                # Inline images
 ```
