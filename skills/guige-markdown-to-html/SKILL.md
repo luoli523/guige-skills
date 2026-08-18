@@ -1,6 +1,6 @@
 ---
 name: guige-markdown-to-html
-description: Convert Markdown files into styled, WeChat-friendly HTML with inline CSS, frontmatter metadata, code blocks, tables, blockquotes, image manifests, and optional bottom citations for external links. Use when the user asks to convert Markdown to HTML, render Markdown for WeChat or a rich-text editor, create styled HTML from a .md file, or preview/export a WeChat-ready article without publishing it.
+description: Convert Markdown files into styled, WeChat-friendly HTML with inline CSS, frontmatter metadata, code blocks, tables, blockquotes, image manifests, and bottom citations for external links. Use when the user asks to convert Markdown to HTML, render Markdown for WeChat or a rich-text editor, create styled HTML from a .md file, or preview/export a WeChat-ready article without publishing it.
 ---
 
 # Gui Ge Markdown to HTML
@@ -26,13 +26,13 @@ Load the first existing file:
 Supported keys:
 
 ```yaml
-default_theme: default
+default_theme: modern
 default_color: blue
 default_font_family: sans
 default_font_size: 16
-default_code_theme: github
+default_code_theme: monokai
 mac_code_block: true
-cite: false
+cite: true
 keep_title: false
 ```
 

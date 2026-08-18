@@ -29,13 +29,13 @@ FONTS = {
 
 @dataclasses.dataclass
 class RenderOptions:
-    theme: str = "default"
+    theme: str = "modern"
     color: str = "#0F4C81"
     font_family: str = FONTS["sans"]
     font_size: str = "16px"
-    code_theme: str = "github"
+    code_theme: str = "monokai"
     mac_code_block: bool = True
-    cite: bool = False
+    cite: bool = True
     keep_title: bool = False
 
 
@@ -114,7 +114,7 @@ def resolve_options(config: Dict[str, str], **overrides: Optional[object]) -> Re
         explicit = overrides.get(name)
         return explicit if explicit is not None else config.get("default_" + name, config.get(name, default))
 
-    theme = str(pick("theme", "default")).lower()
+    theme = str(pick("theme", "modern")).lower()
     if theme not in THEMES:
         raise ValueError("theme must be one of: " + ", ".join(sorted(THEMES)))
     return RenderOptions(
@@ -122,11 +122,11 @@ def resolve_options(config: Dict[str, str], **overrides: Optional[object]) -> Re
         color=normalize_color(str(pick("color", COLORS["blue"]))),
         font_family=normalize_font(str(pick("font_family", "sans"))),
         font_size=normalize_font_size(str(pick("font_size", "16"))),
-        code_theme=str(pick("code_theme", "github")),
+        code_theme=str(pick("code_theme", "monokai")),
         mac_code_block=bool(pick("mac_code_block", True)) if isinstance(pick("mac_code_block", True), bool)
         else parse_bool(str(pick("mac_code_block", True))),
-        cite=bool(pick("cite", False)) if isinstance(pick("cite", False), bool)
-        else parse_bool(str(pick("cite", False))),
+        cite=bool(pick("cite", True)) if isinstance(pick("cite", True), bool)
+        else parse_bool(str(pick("cite", True))),
         keep_title=bool(pick("keep_title", False)) if isinstance(pick("keep_title", False), bool)
         else parse_bool(str(pick("keep_title", False))),
     )

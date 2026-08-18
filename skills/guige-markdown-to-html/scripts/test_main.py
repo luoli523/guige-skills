@@ -58,6 +58,13 @@ description: 一段摘要
         self.assertEqual(options.font_size, "17px")
         self.assertTrue(options.cite)
 
+    def test_builtin_defaults_use_modern_monokai_and_citations(self):
+        options = main.resolve_options({})
+
+        self.assertEqual(options.theme, "modern")
+        self.assertEqual(options.code_theme, "monokai")
+        self.assertTrue(options.cite)
+
 
 if __name__ == "__main__":
     unittest.main()
