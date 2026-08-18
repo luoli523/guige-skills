@@ -461,6 +461,12 @@ def build_manifest(result: RenderResult, source_path: pathlib.Path, html_path: p
         ),
         "",
     )
+    if not cover_source:
+        default_cover = source_path.parent / "imgs" / "cover.png"
+        if default_cover.is_file():
+            cover_source = "imgs/cover.png"
+        elif result.content_images:
+            cover_source = result.content_images[0]["source"]
     cover = (
         {"source": cover_source, "resolvedPath": resolve_asset_path(cover_source, source_path)}
         if cover_source

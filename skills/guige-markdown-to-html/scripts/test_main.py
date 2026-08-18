@@ -100,6 +100,17 @@ image: cover.webp
         self.assertFalse(options.cite)
         self.assertNotIn("参考链接", result.content_html)
 
+    def test_manifest_uses_first_inline_image_as_cover_fallback(self):
+        source = pathlib.Path("/tmp/article/index.md")
+        result = main.render_markdown("![图表](chart.webp)", source, main.RenderOptions())
+
+        manifest = main.build_manifest(result, source, pathlib.Path("/tmp/article.html"))
+
+        self.assertEqual(manifest["cover"], {
+            "source": "chart.webp",
+            "resolvedPath": str((source.parent / "chart.webp").resolve()),
+        })
+
     def test_render_highlights_supported_fenced_code_blocks(self):
         result = main.render_markdown(
             """```bash

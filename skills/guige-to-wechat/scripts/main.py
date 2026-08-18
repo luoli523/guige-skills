@@ -100,6 +100,19 @@ class RenderResult:
 
 
 @dataclass
+class PublicationInput:
+    title: str
+    summary: str
+    author: str
+    html_content: str
+    html_path: str
+    cover_source: str
+    inline_images: List[str]
+    source_path: str
+    base_dir: str
+
+
+@dataclass
 class UploadAsset:
     data: bytes
     filename: str
@@ -1081,6 +1094,52 @@ def wrap_debug_html(title: str, body: str) -> str:
     )
 
 
+def load_render_manifest(manifest_path: pathlib.Path, output_html: str = "") -> PublicationInput:
+    try:
+        data = json.loads(manifest_path.read_text("utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise WechatError(f"Invalid render manifest: {manifest_path}: {error}") from error
+    if not isinstance(data, dict) or data.get("schemaVersion") != 1:
+        raise WechatError("Unsupported render manifest schemaVersion; expected 1.")
+
+    def required_text(name: str) -> str:
+        value = data.get(name)
+        if not isinstance(value, str) or not value.strip():
+            raise WechatError(f"Render manifest requires a non-empty {name}.")
+        return value.strip()
+
+    rendered_html_path = pathlib.Path(required_text("htmlPath")).expanduser().resolve()
+    if not rendered_html_path.is_file():
+        raise WechatError(f"Rendered HTML not found: {rendered_html_path}")
+    asset_base_dir = pathlib.Path(required_text("assetBaseDir")).expanduser().resolve()
+    if not asset_base_dir.is_dir():
+        raise WechatError(f"Render manifest assetBaseDir is not a directory: {asset_base_dir}")
+    images = data.get("contentImages", [])
+    if not isinstance(images, list):
+        raise WechatError("Render manifest contentImages must be a list.")
+    inline_images: List[str] = []
+    for image in images:
+        if not isinstance(image, dict) or not isinstance(image.get("resolvedPath"), str) or not image["resolvedPath"]:
+            raise WechatError("Each render manifest contentImages entry requires resolvedPath.")
+        inline_images.append(image["resolvedPath"])
+    cover_data = data.get("cover")
+    if cover_data is not None and not isinstance(cover_data, dict):
+        raise WechatError("Render manifest cover must be an object or null.")
+    cover_source = str((cover_data or {}).get("resolvedPath") or (cover_data or {}).get("source") or "")
+    final_html_path = pathlib.Path(output_html).expanduser().resolve() if output_html else rendered_html_path.with_name(rendered_html_path.stem + ".published.html")
+    return PublicationInput(
+        title=required_text("title"),
+        summary=str(data.get("summary") or ""),
+        author=str(data.get("author") or ""),
+        html_content=extract_html_body(rendered_html_path.read_text("utf-8")),
+        html_path=str(final_html_path),
+        cover_source=cover_source,
+        inline_images=inline_images,
+        source_path=str(manifest_path.resolve()),
+        base_dir=str(asset_base_dir),
+    )
+
+
 def infer_content_type(filename: str, data: bytes) -> Tuple[str, str]:
     if data.startswith(b"\xff\xd8\xff"):
         return "image/jpeg", ".jpg"
@@ -1281,22 +1340,15 @@ def upload_images_in_html(
     return result, first_cover_media_id, image_media_ids
 
 
-def resolve_cover(rendered: RenderResult, args: argparse.Namespace) -> str:
-    fm = rendered.frontmatter
-    raw = args.cover or fm.get("coverImage") or fm.get("featureImage") or fm.get("cover") or fm.get("image")
-    if raw:
-        return str(raw)
-    candidate = pathlib.Path(rendered.base_dir) / "imgs" / "cover.png"
-    if candidate.exists():
-        return str(candidate)
-    return rendered.inline_images[0] if rendered.inline_images else ""
+def resolve_cover(rendered: PublicationInput, args: argparse.Namespace) -> str:
+    return args.cover or rendered.cover_source
 
 
 def html_has_image(html_content: str) -> bool:
     return bool(IMG_TAG_RE.search(html_content))
 
 
-def validate_article_inputs(rendered: RenderResult, article_type: str, cover: str) -> None:
+def validate_article_inputs(rendered: PublicationInput, article_type: str, cover: str) -> None:
     has_image_candidate = bool(rendered.inline_images) or html_has_image(rendered.html_content)
     if article_type == "news" and not cover and not has_image_candidate:
         raise WechatError("news requires a cover image or at least one inline image for cover fallback.")
@@ -1377,19 +1429,11 @@ def publish_to_draft(
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Publish Markdown/HTML/plain text to WeChat Official Account drafts.")
-    parser.add_argument("input", nargs="?", help="Markdown file, HTML file, or plain text")
+    parser = argparse.ArgumentParser(description="Publish a guige-markdown-to-html render manifest to a WeChat Official Account draft.")
+    parser.add_argument("render_manifest", nargs="?", help="Renderer manifest JSON file")
     parser.add_argument("--type", choices=["news", "newspic"], default="news")
-    parser.add_argument("--title")
-    parser.add_argument("--author")
-    parser.add_argument("--summary")
     parser.add_argument("--cover")
-    parser.add_argument("--theme")
-    parser.add_argument("--color")
-    parser.add_argument("--code-theme")
     parser.add_argument("--account")
-    parser.add_argument("--no-cite", action="store_true")
-    parser.add_argument("--no-mac-code-block", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--output-html", default="")
     parser.add_argument("--json", action="store_true")
@@ -1398,13 +1442,12 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
 
 def main(argv: Optional[List[str]] = None) -> int:
     args = parse_args(argv or sys.argv[1:])
-    if not args.input:
-        raise WechatError("Missing input. Pass a Markdown/HTML file or plain text.")
+    if not args.render_manifest:
+        raise WechatError("Missing render manifest. Run guige-markdown-to-html with --manifest first.")
 
     config = load_config()
     account = resolve_account(config, args.account or "")
-    input_path = resolve_input(args.input, args.title or "")
-    rendered = render_input(input_path, args, config, account)
+    rendered = load_render_manifest(pathlib.Path(args.render_manifest).expanduser().resolve(), args.output_html)
     cover = resolve_cover(rendered, args)
     validate_article_inputs(rendered, args.type, cover)
     need_open_comment = account.need_open_comment if account.need_open_comment is not None else config.need_open_comment
@@ -1444,8 +1487,6 @@ def main(argv: Optional[List[str]] = None) -> int:
             },
             "config": config.source_path or None,
             "account": account.alias or None,
-            "codeTheme": args.code_theme or config.default_code_theme,
-            "macCodeBlock": config.mac_code_block and not args.no_mac_code_block,
         }
         print(json.dumps(result, ensure_ascii=False, indent=2) if args.json else rendered.html_path)
         return 0
@@ -1476,6 +1517,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         thumb_media_id = first_cover_media_id
 
     final_html_path = pathlib.Path(rendered.html_path)
+    final_html_path.parent.mkdir(parents=True, exist_ok=True)
     final_html_path.write_text(wrap_debug_html(rendered.title, processed_html), "utf-8")
     eprint("[guige-to-wechat] Publishing draft...")
     response = publish_to_draft(
