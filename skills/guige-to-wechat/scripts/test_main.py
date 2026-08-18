@@ -3,6 +3,7 @@ import json
 import pathlib
 import tempfile
 import unittest
+from unittest import mock
 
 import main
 
@@ -88,6 +89,20 @@ accounts:
 
         with self.assertRaises(main.WechatError):
             main.validate_article_inputs(rendered, "news", "")
+
+    def test_prepare_cover_keeps_jpeg_and_png_unchanged(self):
+        for filename, content_type in (("cover.jpg", "image/jpeg"), ("cover.png", "image/png")):
+            asset = main.UploadAsset(b"image", filename, content_type, filename)
+            with mock.patch.object(main, "convert_to_jpeg") as convert:
+                self.assertIs(main.prepare_cover_asset(asset), asset)
+                convert.assert_not_called()
+
+    def test_prepare_cover_converts_webp_to_jpeg(self):
+        source = main.UploadAsset(b"RIFFxxxxWEBP", "cover.webp", "image/webp", "cover.webp")
+        converted = main.UploadAsset(b"jpeg", "cover.jpg", "image/jpeg", "cover.webp")
+        with mock.patch.object(main, "convert_to_jpeg", return_value=converted) as convert:
+            self.assertIs(main.prepare_cover_asset(source), converted)
+            convert.assert_called_once_with(source, max_size=None)
 
 
 if __name__ == "__main__":

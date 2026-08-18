@@ -21,7 +21,7 @@ First create the HTML and manifest with `guige-markdown-to-html`, then pass the 
 python3 {baseDir}/scripts/main.py <render-manifest.json> [options]
 ```
 
-The script uses only Python's standard library. It uploads local or remote images through the official API and best-effort converts oversized or unsupported body images with local `sips` or `cwebp` when available.
+The script uses only Python's standard library. It uploads local or remote images through the official API. JPEG and PNG assets are uploaded unchanged; WebP and other unsupported assets are converted to JPEG with local `sips` or ImageMagick when available. Oversized body images are also resized to meet WeChat's limit.
 
 ## Render Manifest Contract
 
@@ -102,7 +102,7 @@ python3 {baseDir}/scripts/main.py article.wechat.json --cover cover.jpg
 
 - Obtain the access token and apply account/comment settings.
 - Upload inline images through `media/uploadimg` and replace their HTML URLs.
-- Upload the cover through `material/add_material`.
+- Upload the cover through `material/add_material`; convert WebP covers to JPEG first while leaving JPEG/PNG covers unchanged.
 - Build and submit the `draft/add` request for `news` or `newspic`.
 - Preserve a final HTML copy after image URL substitution.
 

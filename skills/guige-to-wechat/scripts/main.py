@@ -319,23 +319,44 @@ def make_temp_asset(data: bytes, filename: str, content_type: str, source: str) 
     return UploadAsset(data, filename, content_type, source, str(path))
 
 
+def convert_to_jpeg(asset: UploadAsset, max_size: Optional[int]) -> Optional[UploadAsset]:
+    temporary = make_temp_asset(asset.data, asset.filename, asset.content_type, asset.source)
+    source = pathlib.Path(temporary.temp_path or "")
+    widths: List[Optional[int]] = [None] if max_size is None else [2560, 2048, 1600, 1280, 1024, 800, 640]
+    for width in widths:
+        suffix = "converted" if width is None else str(width)
+        output = source.with_name(f"{source.stem}-{suffix}.jpg")
+        if shutil.which("sips"):
+            command = ["sips", "-s", "format", "jpeg"] + (["-Z", str(width)] if width else []) + [str(source), "--out", str(output)]
+        elif shutil.which("magick"):
+            command = ["magick", str(source)] + (["-resize", f"{width}x>"] if width else []) + [str(output)]
+        elif shutil.which("convert"):
+            command = ["convert", str(source)] + (["-resize", f"{width}x>"] if width else []) + [str(output)]
+        else:
+            return None
+        if subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode == 0 and output.is_file() and (max_size is None or output.stat().st_size <= max_size):
+            return UploadAsset(output.read_bytes(), output.name, "image/jpeg", asset.source, str(output))
+
+
 def prepare_body_asset(asset: UploadAsset) -> UploadAsset:
     if asset.content_type in BODY_UPLOAD_ALLOWED_MIME and len(asset.data) <= BODY_IMAGE_MAX_SIZE:
         return asset
-    source = pathlib.Path(asset.temp_path) if asset.temp_path else pathlib.Path(make_temp_asset(asset.data, asset.filename, asset.content_type, asset.source).temp_path or "")
-    for width in [2560, 2048, 1600, 1280, 1024, 800, 640]:
-        output = source.with_name(f"{source.stem}-{width}.jpg")
-        if shutil.which("sips"):
-            command = ["sips", "-s", "format", "jpeg", "-Z", str(width), str(source), "--out", str(output)]
-        elif shutil.which("cwebp"):
-            command = ["cwebp", "-q", "82", "-resize", str(width), "0", str(source), "-o", str(output)]
-        else:
-            break
-        if subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode == 0 and output.is_file() and output.stat().st_size <= BODY_IMAGE_MAX_SIZE:
-            eprint(f"[guige-to-wechat] Converted body image: {asset.filename} -> {output.name}")
-            return UploadAsset(output.read_bytes(), output.name, "image/jpeg", asset.source, str(output))
+    converted = convert_to_jpeg(asset, max_size=BODY_IMAGE_MAX_SIZE)
+    if converted:
+        eprint(f"[guige-to-wechat] Converted body image: {asset.filename} -> {converted.filename}")
+        return converted
     eprint(f"[guige-to-wechat] Warning: body image may be rejected by WeChat: {asset.filename}")
     return asset
+
+
+def prepare_cover_asset(asset: UploadAsset) -> UploadAsset:
+    if asset.content_type in BODY_UPLOAD_ALLOWED_MIME:
+        return asset
+    converted = convert_to_jpeg(asset, max_size=None)
+    if converted:
+        eprint(f"[guige-to-wechat] Converted cover image: {asset.filename} -> {converted.filename}")
+        return converted
+    raise WechatError(f"Cover image must be JPEG or PNG, and conversion failed: {asset.filename}")
 
 
 def build_multipart(field: str, asset: UploadAsset) -> Tuple[bytes, str]:
@@ -371,6 +392,7 @@ def upload_image(source: str, access_token: str, base_dir: str, upload_type: str
         asset = prepare_body_asset(asset)
         url = f"{UPLOAD_BODY_IMG_URL}?access_token={urllib.parse.quote(access_token)}"
     else:
+        asset = prepare_cover_asset(asset)
         url = f"{UPLOAD_MATERIAL_URL}?type=image&access_token={urllib.parse.quote(access_token)}"
     body, boundary = build_multipart("media", asset)
     response = http_json(url, method="POST", data=body, headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
