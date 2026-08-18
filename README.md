@@ -325,6 +325,7 @@ marketplace 模式默认会**先清理本仓库遗留的本地软链接**（之�
 ```
 
 symlink 模式默认目标目录：`${CODEX_HOME:-~/.codex}/skills`、`~/.claude/skills`。
+运行 symlink 模式会先移除同一 marketplace 的 Claude/Codex plugin 安装，避免与本地软链接重复加载；`--dry-run` 只显示此操作，不会移除 plugin。
 
 可用环境变量覆盖：`GUIGE_MARKETPLACE_REPO`（marketplace repo，默认 `luoli523/guige-skills`）、`GUIGE_MARKETPLACE_REF`（Codex 分支，默认 `main`）、`GUIGE_SKILLS_TARGETS`（symlink 模式冒号分隔目标目录）。
 

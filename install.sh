@@ -118,13 +118,15 @@ run_cmd() {
 marketplace_present() {
     # marketplace_present <cli> ; 0 if the marketplace is already known
     local cli="$1"
-    "$cli" plugin marketplace list 2>/dev/null | grep -qw "$MARKETPLACE_NAME"
+    # Do not use grep -q here: with pipefail, its early exit can turn a long
+    # CLI listing into an upstream SIGPIPE and a false negative.
+    "$cli" plugin marketplace list 2>/dev/null | grep -Fw "$MARKETPLACE_NAME" >/dev/null
 }
 
 plugin_present() {
     # plugin_present <cli> ; 0 if the plugin is already installed
     local cli="$1"
-    "$cli" plugin list 2>/dev/null | grep -q "$PLUGIN_ID"
+    "$cli" plugin list 2>/dev/null | grep -F "$PLUGIN_ID" >/dev/null
 }
 
 # Live CLI detection can be flaky (marketplace list may refresh/warn), so the
@@ -265,6 +267,25 @@ run_marketplace() {
 # Symlink mode (legacy local-dev install)
 # ===========================================================================
 
+# A plugin install and local skill symlinks expose the same skills twice. Make
+# local development deterministic by removing this marketplace plugin first.
+# Missing CLIs and missing plugin installs are safe no-ops.
+remove_plugin_for_symlink_mode() {
+    local cli
+    echo -e "${BLUE}=== Remove marketplace plugins for symlink mode ===${NC}"
+    for cli in claude codex; do
+        if ! command -v "$cli" >/dev/null 2>&1; then
+            echo -e "  ${YELLOW}Skip $cli:${NC} CLI not found in PATH"
+            continue
+        fi
+        if plugin_present "$cli"; then
+            run_cmd "Remove plugin from $cli" "$cli" plugin remove "$PLUGIN_ID" || true
+        else
+            echo "  $cli: plugin not installed"
+        fi
+    done
+}
+
 has_valid_frontmatter() {
     local skill_dir="$1"
     local skill_md="$skill_dir/SKILL.md"
@@ -399,6 +420,7 @@ run_symlink() {
     resolve_symlink_dirs
     discover_skills
     if $LIST; then list_skills; exit 0; fi
+    remove_plugin_for_symlink_mode
     install_skills
     $CLEANUP && cleanup_stale_links
     $DRY_RUN && echo -e "${YELLOW}(dry-run mode - no changes were made)${NC}"
