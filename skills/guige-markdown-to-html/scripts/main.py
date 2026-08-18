@@ -9,6 +9,7 @@ import os
 import pathlib
 import re
 import sys
+import urllib.parse
 from typing import Dict, List, Optional, Tuple
 
 
@@ -43,14 +44,16 @@ BASH_KEYWORDS = {"case", "do", "done", "elif", "else", "esac", "fi", "for", "fun
 
 @dataclasses.dataclass
 class RenderOptions:
-    theme: str = "modern"
+    theme: str = "simple"
     color: str = "#0F4C81"
     font_family: str = FONTS["sans"]
     font_size: str = "16px"
-    code_theme: str = "monokai"
+    code_theme: str = "github-dark"
     mac_code_block: bool = True
     cite: bool = True
     keep_title: bool = False
+    compact: bool = False
+    base_url: str = ""
 
 
 @dataclasses.dataclass
@@ -252,7 +255,7 @@ def resolve_options(config: Dict[str, str], **overrides: Optional[object]) -> Re
         explicit = overrides.get(name)
         return explicit if explicit is not None else config.get("default_" + name, config.get(name, default))
 
-    theme = str(pick("theme", "modern")).lower()
+    theme = str(pick("theme", "simple")).lower()
     if theme not in THEMES:
         raise ValueError("theme must be one of: " + ", ".join(sorted(THEMES)))
     return RenderOptions(
@@ -260,13 +263,16 @@ def resolve_options(config: Dict[str, str], **overrides: Optional[object]) -> Re
         color=normalize_color(str(pick("color", COLORS["blue"]))),
         font_family=normalize_font(str(pick("font_family", "sans"))),
         font_size=normalize_font_size(str(pick("font_size", "16"))),
-        code_theme=str(pick("code_theme", "monokai")),
+        code_theme=str(pick("code_theme", "github-dark")),
         mac_code_block=bool(pick("mac_code_block", True)) if isinstance(pick("mac_code_block", True), bool)
         else parse_bool(str(pick("mac_code_block", True))),
         cite=bool(pick("cite", True)) if isinstance(pick("cite", True), bool)
         else parse_bool(str(pick("cite", True))),
         keep_title=bool(pick("keep_title", False)) if isinstance(pick("keep_title", False), bool)
         else parse_bool(str(pick("keep_title", False))),
+        compact=bool(pick("compact", False)) if isinstance(pick("compact", False), bool)
+        else parse_bool(str(pick("compact", False))),
+        base_url=str(pick("base_url", "")).rstrip("/"),
     )
 
 
@@ -291,6 +297,8 @@ def extract_summary(body: str) -> str:
 
 
 def style_map(options: RenderOptions) -> Dict[str, str]:
+    if options.compact:
+        return {key: "" for key in ("article", "h1", "h2", "h3", "p", "blockquote", "ul", "ol", "li", "table", "th", "td", "code", "pre", "img", "hr")}
     color = options.color
     styles = {
         "article": f"font-family:{options.font_family};font-size:{options.font_size};line-height:1.85;color:#3f3f3f;",
@@ -325,20 +333,27 @@ def style_map(options: RenderOptions) -> Dict[str, str]:
     return styles
 
 
-def inline(text: str, citations: List[Tuple[str, str]], cite: bool) -> str:
+def inline(text: str, citations: List[Tuple[str, str]], cite: bool, compact: bool = False, base_url: str = "") -> str:
     escaped = html.escape(text, quote=False)
-    escaped = re.sub(r"`([^`]+)`", lambda m: f'<code style="{CODE_STYLE}">{m.group(1)}</code>', escaped)
+    code_open = "<code>" if compact else f'<code style="{CODE_STYLE}">'
+    escaped = re.sub(r"`([^`]+)`", lambda m: f'{code_open}{m.group(1)}</code>', escaped)
     escaped = re.sub(r"!\[([^\]]*)\]\(([^)]+)\)", lambda m: m.group(0), escaped)
 
     def link(match: re.Match) -> str:
         label, url = match.group(1), html.unescape(match.group(2))
+        is_site_relative = url.startswith("/")
+        if is_site_relative and base_url:
+            url = urllib.parse.urljoin(base_url + "/", url)
+        if is_site_relative:
+            return f'<a href="{html.escape(url, quote=True)}">{label}</a>'
         if cite and re.match(r"https?://", url) and not url.startswith("https://mp.weixin.qq.com"):
             try:
                 index = next(i for i, item in enumerate(citations, 1) if item[1] == url)
             except StopIteration:
                 citations.append((label, url))
                 index = len(citations)
-            return f'<a href="{html.escape(url, quote=True)}">{label}<sup>[{index}]</sup></a>'
+            citation = f"{label}<sup>[{index}]</sup>"
+            return citation if compact else f'<a href="{html.escape(url, quote=True)}">{citation}</a>'
         return f'<a href="{html.escape(url, quote=True)}">{label}</a>'
 
     escaped = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", link, escaped)
@@ -377,8 +392,10 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
                 code_lines.append(lines[i])
                 i += 1
             normalized_language = normalize_code_language(language)
-            header = "<div style=\"color:#8c959f;font-size:12px;margin-bottom:8px;\">● ● ●" + (f" &nbsp;{html.escape(normalized_language)}" if options.mac_code_block else "") + "</div>" if options.mac_code_block else ""
-            highlighted_code = highlight_code("\n".join(code_lines), normalized_language)
+            # A <pre> element accepts phrasing content only. Keep the visual code
+            # block header inline so WeChat's draft API receives valid HTML.
+            header = "<span style=\"display:block;color:#8c959f;font-size:12px;margin-bottom:8px;\">● ● ●" + (f" &nbsp;{html.escape(normalized_language)}" if options.mac_code_block else "") + "</span>" if options.mac_code_block and not options.compact else ""
+            highlighted_code = code_escape("\n".join(code_lines)).replace("\n", "<br>") if options.compact else highlight_code("\n".join(code_lines), normalized_language)
             output.append(f'<pre class="hljs code__pre" style="{styles["pre"]}">{header}<code class="language-{html.escape(normalized_language, quote=True)}">{highlighted_code}</code></pre>')
             i += 1
             continue
@@ -396,7 +413,7 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
                 first_heading_removed = True
             else:
                 heading_style = styles[f"h{level}"]
-                output.append(f'<h{level} style="{heading_style}">{inline(heading.group(2), citations, options.cite)}</h{level}>')
+                output.append(f'<h{level} style="{heading_style}">{inline(heading.group(2), citations, options.cite, options.compact, options.base_url)}</h{level}>')
             i += 1
             continue
         if re.fullmatch(r"[-*_]{3,}", stripped):
@@ -404,7 +421,7 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
             i += 1
             continue
         if stripped.startswith(">"):
-            output.append(f'<blockquote style="{styles["blockquote"]}">{inline(stripped[1:].lstrip(), citations, options.cite)}</blockquote>')
+            output.append(f'<blockquote style="{styles["blockquote"]}">{inline(stripped[1:].lstrip(), citations, options.cite, options.compact, options.base_url)}</blockquote>')
             i += 1
             continue
         list_match = re.fullmatch(r"(?:[-*+]|(\d+)[.)])\s+(.+)", stripped)
@@ -416,7 +433,7 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
                 current = re.fullmatch(r"(?:[-*+]|(\d+)[.)])\s+(.+)", lines[i].strip())
                 if not current or bool(current.group(1)) != ordered:
                     break
-                items.append(f'<li style="{styles["li"]}">{inline(current.group(2), citations, options.cite)}</li>')
+                items.append(f'<li style="{styles["li"]}">{inline(current.group(2), citations, options.cite, options.compact, options.base_url)}</li>')
                 i += 1
             output.append(f'<{tag} style="{styles[tag]}">' + "".join(items) + f'</{tag}>')
             continue
@@ -427,11 +444,11 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
             while i < len(lines) and "|" in lines[i]:
                 rows.append([cell.strip() for cell in lines[i].strip().strip("|").split("|")])
                 i += 1
-            header_html = "".join(f'<th style="{styles["th"]}">{inline(cell, citations, options.cite)}</th>' for cell in headers)
-            row_html = "".join("<tr>" + "".join(f'<td style="{styles["td"]}">{inline(cell, citations, options.cite)}</td>' for cell in row) + "</tr>" for row in rows)
+            header_html = "".join(f'<th style="{styles["th"]}">{inline(cell, citations, options.cite, options.compact, options.base_url)}</th>' for cell in headers)
+            row_html = "".join("<tr>" + "".join(f'<td style="{styles["td"]}">{inline(cell, citations, options.cite, options.compact, options.base_url)}</td>' for cell in row) + "</tr>" for row in rows)
             output.append(f'<table style="{styles["table"]}"><thead><tr>{header_html}</tr></thead><tbody>{row_html}</tbody></table>')
             continue
-        output.append(f'<p style="{styles["p"]}">{inline(stripped, citations, options.cite)}</p>')
+        output.append(f'<p style="{styles["p"]}">{inline(stripped, citations, options.cite, options.compact, options.base_url)}</p>')
         i += 1
 
     if citations:
@@ -494,6 +511,8 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     parser.add_argument("--font-size")
     parser.add_argument("--code-theme")
     parser.add_argument("--no-mac-code-block", action="store_true")
+    parser.add_argument("--compact", action="store_true", default=None, help="Minimize markup for long WeChat articles")
+    parser.add_argument("--base-url", help="Resolve root-relative Markdown links against this site URL")
     cite_group = parser.add_mutually_exclusive_group()
     cite_group.add_argument("--cite", action="store_true", dest="cite", default=None)
     cite_group.add_argument("--no-cite", action="store_false", dest="cite")
@@ -509,7 +528,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     source = pathlib.Path(args.markdown_file).expanduser().resolve()
     if not source.is_file() or source.suffix.lower() != ".md":
         raise ValueError("markdown_file must be an existing .md file")
-    overrides = {"theme": args.theme, "color": args.color, "font_family": args.font_family, "font_size": args.font_size, "code_theme": args.code_theme, "cite": args.cite, "keep_title": args.keep_title}
+    overrides = {"theme": args.theme, "color": args.color, "font_family": args.font_family, "font_size": args.font_size, "code_theme": args.code_theme, "cite": args.cite, "keep_title": args.keep_title, "compact": args.compact, "base_url": args.base_url}
     if args.no_mac_code_block:
         overrides["mac_code_block"] = False
     options = resolve_options(load_config(), **overrides)

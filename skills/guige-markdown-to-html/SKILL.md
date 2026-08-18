@@ -26,14 +26,16 @@ Load the first existing file:
 Supported keys:
 
 ```yaml
-default_theme: modern
+default_theme: simple
 default_color: blue
 default_font_family: sans
 default_font_size: 16
-default_code_theme: monokai
+default_code_theme: github-dark
 mac_code_block: true
 cite: true
 keep_title: false
+compact: false
+base_url: https://example.com
 ```
 
 CLI arguments override `EXTEND.md`, which overrides skill defaults. Frontmatter supplies article metadata only.
@@ -65,6 +67,8 @@ python3 {baseDir}/scripts/main.py article.md \
 | `--font-size <px>` | Base font size from `14` to `18` |
 | `--code-theme <name>` | Code-block style; `github` is light and `dark`, `github-dark`, `monokai`, and `nord` use a dark surface |
 | `--no-mac-code-block` | Disable the mac-style code-block header |
+| `--compact` | Minimize generated markup for long WeChat articles; retain document structure, images, and citations but omit repeated inline styles and code highlighting |
+| `--base-url <url>` | Resolve root-relative Markdown links such as `/p/article/` to absolute HTTPS links |
 | `--cite` | Convert ordinary external links into bottom citations |
 | `--no-cite` | Keep ordinary external links inline |
 | `--keep-title` | Keep the first H1/H2 in the HTML body |
@@ -76,10 +80,12 @@ python3 {baseDir}/scripts/main.py article.md \
 
 - Support headings, emphasis, inline and fenced code, blockquotes, lists, tables, rules, links, and images.
 - Render styles inline for WeChat and rich-text-editor compatibility.
+- Use `--compact` when a long article would exceed WeChat's draft-content limit. It is an explicit publication-size trade-off, not the default appearance.
 - Resolve `title`, `author`, and `description` / `summary` from frontmatter.
 - Remove the first H1/H2 from the body by default. Keep it only with `--keep-title`.
 - Preserve image `src` values and report each image with its source, resolved local path, and alt text. Resolve cover frontmatter (`coverImage`, `featureImage`, `cover`, `image`), then `imgs/cover.png`, then the first inline image.
 - Convert ordinary external links to numbered bottom citations only with `--cite`. Keep WeChat article links inline.
+- Use `--base-url` when the Markdown contains root-relative site links that must remain clickable after publishing.
 - Treat raw HTML as unsupported input. Escape generated text.
 
 ## Output

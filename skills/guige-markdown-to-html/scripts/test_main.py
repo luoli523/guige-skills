@@ -58,11 +58,11 @@ description: 一段摘要
         self.assertEqual(options.font_size, "17px")
         self.assertTrue(options.cite)
 
-    def test_builtin_defaults_use_modern_monokai_and_citations(self):
+    def test_builtin_defaults_use_simple_github_dark_and_citations(self):
         options = main.resolve_options({})
 
-        self.assertEqual(options.theme, "modern")
-        self.assertEqual(options.code_theme, "monokai")
+        self.assertEqual(options.theme, "simple")
+        self.assertEqual(options.code_theme, "github-dark")
         self.assertTrue(options.cite)
 
     def test_manifest_preserves_publication_metadata_and_assets(self):
@@ -134,6 +134,28 @@ enabled: true
         self.assertIn("hljs-attr", result.content_html)
         self.assertIn("&nbsp;", result.content_html)
         self.assertIn("<br>", result.content_html)
+
+    def test_compact_output_avoids_repeated_inline_code_styles_and_highlighting(self):
+        result = main.render_markdown(
+            "正文含有 `inline`。\n\n```bash\ngit status\n```",
+            pathlib.Path("/tmp/article.md"),
+            main.RenderOptions(compact=True),
+        )
+
+        self.assertIn("<code>inline</code>", result.content_html)
+        self.assertNotIn(main.CODE_STYLE, result.content_html)
+        self.assertNotIn('class="hljs-', result.content_html)
+        self.assertNotIn("● ● ●", result.content_html)
+
+    def test_base_url_resolves_root_relative_links_without_citing_them(self):
+        result = main.render_markdown(
+            "[站内文章](/p/example/)",
+            pathlib.Path("/tmp/article.md"),
+            main.RenderOptions(cite=True, base_url="https://luoli523.github.io"),
+        )
+
+        self.assertIn('href="https://luoli523.github.io/p/example/"', result.content_html)
+        self.assertNotIn("参考链接", result.content_html)
 
 
 if __name__ == "__main__":
