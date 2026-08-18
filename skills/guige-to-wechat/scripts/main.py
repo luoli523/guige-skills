@@ -63,6 +63,7 @@ class PublicationInput:
     title: str
     summary: str
     author: str
+    content_source_url: str
     html_content: str
     html_path: str
     cover_source: str
@@ -250,6 +251,17 @@ def load_render_manifest(manifest_path: pathlib.Path, output_html: str = "") -> 
             raise WechatError(f"Render manifest requires a non-empty {name}.")
         return value.strip()
 
+    def optional_source_url() -> str:
+        value = data.get("contentSourceUrl", "")
+        if value is None:
+            return ""
+        if not isinstance(value, str):
+            raise WechatError("Render manifest contentSourceUrl must be a string.")
+        url = value.strip()
+        if url and (len(url) > 1024 or not re.match(r"^https?://", url, flags=re.I)):
+            raise WechatError("Render manifest contentSourceUrl must be an HTTP(S) URL up to 1024 characters.")
+        return url
+
     rendered_html = pathlib.Path(required_text("htmlPath")).expanduser().resolve()
     asset_base = pathlib.Path(required_text("assetBaseDir")).expanduser().resolve()
     if not rendered_html.is_file():
@@ -269,7 +281,7 @@ def load_render_manifest(manifest_path: pathlib.Path, output_html: str = "") -> 
         raise WechatError("Render manifest cover must be an object or null.")
     final_html = pathlib.Path(output_html).expanduser().resolve() if output_html else rendered_html.with_name(rendered_html.stem + ".published.html")
     return PublicationInput(
-        title=required_text("title"), summary=str(data.get("summary") or ""), author=str(data.get("author") or ""),
+        title=required_text("title"), summary=str(data.get("summary") or ""), author=str(data.get("author") or ""), content_source_url=optional_source_url(),
         html_content=extract_html_body(rendered_html.read_text("utf-8")), html_path=str(final_html),
         cover_source=str((cover or {}).get("resolvedPath") or (cover or {}).get("source") or ""),
         inline_images=inline_images, source_path=str(manifest_path.resolve()), base_dir=str(asset_base),
@@ -449,7 +461,7 @@ def validate_article_inputs(rendered: PublicationInput, article_type: str, cover
         raise WechatError("newspic requires at least one inline image.")
 
 
-def build_draft_article(title: str, author: str, digest: str, content: str, thumb_media_id: str, article_type: str, image_media_ids: List[str], need_open_comment: int, only_fans_can_comment: int) -> Dict[str, Any]:
+def build_draft_article(title: str, author: str, digest: str, content: str, thumb_media_id: str, content_source_url: str, article_type: str, image_media_ids: List[str], need_open_comment: int, only_fans_can_comment: int) -> Dict[str, Any]:
     if article_type == "newspic":
         if not image_media_ids:
             raise WechatError("newspic requires at least one inline image.")
@@ -460,13 +472,15 @@ def build_draft_article(title: str, author: str, digest: str, content: str, thum
         article = {"article_type": "news", "title": title, "content": content, "thumb_media_id": thumb_media_id, "need_open_comment": need_open_comment, "only_fans_can_comment": only_fans_can_comment}
         if digest:
             article["digest"] = digest
+        if content_source_url:
+            article["content_source_url"] = content_source_url
     if author:
         article["author"] = author
     return article
 
 
-def publish_to_draft(access_token: str, title: str, author: str, digest: str, content: str, thumb_media_id: str, article_type: str, image_media_ids: List[str], need_open_comment: int, only_fans_can_comment: int) -> Dict[str, Any]:
-    article = build_draft_article(title, author, digest, content, thumb_media_id, article_type, image_media_ids, need_open_comment, only_fans_can_comment)
+def publish_to_draft(access_token: str, title: str, author: str, digest: str, content: str, thumb_media_id: str, content_source_url: str, article_type: str, image_media_ids: List[str], need_open_comment: int, only_fans_can_comment: int) -> Dict[str, Any]:
+    article = build_draft_article(title, author, digest, content, thumb_media_id, content_source_url, article_type, image_media_ids, need_open_comment, only_fans_can_comment)
     data = http_json(f"{DRAFT_URL}?access_token={urllib.parse.quote(access_token)}", method="POST", data=json.dumps({"articles": [article]}, ensure_ascii=False).encode("utf-8"), headers={"Content-Type": "application/json"})
     if data.get("errcode"):
         raise WechatError(f"Publish failed {data.get('errcode')}: {data.get('errmsg')}")
@@ -502,7 +516,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     if cover:
         eprint(f"[guige-to-wechat] Cover: {cover}")
     if args.dry_run:
-        result = {"success": True, "dryRun": True, "title": rendered.title, "summary": rendered.summary, "author": rendered.author, "articleType": args.type, "htmlPath": rendered.html_path, "input": rendered.source_path, "cover": cover or None, "inlineImages": rendered.inline_images, "comments": {"need_open_comment": need_open_comment, "only_fans_can_comment": only_fans_can_comment}, "config": config.source_path or None, "account": account.alias or None}
+        result = {"success": True, "dryRun": True, "title": rendered.title, "summary": rendered.summary, "author": rendered.author, "contentSourceUrl": rendered.content_source_url, "articleType": args.type, "htmlPath": rendered.html_path, "input": rendered.source_path, "cover": cover or None, "inlineImages": rendered.inline_images, "comments": {"need_open_comment": need_open_comment, "only_fans_can_comment": only_fans_can_comment}, "config": config.source_path or None, "account": account.alias or None}
         print(json.dumps(result, ensure_ascii=False, indent=2) if args.json else rendered.html_path)
         return 0
     app_id, app_secret, credential_source, skipped = load_credentials(account)
@@ -519,7 +533,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     final_html_path = pathlib.Path(rendered.html_path)
     final_html_path.parent.mkdir(parents=True, exist_ok=True)
     final_html_path.write_text("<!doctype html><html><head><meta charset=\"utf-8\"><title>" + html.escape(rendered.title) + "</title></head><body>" + processed_html + "</body></html>\n", "utf-8")
-    response = publish_to_draft(access_token, rendered.title, rendered.author, rendered.summary, processed_html, thumb_media_id, args.type, image_media_ids, need_open_comment, only_fans_can_comment)
+    response = publish_to_draft(access_token, rendered.title, rendered.author, rendered.summary, processed_html, thumb_media_id, rendered.content_source_url, args.type, image_media_ids, need_open_comment, only_fans_can_comment)
     result = {"success": True, "media_id": response.get("media_id"), "title": rendered.title, "articleType": args.type, "htmlPath": str(final_html_path)}
     print(json.dumps(result, ensure_ascii=False, indent=2) if args.json else json.dumps(result, ensure_ascii=False))
     return 0

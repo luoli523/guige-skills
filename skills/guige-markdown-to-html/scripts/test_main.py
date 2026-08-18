@@ -58,11 +58,11 @@ description: 一段摘要
         self.assertEqual(options.font_size, "17px")
         self.assertTrue(options.cite)
 
-    def test_builtin_defaults_use_simple_github_dark_and_citations(self):
+    def test_builtin_defaults_use_simple_github_and_citations(self):
         options = main.resolve_options({})
 
         self.assertEqual(options.theme, "simple")
-        self.assertEqual(options.code_theme, "github-dark")
+        self.assertEqual(options.code_theme, "github")
         self.assertEqual(options.base_url, "https://luoli523.github.io")
         self.assertTrue(options.cite)
 
@@ -91,11 +91,31 @@ image: cover.webp
         self.assertEqual(manifest["schemaVersion"], 1)
         self.assertEqual(manifest["assetBaseDir"], str(source.parent.resolve()))
         self.assertEqual(manifest["title"], "发布测试")
+        self.assertEqual(manifest["contentSourceUrl"], "https://luoli523.github.io/p/article/")
         self.assertEqual(manifest["cover"], {
             "source": "cover.webp",
             "resolvedPath": str((source.parent / "cover.webp").resolve()),
         })
         self.assertEqual(manifest["contentImages"][0]["resolvedPath"], str((source.parent / "chart.webp").resolve()))
+
+    def test_manifest_defaults_author_and_honors_explicit_source_url(self):
+        source = pathlib.Path("/tmp/article/index.md")
+        result = main.render_markdown(
+            """---
+title: 发布测试
+slug: ignored-slug
+content_source_url: /original/article/
+---
+正文
+""",
+            source,
+            main.RenderOptions(),
+        )
+
+        manifest = main.build_manifest(result, source, pathlib.Path("/tmp/article/output.html"))
+
+        self.assertEqual(result.author, "鬼哥")
+        self.assertEqual(manifest["contentSourceUrl"], "https://luoli523.github.io/original/article/")
 
     def test_no_cite_override_disables_citations(self):
         options = main.resolve_options({}, cite=False)
@@ -138,6 +158,15 @@ enabled: true
         self.assertIn("hljs-attr", result.content_html)
         self.assertIn("&nbsp;", result.content_html)
         self.assertIn("<br>", result.content_html)
+        self.assertIn('class="mac-sign"', result.content_html)
+        self.assertIn('viewBox="0 0 450 130"', result.content_html)
+        self.assertIn('fill="rgb(237,108,96)"', result.content_html)
+        self.assertIn('fill="rgb(247,193,81)"', result.content_html)
+        self.assertIn('fill="rgb(100,200,86)"', result.content_html)
+        self.assertIn("font-family:'Fira Code'", result.content_html)
+        self.assertIn("font-size:90%", result.content_html)
+        self.assertNotIn("● ● ●", result.content_html)
+        self.assertNotIn("<pre class=\"hljs code__pre\" style=\"" + main.style_map(main.RenderOptions())["pre"] + "\"><div", result.content_html)
 
     def test_base_url_resolves_root_relative_links_without_citing_them(self):
         result = main.render_markdown(

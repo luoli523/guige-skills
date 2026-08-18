@@ -15,6 +15,7 @@ from typing import Dict, List, Optional, Tuple
 
 THEMES = {"default", "simple", "grace", "modern"}
 DEFAULT_BASE_URL = "https://luoli523.github.io"
+DEFAULT_AUTHOR = "鬼哥"
 COLORS = {
     "blue": "#0F4C81", "green": "#009874", "vermilion": "#FA5151",
     "yellow": "#FECE00", "purple": "#92617E", "sky": "#55C9EA",
@@ -49,7 +50,7 @@ class RenderOptions:
     color: str = "#0F4C81"
     font_family: str = FONTS["sans"]
     font_size: str = "16px"
-    code_theme: str = "github-dark"
+    code_theme: str = "github"
     mac_code_block: bool = True
     cite: bool = True
     keep_title: bool = False
@@ -264,7 +265,7 @@ def resolve_options(config: Dict[str, str], **overrides: Optional[object]) -> Re
         color=normalize_color(str(pick("color", COLORS["blue"]))),
         font_family=normalize_font(str(pick("font_family", "sans"))),
         font_size=normalize_font_size(str(pick("font_size", "16"))),
-        code_theme=str(pick("code_theme", "github-dark")),
+        code_theme=str(pick("code_theme", "github")),
         mac_code_block=bool(pick("mac_code_block", True)) if isinstance(pick("mac_code_block", True), bool)
         else parse_bool(str(pick("mac_code_block", True))),
         cite=bool(pick("cite", True)) if isinstance(pick("cite", True), bool)
@@ -311,7 +312,7 @@ def style_map(options: RenderOptions) -> Dict[str, str]:
         "th": f"border:1px solid #e5e7eb;background:{color};color:#fff;padding:.55em;text-align:left;",
         "td": "border:1px solid #e5e7eb;padding:.55em;",
         "code": "font-family:Menlo,Monaco,Consolas,monospace;font-size:90%;color:#c7254e;background:#f9f2f4;padding:2px 4px;border-radius:3px;",
-        "pre": "margin:1em 0;border-radius:8px;overflow-x:auto;background:#f6f8fa;padding:1em;color:#24292e;line-height:1.55;",
+        "pre": "color:#24292e;background:#fff;font-size:90%;overflow-x:auto;border-radius:8px;line-height:1.5;margin:10px 8px;box-shadow:inset 0 0 10px rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.04);padding:0;",
         "img": "display:block;max-width:100%;height:auto;margin:1.2em auto;border-radius:6px;",
         "hr": "border:0;border-top:1px solid #e5e7eb;margin:2em 0;",
     }
@@ -326,7 +327,7 @@ def style_map(options: RenderOptions) -> Dict[str, str]:
         styles["h1"] = f"display:table;margin:20px auto;padding:.3em 1em;border-radius:15px;color:#fff;background:{color};font-size:28px;font-weight:700;text-align:center;"
         styles["h2"] = f"display:block;margin:0 0 20px;padding:.2em 0;border-bottom:2px solid {color};background:transparent;color:{color};text-align:left;"
     if options.code_theme.lower() in {"dark", "github-dark", "monokai", "nord"}:
-        styles["pre"] = "margin:1em 0;border-radius:8px;overflow-x:auto;background:#161b22;padding:1em;color:#e6edf3;line-height:1.55;"
+        styles["pre"] = "color:#e6edf3;background:#161b22;font-size:90%;overflow-x:auto;border-radius:8px;line-height:1.5;margin:10px 8px;border:1px solid rgba(255,255,255,0.08);padding:0;"
     return styles
 
 
@@ -364,7 +365,7 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
     frontmatter, body = parse_frontmatter(markdown)
     title = frontmatter.get("title", "") or extract_title(body, source_path.stem)
     summary = frontmatter.get("description", frontmatter.get("summary", "")) or extract_summary(body)
-    author = frontmatter.get("author", "")
+    author = frontmatter.get("author", "").strip() or DEFAULT_AUTHOR
     styles = style_map(options)
     citations: List[Tuple[str, str]] = []
     images: List[Dict[str, str]] = []
@@ -389,9 +390,17 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
             normalized_language = normalize_code_language(language)
             # A <pre> element accepts phrasing content only. Keep the visual code
             # block header inline so WeChat's draft API receives valid HTML.
-            header = "<span style=\"display:block;color:#8c959f;font-size:12px;margin-bottom:8px;\">● ● ●" + (f" &nbsp;{html.escape(normalized_language)}" if options.mac_code_block else "") + "</span>" if options.mac_code_block else ""
+            header = (
+                '<span class="mac-sign" style="display:flex;padding:10px 14px 0;">'
+                '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="45px" height="13px" viewBox="0 0 450 130">'
+                '<ellipse cx="50" cy="65" rx="50" ry="52" stroke="rgb(220,60,54)" stroke-width="2" fill="rgb(237,108,96)"/>'
+                '<ellipse cx="225" cy="65" rx="50" ry="52" stroke="rgb(218,151,33)" stroke-width="2" fill="rgb(247,193,81)"/>'
+                '<ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" stroke-width="2" fill="rgb(100,200,86)"/>'
+                '</svg></span>'
+            ) if options.mac_code_block else ""
             highlighted_code = highlight_code("\n".join(code_lines), normalized_language)
-            output.append(f'<pre class="hljs code__pre" style="{styles["pre"]}">{header}<code class="language-{html.escape(normalized_language, quote=True)}">{highlighted_code}</code></pre>')
+            code_style = "font-family:'Fira Code',Menlo,Operator Mono,Consolas,Monaco,monospace;font-size:90%;border-radius:4px;display:-webkit-box;padding:0.5em 1em 1em;overflow-x:auto;text-indent:0;color:inherit;background:none;white-space:nowrap;margin:0;"
+            output.append(f'<pre class="hljs code__pre" style="{styles["pre"]}">{header}<code class="language-{html.escape(normalized_language, quote=True)}" style="{code_style}">{highlighted_code}</code></pre>')
             i += 1
             continue
         image_match = re.fullmatch(r"!\[([^\]]*)\]\(([^)]+)\)", stripped)
@@ -464,6 +473,23 @@ def resolve_asset_path(source: str, source_path: pathlib.Path) -> str:
     return str(path.resolve())
 
 
+def resolve_content_source_url(result: RenderResult, source_path: pathlib.Path) -> str:
+    explicit_url = next(
+        (
+            str(result.frontmatter[key]).strip()
+            for key in ("content_source_url", "contentsourceurl", "source_url", "sourceurl")
+            if result.frontmatter.get(key)
+        ),
+        "",
+    )
+    if explicit_url:
+        return urllib.parse.urljoin(result.options.base_url + "/", explicit_url)
+    slug = str(result.frontmatter.get("slug") or source_path.parent.name).strip().strip("/")
+    if not slug:
+        return ""
+    return f"{result.options.base_url}/p/{urllib.parse.quote(slug, safe='/')}/"
+
+
 def build_manifest(result: RenderResult, source_path: pathlib.Path, html_path: pathlib.Path) -> Dict[str, object]:
     cover_source = next(
         (
@@ -491,6 +517,7 @@ def build_manifest(result: RenderResult, source_path: pathlib.Path, html_path: p
         "title": result.title,
         "summary": result.summary,
         "author": result.author,
+        "contentSourceUrl": resolve_content_source_url(result, source_path),
         "cover": cover,
         "contentImages": result.content_images,
     }

@@ -1,7 +1,6 @@
 ---
 name: guige-to-wechat
 description: Publish a guige-markdown-to-html render manifest to a WeChat Official Account draft through the official API. Use when the user asks to publish a prepared article to 微信公众号, post to WeChat, create a WeChat draft, upload a WeChat cover or inline images, or manage WeChat draft settings.
-version: 0.1.0
 metadata:
   openclaw:
     requires:
@@ -35,6 +34,7 @@ The script uses only Python's standard library. It uploads local or remote image
   "title": "文章标题",
   "summary": "文章摘要",
   "author": "鬼哥",
+  "contentSourceUrl": "https://luoli523.github.io/p/article-slug/",
   "cover": {"source": "cover.webp", "resolvedPath": "/absolute/path/cover.webp"},
   "contentImages": [
     {"source": "chart.webp", "resolvedPath": "/absolute/path/chart.webp", "alt": "图表"}
@@ -104,6 +104,9 @@ python3 {baseDir}/scripts/main.py article.wechat.json --cover cover.jpg
 - Upload inline images through `media/uploadimg` and replace their HTML URLs.
 - Upload the cover through `material/add_material`; convert WebP covers to JPEG first while leaving JPEG/PNG covers unchanged.
 - Build and submit the `draft/add` request for `news` or `newspic`.
+- Send manifest `author` as the original author and `contentSourceUrl` as the `news` article's “阅读原文” link.
 - Preserve a final HTML copy after image URL substitution.
+
+The official draft API does not expose the editor's “创作来源” setting, so this skill leaves that setting for manual configuration in the WeChat backend.
 
 After a successful publish, manage the draft at `https://mp.weixin.qq.com` → 内容管理 → 草稿箱.
