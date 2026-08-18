@@ -1,4 +1,0 @@
-interface:
-  display_name: "Gui Ge Markdown to HTML"
-  short_description: "Render Markdown as WeChat-ready HTML"
-  default_prompt: "Use $guige-markdown-to-html to render this Markdown file as WeChat-ready HTML."
