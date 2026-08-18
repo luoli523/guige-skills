@@ -26,6 +26,20 @@ FONTS = {
     "mono": "Menlo,Monaco,'Courier New',monospace",
 }
 
+LANGUAGE_ALIASES = {
+    "": "text", "txt": "text", "plain": "text", "plaintext": "text",
+    "console": "bash", "terminal": "bash", "shell": "bash", "sh": "bash", "zsh": "bash",
+    "yml": "yaml", "md": "markdown", "mkd": "markdown", "js": "javascript",
+    "ts": "typescript", "py": "python",
+}
+CODE_COLORS = {
+    "attr": "#79c0ff", "built_in": "#d2a8ff", "bullet": "#f2cc60", "comment": "#8b949e",
+    "keyword": "#ff7b72", "literal": "#79c0ff", "meta": "#79c0ff", "number": "#79c0ff",
+    "section": "#79c0ff", "string": "#a5d6ff", "variable": "#ffa657",
+}
+BASH_BUILTINS = {"awk", "brew", "bun", "cat", "cd", "chmod", "claude", "codex", "cp", "curl", "echo", "export", "find", "git", "grep", "jq", "ln", "ls", "mkdir", "mv", "npm", "npx", "pip", "pnpm", "python", "python3", "rg", "rm", "rsync", "sed", "ssh", "tar", "uv", "vim", "yarn"}
+BASH_KEYWORDS = {"case", "do", "done", "elif", "else", "esac", "fi", "for", "function", "if", "in", "then", "until", "while"}
+
 
 @dataclasses.dataclass
 class RenderOptions:
@@ -108,6 +122,129 @@ def normalize_font_size(value: str) -> str:
     if not re.fullmatch(r"1[4-8]px", candidate):
         raise ValueError("font size must be between 14px and 18px")
     return candidate
+
+
+def normalize_code_language(language: str = "") -> str:
+    language = re.sub(r"^\\{?\\.?", "", (language or "").strip().lower()).rstrip("}")
+    return LANGUAGE_ALIASES.get(language, language or "text")
+
+
+def code_escape(text: str) -> str:
+    return html.escape(text.replace("\t", "    "), quote=False).replace(" ", "&nbsp;")
+
+
+def code_span(kind: str, text: str) -> str:
+    return f'<span class="hljs-{kind.replace("_", "-")}" style="color:{CODE_COLORS.get(kind, CODE_COLORS["literal"])};">{code_escape(text)}</span>'
+
+
+def split_comment(line: str) -> Tuple[str, str]:
+    quote = ""
+    escaped = False
+    for index, char in enumerate(line):
+        if escaped:
+            escaped = False
+        elif char == "\\":
+            escaped = True
+        elif quote:
+            if char == quote:
+                quote = ""
+        elif char in {"'", '"'}:
+            quote = char
+        elif char == "#" and (index == 0 or line[index - 1].isspace()):
+            return line[:index], line[index:]
+    return line, ""
+
+
+def highlight_scalar(value: str) -> str:
+    token_re = re.compile(r'''("(?:\\.|[^"])*"|'(?:\\.|[^'])*'|\b(?:true|false|null|yes|no|on|off)\b|-?\b\d+(?:\.\d+)?\b)''', re.I)
+    prefix, comment = split_comment(value)
+    output: List[str] = []
+    position = 0
+    for match in token_re.finditer(prefix):
+        output.append(code_escape(prefix[position:match.start()]))
+        token = match.group(0)
+        kind = "string" if token.startswith(("'", '"')) else "number" if re.match(r"-?\d", token) else "literal"
+        output.append(code_span(kind, token))
+        position = match.end()
+    output.append(code_escape(prefix[position:]))
+    if comment:
+        output.append(code_span("comment", comment))
+    return "".join(output)
+
+
+def highlight_bash(line: str) -> str:
+    prefix, comment = split_comment(line)
+    token_re = re.compile(r'''('(?:\\.|[^'])*'|"(?:\\.|[^"])*"|\$\{?[A-Za-z_][A-Za-z0-9_]*\}?|\$[0-9@#?*-]|--?[A-Za-z0-9][A-Za-z0-9_-]*|\b[A-Za-z_][A-Za-z0-9_.-]*\b)''')
+    output: List[str] = []
+    position = 0
+    for match in token_re.finditer(prefix):
+        output.append(code_escape(prefix[position:match.start()]))
+        token = match.group(0)
+        kind = "string" if token.startswith(("'", '"')) else "variable" if token.startswith("$") else "attr" if token.startswith("-") else "keyword" if token in BASH_KEYWORDS else "built_in" if token in BASH_BUILTINS else ""
+        output.append(code_span(kind, token) if kind else code_escape(token))
+        position = match.end()
+    output.append(code_escape(prefix[position:]))
+    if comment:
+        output.append(code_span("comment", comment))
+    return "".join(output)
+
+
+def highlight_yaml(line: str) -> str:
+    stripped = line.strip()
+    if not stripped:
+        return ""
+    if stripped.startswith("#"):
+        return code_span("comment", line)
+    if stripped in {"---", "..."}:
+        return code_span("meta", line)
+    match = re.match(r"^(\s*)([^:#][^:]*?)(\s*:\s*)(.*)$", line)
+    if match:
+        return code_escape(match.group(1)) + code_span("attr", match.group(2)) + code_escape(match.group(3)) + highlight_scalar(match.group(4))
+    return highlight_scalar(line)
+
+
+def highlight_json(line: str) -> str:
+    token_re = re.compile(r'"(?:\\.|[^"\\])*"|-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b|\b(?:true|false|null)\b')
+    output: List[str] = []
+    position = 0
+    for match in token_re.finditer(line):
+        output.append(code_escape(line[position:match.start()]))
+        token = match.group(0)
+        kind = "attr" if token.startswith('"') and line[match.end():].lstrip().startswith(":") else "string" if token.startswith('"') else "number" if re.match(r"-?\d", token) else "literal"
+        output.append(code_span(kind, token))
+        position = match.end()
+    return "".join(output) + code_escape(line[position:])
+
+
+def highlight_toml(line: str) -> str:
+    stripped = line.strip()
+    if stripped.startswith("#"):
+        return code_span("comment", line)
+    if stripped.startswith("[") and stripped.endswith("]"):
+        return code_span("section", line)
+    match = re.match(r"^(\s*)([A-Za-z0-9_.-]+)(\s*=\s*)(.*)$", line)
+    if match:
+        return code_escape(match.group(1)) + code_span("attr", match.group(2)) + code_escape(match.group(3)) + highlight_scalar(match.group(4))
+    return highlight_scalar(line)
+
+
+def highlight_markdown(line: str) -> str:
+    stripped = line.lstrip()
+    indent = line[:len(line) - len(stripped)]
+    if stripped.startswith("#"):
+        match = re.match(r"^(#+\s*)", stripped)
+        if match:
+            return code_escape(indent) + code_span("section", match.group(1)) + code_escape(stripped[match.end():])
+    if stripped in {"---", "..."} or stripped.startswith("```"):
+        return code_escape(indent) + code_span("meta", stripped)
+    if re.match(r"^[-*+]\s+", stripped):
+        return code_escape(indent) + code_span("bullet", stripped[:2]) + code_escape(stripped[2:])
+    return code_escape(line)
+
+
+def highlight_code(code: str, language: str) -> str:
+    highlighter = {"bash": highlight_bash, "yaml": highlight_yaml, "json": highlight_json, "toml": highlight_toml, "markdown": highlight_markdown}.get(normalize_code_language(language), code_escape)
+    return "<br>".join(highlighter(line) for line in code.split("\n"))
 
 
 def resolve_options(config: Dict[str, str], **overrides: Optional[object]) -> RenderOptions:
@@ -239,9 +376,10 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
             while i < len(lines) and not lines[i].strip().startswith("```"):
                 code_lines.append(lines[i])
                 i += 1
-            header = "<div style=\"color:#8c959f;font-size:12px;margin-bottom:8px;\">● ● ●" + (f" &nbsp;{html.escape(language)}" if options.mac_code_block else "") + "</div>" if options.mac_code_block else ""
-            escaped_code = html.escape("\n".join(code_lines))
-            output.append(f'<pre style="{styles["pre"]}">{header}<code>{escaped_code}</code></pre>')
+            normalized_language = normalize_code_language(language)
+            header = "<div style=\"color:#8c959f;font-size:12px;margin-bottom:8px;\">● ● ●" + (f" &nbsp;{html.escape(normalized_language)}" if options.mac_code_block else "") + "</div>" if options.mac_code_block else ""
+            highlighted_code = highlight_code("\n".join(code_lines), normalized_language)
+            output.append(f'<pre class="hljs code__pre" style="{styles["pre"]}">{header}<code class="language-{html.escape(normalized_language, quote=True)}">{highlighted_code}</code></pre>')
             i += 1
             continue
         image_match = re.fullmatch(r"!\[([^\]]*)\]\(([^)]+)\)", stripped)

@@ -100,6 +100,30 @@ image: cover.webp
         self.assertFalse(options.cite)
         self.assertNotIn("参考链接", result.content_html)
 
+    def test_render_highlights_supported_fenced_code_blocks(self):
+        result = main.render_markdown(
+            """```bash
+git clone https://example.com/project.git
+export APP_NAME=guige
+```
+
+```yaml
+title: "测试"
+enabled: true
+```
+""",
+            pathlib.Path("/tmp/article.md"),
+            main.RenderOptions(),
+        )
+
+        self.assertIn('class="hljs code__pre"', result.content_html)
+        self.assertIn('class="language-bash"', result.content_html)
+        self.assertIn('class="language-yaml"', result.content_html)
+        self.assertIn("hljs-built-in", result.content_html)
+        self.assertIn("hljs-attr", result.content_html)
+        self.assertIn("&nbsp;", result.content_html)
+        self.assertIn("<br>", result.content_html)
+
 
 if __name__ == "__main__":
     unittest.main()
