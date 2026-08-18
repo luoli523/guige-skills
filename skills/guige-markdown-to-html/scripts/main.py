@@ -44,6 +44,7 @@ class RenderResult:
     title: str
     summary: str
     author: str
+    frontmatter: Dict[str, str]
     content_html: str
     html: str
     content_images: List[Dict[str, str]]
@@ -301,7 +302,42 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
     content_html = f'<section style="{styles["article"]}">' + "".join(output) + "</section>"
     document = "<!doctype html><html><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />"
     document += f"<title>{html.escape(title)}</title></head><body>{content_html}</body></html>"
-    return RenderResult(title, summary, author, content_html, document, images, options)
+    return RenderResult(title, summary, author, frontmatter, content_html, document, images, options)
+
+
+def resolve_asset_path(source: str, source_path: pathlib.Path) -> str:
+    if re.match(r"https?://", source):
+        return source
+    path = pathlib.Path(source).expanduser()
+    if not path.is_absolute():
+        path = source_path.parent / path
+    return str(path.resolve())
+
+
+def build_manifest(result: RenderResult, source_path: pathlib.Path, html_path: pathlib.Path) -> Dict[str, object]:
+    cover_source = next(
+        (
+            result.frontmatter[key]
+            for key in ("coverimage", "featureimage", "cover", "image")
+            if result.frontmatter.get(key)
+        ),
+        "",
+    )
+    cover = (
+        {"source": cover_source, "resolvedPath": resolve_asset_path(cover_source, source_path)}
+        if cover_source
+        else None
+    )
+    return {
+        "schemaVersion": 1,
+        "htmlPath": str(html_path),
+        "assetBaseDir": str(source_path.parent.resolve()),
+        "title": result.title,
+        "summary": result.summary,
+        "author": result.author,
+        "cover": cover,
+        "contentImages": result.content_images,
+    }
 
 
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
@@ -314,8 +350,11 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     parser.add_argument("--font-size")
     parser.add_argument("--code-theme")
     parser.add_argument("--no-mac-code-block", action="store_true")
-    parser.add_argument("--cite", action="store_true", default=None)
+    cite_group = parser.add_mutually_exclusive_group()
+    cite_group.add_argument("--cite", action="store_true", dest="cite", default=None)
+    cite_group.add_argument("--no-cite", action="store_false", dest="cite")
     parser.add_argument("--keep-title", action="store_true", default=None)
+    parser.add_argument("--manifest", help="Write a renderer-to-publisher manifest JSON file")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--json", action="store_true")
     return parser.parse_args(argv)
@@ -332,9 +371,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     options = resolve_options(load_config(), **overrides)
     result = render_markdown(source.read_text("utf-8"), source, options)
     output_path = pathlib.Path(args.output).expanduser().resolve() if args.output else source.with_suffix(".html")
+    manifest_path = pathlib.Path(args.manifest).expanduser().resolve() if args.manifest else None
+    manifest = build_manifest(result, source, output_path)
     if not args.dry_run:
         output_path.write_text(result.html, "utf-8")
-    payload = {"success": True, "htmlPath": str(output_path), "title": result.title, "summary": result.summary, "author": result.author, "theme": options.theme, "color": options.color, "codeTheme": options.code_theme, "contentImages": result.content_images, "dryRun": args.dry_run}
+        if manifest_path:
+            manifest_path.parent.mkdir(parents=True, exist_ok=True)
+            manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    payload = {"success": True, **manifest, "manifestPath": str(manifest_path) if manifest_path else None, "theme": options.theme, "color": options.color, "codeTheme": options.code_theme, "dryRun": args.dry_run}
     print(json.dumps(payload, ensure_ascii=False, indent=2) if args.json else str(output_path))
     return 0
 

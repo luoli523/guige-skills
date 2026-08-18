@@ -65,6 +65,41 @@ description: 一段摘要
         self.assertEqual(options.code_theme, "monokai")
         self.assertTrue(options.cite)
 
+    def test_manifest_preserves_publication_metadata_and_assets(self):
+        source = pathlib.Path("/tmp/article/index.md")
+        result = main.render_markdown(
+            """---
+title: 发布测试
+description: 摘要
+author: 鬼哥
+image: cover.webp
+---
+# 发布测试
+
+![图表](chart.webp)
+""",
+            source,
+            main.RenderOptions(),
+        )
+
+        manifest = main.build_manifest(result, source, pathlib.Path("/tmp/article/output.html"))
+
+        self.assertEqual(manifest["schemaVersion"], 1)
+        self.assertEqual(manifest["assetBaseDir"], str(source.parent.resolve()))
+        self.assertEqual(manifest["title"], "发布测试")
+        self.assertEqual(manifest["cover"], {
+            "source": "cover.webp",
+            "resolvedPath": str((source.parent / "cover.webp").resolve()),
+        })
+        self.assertEqual(manifest["contentImages"][0]["resolvedPath"], str((source.parent / "chart.webp").resolve()))
+
+    def test_no_cite_override_disables_citations(self):
+        options = main.resolve_options({}, cite=False)
+        result = main.render_markdown("[参考](https://example.com)", pathlib.Path("/tmp/article.md"), options)
+
+        self.assertFalse(options.cite)
+        self.assertNotIn("参考链接", result.content_html)
+
 
 if __name__ == "__main__":
     unittest.main()
