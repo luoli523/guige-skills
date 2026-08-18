@@ -14,6 +14,7 @@ from typing import Dict, List, Optional, Tuple
 
 
 THEMES = {"default", "simple", "grace", "modern"}
+DEFAULT_BASE_URL = "https://luoli523.github.io"
 COLORS = {
     "blue": "#0F4C81", "green": "#009874", "vermilion": "#FA5151",
     "yellow": "#FECE00", "purple": "#92617E", "sky": "#55C9EA",
@@ -52,8 +53,7 @@ class RenderOptions:
     mac_code_block: bool = True
     cite: bool = True
     keep_title: bool = False
-    compact: bool = False
-    base_url: str = ""
+    base_url: str = DEFAULT_BASE_URL
 
 
 @dataclasses.dataclass
@@ -258,6 +258,7 @@ def resolve_options(config: Dict[str, str], **overrides: Optional[object]) -> Re
     theme = str(pick("theme", "simple")).lower()
     if theme not in THEMES:
         raise ValueError("theme must be one of: " + ", ".join(sorted(THEMES)))
+    base_url = str(pick("base_url", DEFAULT_BASE_URL)).strip().rstrip("/") or DEFAULT_BASE_URL
     return RenderOptions(
         theme=theme,
         color=normalize_color(str(pick("color", COLORS["blue"]))),
@@ -270,9 +271,7 @@ def resolve_options(config: Dict[str, str], **overrides: Optional[object]) -> Re
         else parse_bool(str(pick("cite", True))),
         keep_title=bool(pick("keep_title", False)) if isinstance(pick("keep_title", False), bool)
         else parse_bool(str(pick("keep_title", False))),
-        compact=bool(pick("compact", False)) if isinstance(pick("compact", False), bool)
-        else parse_bool(str(pick("compact", False))),
-        base_url=str(pick("base_url", "")).rstrip("/"),
+        base_url=base_url,
     )
 
 
@@ -297,8 +296,6 @@ def extract_summary(body: str) -> str:
 
 
 def style_map(options: RenderOptions) -> Dict[str, str]:
-    if options.compact:
-        return {key: "" for key in ("article", "h1", "h2", "h3", "p", "blockquote", "ul", "ol", "li", "table", "th", "td", "code", "pre", "img", "hr")}
     color = options.color
     styles = {
         "article": f"font-family:{options.font_family};font-size:{options.font_size};line-height:1.85;color:#3f3f3f;",
@@ -333,10 +330,9 @@ def style_map(options: RenderOptions) -> Dict[str, str]:
     return styles
 
 
-def inline(text: str, citations: List[Tuple[str, str]], cite: bool, compact: bool = False, base_url: str = "") -> str:
+def inline(text: str, citations: List[Tuple[str, str]], cite: bool, base_url: str = "") -> str:
     escaped = html.escape(text, quote=False)
-    code_open = "<code>" if compact else f'<code style="{CODE_STYLE}">'
-    escaped = re.sub(r"`([^`]+)`", lambda m: f'{code_open}{m.group(1)}</code>', escaped)
+    escaped = re.sub(r"`([^`]+)`", lambda m: f'<code style="{CODE_STYLE}">{m.group(1)}</code>', escaped)
     escaped = re.sub(r"!\[([^\]]*)\]\(([^)]+)\)", lambda m: m.group(0), escaped)
 
     def link(match: re.Match) -> str:
@@ -352,8 +348,7 @@ def inline(text: str, citations: List[Tuple[str, str]], cite: bool, compact: boo
             except StopIteration:
                 citations.append((label, url))
                 index = len(citations)
-            citation = f"{label}<sup>[{index}]</sup>"
-            return citation if compact else f'<a href="{html.escape(url, quote=True)}">{citation}</a>'
+            return f'<a href="{html.escape(url, quote=True)}">{label}<sup>[{index}]</sup></a>'
         return f'<a href="{html.escape(url, quote=True)}">{label}</a>'
 
     escaped = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", link, escaped)
@@ -394,8 +389,8 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
             normalized_language = normalize_code_language(language)
             # A <pre> element accepts phrasing content only. Keep the visual code
             # block header inline so WeChat's draft API receives valid HTML.
-            header = "<span style=\"display:block;color:#8c959f;font-size:12px;margin-bottom:8px;\">● ● ●" + (f" &nbsp;{html.escape(normalized_language)}" if options.mac_code_block else "") + "</span>" if options.mac_code_block and not options.compact else ""
-            highlighted_code = code_escape("\n".join(code_lines)).replace("\n", "<br>") if options.compact else highlight_code("\n".join(code_lines), normalized_language)
+            header = "<span style=\"display:block;color:#8c959f;font-size:12px;margin-bottom:8px;\">● ● ●" + (f" &nbsp;{html.escape(normalized_language)}" if options.mac_code_block else "") + "</span>" if options.mac_code_block else ""
+            highlighted_code = highlight_code("\n".join(code_lines), normalized_language)
             output.append(f'<pre class="hljs code__pre" style="{styles["pre"]}">{header}<code class="language-{html.escape(normalized_language, quote=True)}">{highlighted_code}</code></pre>')
             i += 1
             continue
@@ -413,7 +408,7 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
                 first_heading_removed = True
             else:
                 heading_style = styles[f"h{level}"]
-                output.append(f'<h{level} style="{heading_style}">{inline(heading.group(2), citations, options.cite, options.compact, options.base_url)}</h{level}>')
+                output.append(f'<h{level} style="{heading_style}">{inline(heading.group(2), citations, options.cite, options.base_url)}</h{level}>')
             i += 1
             continue
         if re.fullmatch(r"[-*_]{3,}", stripped):
@@ -421,7 +416,7 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
             i += 1
             continue
         if stripped.startswith(">"):
-            output.append(f'<blockquote style="{styles["blockquote"]}">{inline(stripped[1:].lstrip(), citations, options.cite, options.compact, options.base_url)}</blockquote>')
+            output.append(f'<blockquote style="{styles["blockquote"]}">{inline(stripped[1:].lstrip(), citations, options.cite, options.base_url)}</blockquote>')
             i += 1
             continue
         list_match = re.fullmatch(r"(?:[-*+]|(\d+)[.)])\s+(.+)", stripped)
@@ -433,7 +428,7 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
                 current = re.fullmatch(r"(?:[-*+]|(\d+)[.)])\s+(.+)", lines[i].strip())
                 if not current or bool(current.group(1)) != ordered:
                     break
-                items.append(f'<li style="{styles["li"]}">{inline(current.group(2), citations, options.cite, options.compact, options.base_url)}</li>')
+                items.append(f'<li style="{styles["li"]}">{inline(current.group(2), citations, options.cite, options.base_url)}</li>')
                 i += 1
             output.append(f'<{tag} style="{styles[tag]}">' + "".join(items) + f'</{tag}>')
             continue
@@ -444,11 +439,11 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
             while i < len(lines) and "|" in lines[i]:
                 rows.append([cell.strip() for cell in lines[i].strip().strip("|").split("|")])
                 i += 1
-            header_html = "".join(f'<th style="{styles["th"]}">{inline(cell, citations, options.cite, options.compact, options.base_url)}</th>' for cell in headers)
-            row_html = "".join("<tr>" + "".join(f'<td style="{styles["td"]}">{inline(cell, citations, options.cite, options.compact, options.base_url)}</td>' for cell in row) + "</tr>" for row in rows)
+            header_html = "".join(f'<th style="{styles["th"]}">{inline(cell, citations, options.cite, options.base_url)}</th>' for cell in headers)
+            row_html = "".join("<tr>" + "".join(f'<td style="{styles["td"]}">{inline(cell, citations, options.cite, options.base_url)}</td>' for cell in row) + "</tr>" for row in rows)
             output.append(f'<table style="{styles["table"]}"><thead><tr>{header_html}</tr></thead><tbody>{row_html}</tbody></table>')
             continue
-        output.append(f'<p style="{styles["p"]}">{inline(stripped, citations, options.cite, options.compact, options.base_url)}</p>')
+        output.append(f'<p style="{styles["p"]}">{inline(stripped, citations, options.cite, options.base_url)}</p>')
         i += 1
 
     if citations:
@@ -511,7 +506,6 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     parser.add_argument("--font-size")
     parser.add_argument("--code-theme")
     parser.add_argument("--no-mac-code-block", action="store_true")
-    parser.add_argument("--compact", action="store_true", default=None, help="Minimize markup for long WeChat articles")
     parser.add_argument("--base-url", help="Resolve root-relative Markdown links against this site URL")
     cite_group = parser.add_mutually_exclusive_group()
     cite_group.add_argument("--cite", action="store_true", dest="cite", default=None)
@@ -528,7 +522,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     source = pathlib.Path(args.markdown_file).expanduser().resolve()
     if not source.is_file() or source.suffix.lower() != ".md":
         raise ValueError("markdown_file must be an existing .md file")
-    overrides = {"theme": args.theme, "color": args.color, "font_family": args.font_family, "font_size": args.font_size, "code_theme": args.code_theme, "cite": args.cite, "keep_title": args.keep_title, "compact": args.compact, "base_url": args.base_url}
+    overrides = {"theme": args.theme, "color": args.color, "font_family": args.font_family, "font_size": args.font_size, "code_theme": args.code_theme, "cite": args.cite, "keep_title": args.keep_title, "base_url": args.base_url}
     if args.no_mac_code_block:
         overrides["mac_code_block"] = False
     options = resolve_options(load_config(), **overrides)

@@ -63,7 +63,11 @@ description: 一段摘要
 
         self.assertEqual(options.theme, "simple")
         self.assertEqual(options.code_theme, "github-dark")
+        self.assertEqual(options.base_url, "https://luoli523.github.io")
         self.assertTrue(options.cite)
+
+    def test_empty_base_url_config_falls_back_to_site_default(self):
+        self.assertEqual(main.resolve_options({"base_url": ""}).base_url, "https://luoli523.github.io")
 
     def test_manifest_preserves_publication_metadata_and_assets(self):
         source = pathlib.Path("/tmp/article/index.md")
@@ -134,18 +138,6 @@ enabled: true
         self.assertIn("hljs-attr", result.content_html)
         self.assertIn("&nbsp;", result.content_html)
         self.assertIn("<br>", result.content_html)
-
-    def test_compact_output_avoids_repeated_inline_code_styles_and_highlighting(self):
-        result = main.render_markdown(
-            "正文含有 `inline`。\n\n```bash\ngit status\n```",
-            pathlib.Path("/tmp/article.md"),
-            main.RenderOptions(compact=True),
-        )
-
-        self.assertIn("<code>inline</code>", result.content_html)
-        self.assertNotIn(main.CODE_STYLE, result.content_html)
-        self.assertNotIn('class="hljs-', result.content_html)
-        self.assertNotIn("● ● ●", result.content_html)
 
     def test_base_url_resolves_root_relative_links_without_citing_them(self):
         result = main.render_markdown(
