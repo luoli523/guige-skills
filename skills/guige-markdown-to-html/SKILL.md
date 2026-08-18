@@ -1,6 +1,6 @@
 ---
 name: guige-markdown-to-html
-description: Convert Markdown files into styled, WeChat-friendly HTML with inline CSS, frontmatter metadata, code blocks, tables, blockquotes, image manifests, and bottom citations for external links. Use when the user asks to convert Markdown to HTML, render Markdown for WeChat or a rich-text editor, create styled HTML from a .md file, or preview/export a WeChat-ready article without publishing it.
+description: Convert Markdown files into styled, WeChat-friendly HTML and a publication manifest with metadata, cover selection, and resolved image assets. Use when the user asks to convert Markdown to HTML, render or prepare Markdown for WeChat, create a publisher-ready article package, or preview/export a rich-text article without publishing it.
 ---
 
 # Gui Ge Markdown to HTML
@@ -48,8 +48,9 @@ python3 {baseDir}/scripts/main.py article.md
 python3 {baseDir}/scripts/main.py article.md \
   --theme grace --color '#009874' --font-family serif-cjk --font-size 16
 
-# Return a machine-readable image manifest for a publisher
-python3 {baseDir}/scripts/main.py article.md --cite --json --output article.wechat.html
+# Produce the explicit HTML + manifest interface for a publisher
+python3 {baseDir}/scripts/main.py article.md \
+  --output article.html --manifest article.wechat.json --json
 ```
 
 ## Options
@@ -65,7 +66,9 @@ python3 {baseDir}/scripts/main.py article.md --cite --json --output article.wech
 | `--code-theme <name>` | Code-block style; `github` is light and `dark`, `github-dark`, `monokai`, and `nord` use a dark surface |
 | `--no-mac-code-block` | Disable the mac-style code-block header |
 | `--cite` | Convert ordinary external links into bottom citations |
+| `--no-cite` | Keep ordinary external links inline |
 | `--keep-title` | Keep the first H1/H2 in the HTML body |
+| `--manifest <path>` | Write a schema version 1 renderer-to-publisher JSON manifest |
 | `--dry-run` | Render and validate without writing output |
 | `--json` | Print a machine-readable result |
 
@@ -75,7 +78,7 @@ python3 {baseDir}/scripts/main.py article.md --cite --json --output article.wech
 - Render styles inline for WeChat and rich-text-editor compatibility.
 - Resolve `title`, `author`, and `description` / `summary` from frontmatter.
 - Remove the first H1/H2 from the body by default. Keep it only with `--keep-title`.
-- Preserve image `src` values and report each image with its source, resolved local path, and alt text. Do not upload or download images.
+- Preserve image `src` values and report each image with its source, resolved local path, and alt text. Resolve cover frontmatter (`coverImage`, `featureImage`, `cover`, `image`), then `imgs/cover.png`, then the first inline image.
 - Convert ordinary external links to numbered bottom citations only with `--cite`. Keep WeChat article links inline.
 - Treat raw HTML as unsupported input. Escape generated text.
 
@@ -90,6 +93,12 @@ Use `--json` to return a result similar to:
   "title": "文章标题",
   "summary": "文章摘要",
   "author": "鬼哥",
+  "schemaVersion": 1,
+  "assetBaseDir": "/path",
+  "cover": {
+    "source": "cover.webp",
+    "resolvedPath": "/path/cover.webp"
+  },
   "theme": "grace",
   "color": "#009874",
   "codeTheme": "github",
@@ -108,4 +117,5 @@ Use `--json` to return a result similar to:
 - Do not publish, authenticate, call platform APIs, or open browsers.
 - Do not mutate input Markdown files.
 - Do not call `baoyu-*` skills or use their scripts or configuration.
+- Treat the generated manifest as the public handoff to publisher skills.
 - Add Mermaid only as an explicit future feature with a static PNG fallback and documented runtime dependency.

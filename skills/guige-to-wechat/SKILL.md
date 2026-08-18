@@ -1,6 +1,6 @@
 ---
 name: guige-to-wechat
-description: Publish Markdown, HTML, or plain text to WeChat Official Account drafts using a Python API client. Use when the user asks to publish to 微信公众号, post to WeChat, create a WeChat draft, convert Markdown to WeChat-ready HTML, or upload article images/cover through the WeChat API.
+description: Publish a guige-markdown-to-html render manifest to a WeChat Official Account draft through the official API. Use when the user asks to publish a prepared article to 微信公众号, post to WeChat, create a WeChat draft, upload a WeChat cover or inline images, or manage WeChat draft settings.
 version: 0.1.0
 metadata:
   openclaw:
@@ -11,27 +11,38 @@ metadata:
 
 # Gui Ge To WeChat
 
-Publish articles to WeChat Official Account drafts through the official API.
+Publish a prepared render manifest to a WeChat Official Account draft. This skill is the publishing channel only: it does not parse Markdown, render HTML, choose typography, or generate article metadata.
 
-This is a standalone Python publisher for the stable WeChat Official Account API workflow:
-
-- Markdown / HTML / plain text input
-- Markdown frontmatter extraction
-- WeChat-friendly HTML rendering with code-block formatting
-- Local/remote inline image upload through `media/uploadimg`
-- Cover upload through `material/add_material`
-- `draft/add` creation with comment controls
-- JSON and dry-run output
-
-Browser automation and image-text paste posting are not included in this Python version. This skill does not call other publishing skills.
+First create the HTML and manifest with `guige-markdown-to-html`, then pass the manifest here.
 
 ## Runtime
 
 ```bash
-python3 {baseDir}/scripts/main.py <file-or-text>
+python3 {baseDir}/scripts/main.py <render-manifest.json> [options]
 ```
 
-The script uses only the Python standard library. If a body image is unsupported or larger than WeChat's body-image limit, it will best-effort convert/compress through local tools such as `sips` or `cwebp` when available.
+The script uses only Python's standard library. It uploads local or remote images through the official API and best-effort converts oversized or unsupported body images with local `sips` or `cwebp` when available.
+
+## Render Manifest Contract
+
+`guige-markdown-to-html --manifest article.wechat.json` creates schema version 1 manifests. The publisher requires:
+
+```json
+{
+  "schemaVersion": 1,
+  "htmlPath": "/absolute/path/article.html",
+  "assetBaseDir": "/absolute/path",
+  "title": "文章标题",
+  "summary": "文章摘要",
+  "author": "鬼哥",
+  "cover": {"source": "cover.webp", "resolvedPath": "/absolute/path/cover.webp"},
+  "contentImages": [
+    {"source": "chart.webp", "resolvedPath": "/absolute/path/chart.webp", "alt": "图表"}
+  ]
+}
+```
+
+The manifest is the explicit interface between skills. Do not import or read another skill's scripts or configuration.
 
 ## Configuration
 
@@ -41,16 +52,9 @@ Load preferences from the first existing file:
 2. `${XDG_CONFIG_HOME:-$HOME/.config}/guige-skills/guige-to-wechat/EXTEND.md`
 3. `$HOME/.guige-skills/guige-to-wechat/EXTEND.md`
 
-For migration compatibility, legacy config paths may also be read when no Gui Ge config exists.
-
-Supported keys:
+Legacy Baoyu paths remain a credential migration fallback when no Gui Ge configuration exists.
 
 ```yaml
-default_theme: default
-default_color: blue
-default_code_theme: github
-mac_code_block: true
-default_author: 鬼哥
 need_open_comment: 1
 only_fans_can_comment: 0
 
@@ -62,111 +66,44 @@ accounts:
     app_secret: ...
 ```
 
-Credentials are resolved in this order:
-
-1. Account `app_id` / `app_secret` in `EXTEND.md`
-2. Prefixed env or env file keys when `--account <alias>` is used, e.g. `WECHAT_GUIGE_APP_ID`
-3. Generic env vars `WECHAT_APP_ID` / `WECHAT_APP_SECRET`
-4. Project `.guige-skills/.env`
-5. User `~/.guige-skills/.env`
-6. Legacy credential fallback for migration: `.baoyu-skills/.env` and `~/.baoyu-skills/.env`
+Credentials resolve from the selected account, account-specific environment variables (such as `WECHAT_GUIGE_APP_ID`), generic `WECHAT_APP_ID` / `WECHAT_APP_SECRET`, then supported `.env` files.
 
 ## Usage
 
 ```bash
-# Publish a Markdown article to draft
-python3 skills/guige-to-wechat/scripts/main.py article.md --cover cover.webp
+# 1. Render Markdown and write its publication manifest
+python3 <markdown-to-html-baseDir>/scripts/main.py article.md \
+  --output article.html --manifest article.wechat.json
 
-# Render and validate without API calls
-python3 skills/guige-to-wechat/scripts/main.py article.md --cover cover.webp --dry-run --json
+# 2. Validate the draft inputs without API calls
+python3 {baseDir}/scripts/main.py article.wechat.json --dry-run --json
 
-# HTML input
-python3 skills/guige-to-wechat/scripts/main.py article.html --title "标题" --summary "摘要" --cover cover.jpg
+# 3. Publish a normal article draft
+python3 {baseDir}/scripts/main.py article.wechat.json --account guige
 
-# Plain text input; saves a Markdown file first
-python3 skills/guige-to-wechat/scripts/main.py "这是一段要发布到公众号的内容" --title "标题" --cover cover.jpg
-
-# Select account and style
-python3 skills/guige-to-wechat/scripts/main.py article.md --account guige --theme default --color green
-
-# Disable the mac-style header on code blocks
-python3 skills/guige-to-wechat/scripts/main.py article.md --no-mac-code-block --cover cover.jpg
-
-# Disable bottom citations for ordinary external links
-python3 skills/guige-to-wechat/scripts/main.py article.md --no-cite --cover cover.jpg
+# Publish an image-news draft or override only this publication's cover
+python3 {baseDir}/scripts/main.py article.wechat.json --type newspic
+python3 {baseDir}/scripts/main.py article.wechat.json --cover cover.jpg
 ```
 
 ## Options
 
 | Option | Description |
 |--------|-------------|
-| `<file-or-text>` | Markdown file, HTML file, or plain text |
-| `--type news|newspic` | Draft article type. Default: `news` |
-| `--title <text>` | Override title |
-| `--author <name>` | Override author |
-| `--summary <text>` | Override digest/summary |
-| `--cover <path-or-url>` | Cover image. Required for `news` unless first inline image can be used |
-| `--theme <name>` | `default`, `simple`, `grace`, or `modern` |
-| `--color <name-or-hex>` | Primary accent color |
-| `--code-theme <name>` | Code highlight theme. Default: `github` |
-| `--account <alias>` | Select account from `EXTEND.md` |
-| `--no-cite` | Keep normal external links inline |
-| `--no-mac-code-block` | Disable mac-style code block header |
-| `--dry-run` | Render and validate only |
-| `--output-html <path>` | Save rendered/final HTML to a path |
-| `--json` | Print machine-readable result |
+| `<render-manifest.json>` | Schema version 1 manifest from `guige-markdown-to-html` |
+| `--type news|newspic` | Draft article type; default `news` |
+| `--cover <path-or-url>` | Override the manifest cover for this publication |
+| `--account <alias>` | Select a configured WeChat account |
+| `--dry-run` | Validate manifest, cover, images, and draft inputs without API calls |
+| `--output-html <path>` | Save HTML after WeChat image URLs are substituted |
+| `--json` | Print machine-readable output |
 
-## Code Blocks
+## Channel Responsibilities
 
-Markdown fenced code blocks are rendered as WeChat-compatible HTML with inline styles, preserved spaces, `<br>` line breaks, optional mac-style header, and lightweight syntax highlighting.
+- Obtain the access token and apply account/comment settings.
+- Upload inline images through `media/uploadimg` and replace their HTML URLs.
+- Upload the cover through `material/add_material`.
+- Build and submit the `draft/add` request for `news` or `newspic`.
+- Preserve a final HTML copy after image URL substitution.
 
-Supported language aliases:
-
-```text
-bash, sh, shell, zsh, console, terminal
-yaml, yml
-json
-toml
-markdown, md
-text, txt, plain
-```
-
-Use `--color green` for the Gui Ge WeChat green preset (`#009874`).
-
-## Markdown Fields
-
-Frontmatter keys:
-
-```yaml
----
-title: "文章标题"
-description: "摘要"
-author: "鬼哥"
-image: cover.webp
----
-```
-
-Cover fallback order:
-
-1. `--cover`
-2. frontmatter `coverImage`, `featureImage`, `cover`, or `image`
-3. `imgs/cover.png`
-4. first inline image in the article
-
-Markdown external links are converted to bottom citations by default for WeChat-friendly output. Use `--no-cite` only when inline links are explicitly desired.
-
-## Output
-
-Successful API publish returns JSON similar to:
-
-```json
-{
-  "success": true,
-  "media_id": "...",
-  "title": "...",
-  "articleType": "news",
-  "htmlPath": "article.wechat.html"
-}
-```
-
-After publishing, manage drafts at `https://mp.weixin.qq.com` -> 内容管理 -> 草稿箱.
+After a successful publish, manage the draft at `https://mp.weixin.qq.com` → 内容管理 → 草稿箱.
