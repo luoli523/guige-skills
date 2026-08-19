@@ -23,7 +23,7 @@ COLORS = {
     "gray": "#A9A9A9", "pink": "#FFB7C5", "red": "#A93226", "orange": "#D97757",
 }
 FONTS = {
-    "sans": "-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',Arial,sans-serif",
+    "sans": "-apple-system-font,BlinkMacSystemFont,'Helvetica Neue','PingFang SC','Hiragino Sans GB','Microsoft YaHei UI','Microsoft YaHei',Arial,sans-serif",
     "serif": "Optima,'PingFang SC',Georgia,'Times New Roman',serif",
     "serif-cjk": "'Source Han Serif SC','Noto Serif CJK SC',STSong,SimSun,serif",
     "mono": "Menlo,Monaco,'Courier New',monospace",
@@ -35,7 +35,12 @@ LANGUAGE_ALIASES = {
     "yml": "yaml", "md": "markdown", "mkd": "markdown", "js": "javascript",
     "ts": "typescript", "py": "python",
 }
-CODE_COLORS = {
+LIGHT_CODE_COLORS = {
+    "attr": "#005cc5", "built_in": "#e36209", "bullet": "#005cc5", "comment": "#6a737d",
+    "keyword": "#d73a49", "literal": "#005cc5", "meta": "#005cc5", "number": "#005cc5",
+    "section": "#005cc5", "string": "#032f62", "variable": "#e36209",
+}
+DARK_CODE_COLORS = {
     "attr": "#79c0ff", "built_in": "#d2a8ff", "bullet": "#f2cc60", "comment": "#8b949e",
     "keyword": "#ff7b72", "literal": "#79c0ff", "meta": "#79c0ff", "number": "#79c0ff",
     "section": "#79c0ff", "string": "#a5d6ff", "variable": "#ffa657",
@@ -137,8 +142,8 @@ def code_escape(text: str) -> str:
     return html.escape(text.replace("\t", "    "), quote=False).replace(" ", "&nbsp;")
 
 
-def code_span(kind: str, text: str) -> str:
-    return f'<span class="hljs-{kind.replace("_", "-")}" style="color:{CODE_COLORS.get(kind, CODE_COLORS["literal"])};">{code_escape(text)}</span>'
+def code_span(kind: str, text: str, colors: Dict[str, str] = LIGHT_CODE_COLORS) -> str:
+    return f'<span class="hljs-{kind.replace("_", "-")}" style="color:{colors.get(kind, colors["literal"])};">{code_escape(text)}</span>'
 
 
 def split_comment(line: str) -> Tuple[str, str]:
@@ -159,7 +164,7 @@ def split_comment(line: str) -> Tuple[str, str]:
     return line, ""
 
 
-def highlight_scalar(value: str) -> str:
+def highlight_scalar(value: str, colors: Dict[str, str] = LIGHT_CODE_COLORS) -> str:
     token_re = re.compile(r'''("(?:\\.|[^"])*"|'(?:\\.|[^'])*'|\b(?:true|false|null|yes|no|on|off)\b|-?\b\d+(?:\.\d+)?\b)''', re.I)
     prefix, comment = split_comment(value)
     output: List[str] = []
@@ -168,15 +173,15 @@ def highlight_scalar(value: str) -> str:
         output.append(code_escape(prefix[position:match.start()]))
         token = match.group(0)
         kind = "string" if token.startswith(("'", '"')) else "number" if re.match(r"-?\d", token) else "literal"
-        output.append(code_span(kind, token))
+        output.append(code_span(kind, token, colors))
         position = match.end()
     output.append(code_escape(prefix[position:]))
     if comment:
-        output.append(code_span("comment", comment))
+        output.append(code_span("comment", comment, colors))
     return "".join(output)
 
 
-def highlight_bash(line: str) -> str:
+def highlight_bash(line: str, colors: Dict[str, str] = LIGHT_CODE_COLORS) -> str:
     prefix, comment = split_comment(line)
     token_re = re.compile(r'''('(?:\\.|[^'])*'|"(?:\\.|[^"])*"|\$\{?[A-Za-z_][A-Za-z0-9_]*\}?|\$[0-9@#?*-]|--?[A-Za-z0-9][A-Za-z0-9_-]*|\b[A-Za-z_][A-Za-z0-9_.-]*\b)''')
     output: List[str] = []
@@ -185,29 +190,29 @@ def highlight_bash(line: str) -> str:
         output.append(code_escape(prefix[position:match.start()]))
         token = match.group(0)
         kind = "string" if token.startswith(("'", '"')) else "variable" if token.startswith("$") else "attr" if token.startswith("-") else "keyword" if token in BASH_KEYWORDS else "built_in" if token in BASH_BUILTINS else ""
-        output.append(code_span(kind, token) if kind else code_escape(token))
+        output.append(code_span(kind, token, colors) if kind else code_escape(token))
         position = match.end()
     output.append(code_escape(prefix[position:]))
     if comment:
-        output.append(code_span("comment", comment))
+        output.append(code_span("comment", comment, colors))
     return "".join(output)
 
 
-def highlight_yaml(line: str) -> str:
+def highlight_yaml(line: str, colors: Dict[str, str] = LIGHT_CODE_COLORS) -> str:
     stripped = line.strip()
     if not stripped:
         return ""
     if stripped.startswith("#"):
-        return code_span("comment", line)
+        return code_span("comment", line, colors)
     if stripped in {"---", "..."}:
-        return code_span("meta", line)
+        return code_span("meta", line, colors)
     match = re.match(r"^(\s*)([^:#][^:]*?)(\s*:\s*)(.*)$", line)
     if match:
-        return code_escape(match.group(1)) + code_span("attr", match.group(2)) + code_escape(match.group(3)) + highlight_scalar(match.group(4))
-    return highlight_scalar(line)
+        return code_escape(match.group(1)) + code_span("attr", match.group(2), colors) + code_escape(match.group(3)) + highlight_scalar(match.group(4), colors)
+    return highlight_scalar(line, colors)
 
 
-def highlight_json(line: str) -> str:
+def highlight_json(line: str, colors: Dict[str, str] = LIGHT_CODE_COLORS) -> str:
     token_re = re.compile(r'"(?:\\.|[^"\\])*"|-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b|\b(?:true|false|null)\b')
     output: List[str] = []
     position = 0
@@ -215,40 +220,40 @@ def highlight_json(line: str) -> str:
         output.append(code_escape(line[position:match.start()]))
         token = match.group(0)
         kind = "attr" if token.startswith('"') and line[match.end():].lstrip().startswith(":") else "string" if token.startswith('"') else "number" if re.match(r"-?\d", token) else "literal"
-        output.append(code_span(kind, token))
+        output.append(code_span(kind, token, colors))
         position = match.end()
     return "".join(output) + code_escape(line[position:])
 
 
-def highlight_toml(line: str) -> str:
+def highlight_toml(line: str, colors: Dict[str, str] = LIGHT_CODE_COLORS) -> str:
     stripped = line.strip()
     if stripped.startswith("#"):
-        return code_span("comment", line)
+        return code_span("comment", line, colors)
     if stripped.startswith("[") and stripped.endswith("]"):
-        return code_span("section", line)
+        return code_span("section", line, colors)
     match = re.match(r"^(\s*)([A-Za-z0-9_.-]+)(\s*=\s*)(.*)$", line)
     if match:
-        return code_escape(match.group(1)) + code_span("attr", match.group(2)) + code_escape(match.group(3)) + highlight_scalar(match.group(4))
-    return highlight_scalar(line)
+        return code_escape(match.group(1)) + code_span("attr", match.group(2), colors) + code_escape(match.group(3)) + highlight_scalar(match.group(4), colors)
+    return highlight_scalar(line, colors)
 
 
-def highlight_markdown(line: str) -> str:
+def highlight_markdown(line: str, colors: Dict[str, str] = LIGHT_CODE_COLORS) -> str:
     stripped = line.lstrip()
     indent = line[:len(line) - len(stripped)]
     if stripped.startswith("#"):
         match = re.match(r"^(#+\s*)", stripped)
         if match:
-            return code_escape(indent) + code_span("section", match.group(1)) + code_escape(stripped[match.end():])
+            return code_escape(indent) + code_span("section", match.group(1), colors) + code_escape(stripped[match.end():])
     if stripped in {"---", "..."} or stripped.startswith("```"):
-        return code_escape(indent) + code_span("meta", stripped)
+        return code_escape(indent) + code_span("meta", stripped, colors)
     if re.match(r"^[-*+]\s+", stripped):
-        return code_escape(indent) + code_span("bullet", stripped[:2]) + code_escape(stripped[2:])
+        return code_escape(indent) + code_span("bullet", stripped[:2], colors) + code_escape(stripped[2:])
     return code_escape(line)
 
 
-def highlight_code(code: str, language: str) -> str:
+def highlight_code(code: str, language: str, colors: Dict[str, str] = LIGHT_CODE_COLORS) -> str:
     highlighter = {"bash": highlight_bash, "yaml": highlight_yaml, "json": highlight_json, "toml": highlight_toml, "markdown": highlight_markdown}.get(normalize_code_language(language), code_escape)
-    return "<br>".join(highlighter(line) for line in code.split("\n"))
+    return "<br>".join(highlighter(line, colors) if highlighter is not code_escape else highlighter(line) for line in code.split("\n"))
 
 
 def resolve_options(config: Dict[str, str], **overrides: Optional[object]) -> RenderOptions:
@@ -296,30 +301,39 @@ def extract_summary(body: str) -> str:
     return ""
 
 
+def color_with_alpha(color: str, alpha: float) -> str:
+    match = re.fullmatch(r"#([0-9a-fA-F]{6})", color)
+    if not match:
+        return f"color-mix(in srgb,{color} {round(alpha * 100)}%,transparent)"
+    value = match.group(1)
+    return f"rgba({int(value[:2], 16)},{int(value[2:4], 16)},{int(value[4:], 16)},{alpha:.2f})"
+
+
 def style_map(options: RenderOptions) -> Dict[str, str]:
     color = options.color
+    subtle_color = color_with_alpha(color, 0.08)
+    subtle_border = color_with_alpha(color, 0.10)
     styles = {
-        "article": f"font-family:{options.font_family};font-size:{options.font_size};line-height:1.85;color:#3f3f3f;",
-        "h1": f"font-size:24px;line-height:1.35;font-weight:700;color:#111827;border-bottom:3px solid {color};padding-bottom:.35em;margin:1.2em 0 .8em;",
-        "h2": f"display:table;margin:3em auto 1.5em;color:#fff;background:{color};font-size:19px;font-weight:700;text-align:center;padding:.25em .75em;",
-        "h3": f"font-size:18px;font-weight:700;color:#3f3f3f;margin:2em 8px .75em 0;padding-left:8px;border-left:3px solid {color};",
-        "p": "margin:1.2em 8px;color:#3f3f3f;",
-        "blockquote": f"border-left:4px solid {color};border-radius:6px;background:#f7f7f7;color:#57534e;padding:1em;margin:1.2em 0;",
-        "ul": "padding-left:1.5em;margin:1em 0;",
-        "ol": "padding-left:1.7em;margin:1em 0;",
-        "li": "margin:.5em 0;",
-        "table": "width:100%;border-collapse:collapse;margin:1.2em 0;font-size:14px;",
-        "th": f"border:1px solid #e5e7eb;background:{color};color:#fff;padding:.55em;text-align:left;",
-        "td": "border:1px solid #e5e7eb;padding:.55em;",
-        "code": "font-family:Menlo,Monaco,Consolas,monospace;font-size:90%;color:#c7254e;background:#f9f2f4;padding:2px 4px;border-radius:3px;",
-        "pre": "color:#24292e;background:#fff;font-size:90%;overflow-x:auto;border-radius:8px;line-height:1.5;margin:10px 8px;box-shadow:inset 0 0 10px rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.04);padding:0;",
-        "img": "display:block;max-width:100%;height:auto;margin:1.2em auto;border-radius:6px;",
-        "hr": "border:0;border-top:1px solid #e5e7eb;margin:2em 0;",
+        "article": f"font-family:{options.font_family};font-size:{options.font_size};line-height:1.75;text-align:left;max-width:100%;overflow:auto;",
+        "h1": f"display:table;padding:0 0.2em;margin:4em auto 2em;color:#fff;background:{color};font-weight:bold;text-align:center;",
+        "h2": f"display:table;padding:0 0.2em;margin:4em auto 2em;color:#fff;background:{color};font-weight:bold;text-align:center;",
+        "h3": f"margin:2em 8px 0.75em 0;color:#3f3f3f;font-weight:bold;padding-left:12px;border-radius:6px;line-height:2.4em;border-left:4px solid {color};border-right:1px solid {subtle_border};border-bottom:1px solid {subtle_border};border-top:1px solid {subtle_border};background:{subtle_color};",
+        "p": "margin:1.5em 8px;letter-spacing:0.1em;color:#3f3f3f;",
+        "blockquote": f"margin:1.5em 0;font-style:normal;padding:1em;border-left:4px solid {color};border-radius:6px;color:#3f3f3f;background:#f7f7f7;",
+        "lead": f"margin:0 0 1em;border-left:4px solid {color};border-radius:6px;background:#f7f7f7;font-style:italic;padding:1em 1em 1em 2em;color:rgba(0,0,0,0.6);border-top:0.2px solid rgba(0,0,0,0.04);border-right:0.2px solid rgba(0,0,0,0.04);border-bottom:0.2px solid rgba(0,0,0,0.04);",
+        "lead_p": "display:block;font-size:1em;letter-spacing:0.1em;color:#3f3f3f;margin:0;",
+        "ul": "list-style:circle;padding-left:1em;margin-left:0;color:#3f3f3f;",
+        "ol": "padding-left:1em;margin-left:0;color:#3f3f3f;",
+        "li": "display:block;margin:0.2em 8px;color:#3f3f3f;",
+        "table": "border-collapse:collapse;margin:1.5em 0;color:#3f3f3f;",
+        "th": f"border:1px solid {color};padding:0.4em 0.5em;color:#fff;word-break:keep-all;background:{color};",
+        "td": "border:1px solid #dfdfdf;padding:0.25em 0.5em;color:#3f3f3f;word-break:keep-all;",
+        "code": CODE_STYLE,
+        "pre": "color:#24292e;background:#fff;font-size:90%;overflow-x:auto;border-radius:8px;line-height:1.5;margin:10px 8px;box-shadow:inset 0 0 10px rgba(0,0,0,0.05);padding:0 !important;",
+        "img": "display:block;max-width:100%;margin:0.1em auto 0.5em;border-radius:4px;",
+        "hr": "border-style:solid;border-width:2px 0 0;border-color:rgba(0,0,0,0.1);-webkit-transform-origin:0 0;-webkit-transform:scale(1,0.5);transform-origin:0 0;transform:scale(1,0.5);height:0.4em;margin:1.5em 0;",
     }
-    if options.theme == "simple":
-        styles["h1"] = f"font-size:24px;font-weight:700;color:{color};margin:1.2em 0 .8em;"
-        styles["h2"] = "font-size:20px;font-weight:700;color:#111827;margin:1.8em 0 .8em;"
-    elif options.theme == "grace":
+    if options.theme == "grace":
         styles["article"] = f"font-family:{options.font_family};font-size:{options.font_size};line-height:1.9;color:#374151;"
         styles["blockquote"] = f"border-top:2px solid {color};border-radius:8px;background:#fff7ed;color:#57534e;padding:1em;margin:1.2em 0;"
     elif options.theme == "modern":
@@ -327,11 +341,11 @@ def style_map(options: RenderOptions) -> Dict[str, str]:
         styles["h1"] = f"display:table;margin:20px auto;padding:.3em 1em;border-radius:15px;color:#fff;background:{color};font-size:28px;font-weight:700;text-align:center;"
         styles["h2"] = f"display:block;margin:0 0 20px;padding:.2em 0;border-bottom:2px solid {color};background:transparent;color:{color};text-align:left;"
     if options.code_theme.lower() in {"dark", "github-dark", "monokai", "nord"}:
-        styles["pre"] = "color:#e6edf3;background:#161b22;font-size:90%;overflow-x:auto;border-radius:8px;line-height:1.5;margin:10px 8px;border:1px solid rgba(255,255,255,0.08);padding:0;"
+        styles["pre"] = "color:#e6edf3;background:#161b22;font-size:90%;overflow-x:auto;border-radius:8px;line-height:1.5;margin:10px 8px;border:1px solid rgba(255,255,255,0.08);padding:0 !important;"
     return styles
 
 
-def inline(text: str, citations: List[Tuple[str, str]], cite: bool, base_url: str = "") -> str:
+def inline(text: str, citations: List[Tuple[str, str]], cite: bool, base_url: str = "", accent_color: str = "") -> str:
     escaped = html.escape(text, quote=False)
     escaped = re.sub(r"`([^`]+)`", lambda m: f'<code style="{CODE_STYLE}">{m.group(1)}</code>', escaped)
     escaped = re.sub(r"!\[([^\]]*)\]\(([^)]+)\)", lambda m: m.group(0), escaped)
@@ -353,12 +367,13 @@ def inline(text: str, citations: List[Tuple[str, str]], cite: bool, base_url: st
         return f'<a href="{html.escape(url, quote=True)}">{label}</a>'
 
     escaped = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", link, escaped)
-    escaped = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", escaped)
+    strong_open = f'<strong style="color:{accent_color};font-weight:bold;font-size:inherit;">' if accent_color else "<strong>"
+    escaped = re.sub(r"\*\*([^*]+)\*\*", lambda match: strong_open + match.group(1) + "</strong>", escaped)
     escaped = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"<em>\1</em>", escaped)
     return escaped
 
 
-CODE_STYLE = "font-family:Menlo,Monaco,Consolas,monospace;font-size:90%;color:#c7254e;background:#f9f2f4;padding:2px 4px;border-radius:3px;"
+CODE_STYLE = "font-size:90%;color:#d14;background:rgba(27,31,35,0.05);padding:3px 5px;border-radius:4px;"
 
 
 def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOptions) -> RenderResult:
@@ -370,6 +385,12 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
     citations: List[Tuple[str, str]] = []
     images: List[Dict[str, str]] = []
     output: List[str] = []
+    highlight = (frontmatter.get("highlight", frontmatter.get("wechat_highlight", summary)) or "").strip()
+    if highlight.lower() not in {"", "0", "false", "no", "off", "none"}:
+        output.append(
+            f'<blockquote style="{styles["lead"]}"><p style="{styles["lead_p"]}">'
+            f'{inline(highlight, citations, options.cite, options.base_url, options.color)}</p></blockquote>'
+        )
     lines = body.splitlines()
     i = 0
     first_heading_removed = False
@@ -398,8 +419,9 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
                 '<ellipse cx="400" cy="65" rx="50" ry="52" stroke="rgb(27,161,37)" stroke-width="2" fill="rgb(100,200,86)"/>'
                 '</svg></span>'
             ) if options.mac_code_block else ""
-            highlighted_code = highlight_code("\n".join(code_lines), normalized_language)
-            code_style = "font-family:'Fira Code',Menlo,Operator Mono,Consolas,Monaco,monospace;font-size:90%;border-radius:4px;display:-webkit-box;padding:0.5em 1em 1em;overflow-x:auto;text-indent:0;color:inherit;background:none;white-space:nowrap;margin:0;"
+            code_colors = DARK_CODE_COLORS if options.code_theme.lower() in {"dark", "github-dark", "monokai", "nord"} else LIGHT_CODE_COLORS
+            highlighted_code = highlight_code("\n".join(code_lines), normalized_language, code_colors)
+            code_style = "font-size:90%;border-radius:4px;display:-webkit-box;padding:0.5em 1em 1em;overflow-x:auto;text-indent:0;color:inherit;background:none;white-space:nowrap;margin:0;"
             output.append(f'<pre class="hljs code__pre" style="{styles["pre"]}">{header}<code class="language-{html.escape(normalized_language, quote=True)}" style="{code_style}">{highlighted_code}</code></pre>')
             i += 1
             continue
@@ -417,7 +439,7 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
                 first_heading_removed = True
             else:
                 heading_style = styles[f"h{level}"]
-                output.append(f'<h{level} style="{heading_style}">{inline(heading.group(2), citations, options.cite, options.base_url)}</h{level}>')
+                output.append(f'<h{level} style="{heading_style}">{inline(heading.group(2), citations, options.cite, options.base_url, options.color)}</h{level}>')
             i += 1
             continue
         if re.fullmatch(r"[-*_]{3,}", stripped):
@@ -425,7 +447,7 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
             i += 1
             continue
         if stripped.startswith(">"):
-            output.append(f'<blockquote style="{styles["blockquote"]}">{inline(stripped[1:].lstrip(), citations, options.cite, options.base_url)}</blockquote>')
+            output.append(f'<blockquote style="{styles["blockquote"]}">{inline(stripped[1:].lstrip(), citations, options.cite, options.base_url, options.color)}</blockquote>')
             i += 1
             continue
         list_match = re.fullmatch(r"(?:[-*+]|(\d+)[.)])\s+(.+)", stripped)
@@ -437,7 +459,7 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
                 current = re.fullmatch(r"(?:[-*+]|(\d+)[.)])\s+(.+)", lines[i].strip())
                 if not current or bool(current.group(1)) != ordered:
                     break
-                items.append(f'<li style="{styles["li"]}">{inline(current.group(2), citations, options.cite, options.base_url)}</li>')
+                items.append(f'<li style="{styles["li"]}">{inline(current.group(2), citations, options.cite, options.base_url, options.color)}</li>')
                 i += 1
             output.append(f'<{tag} style="{styles[tag]}">' + "".join(items) + f'</{tag}>')
             continue
@@ -448,11 +470,11 @@ def render_markdown(markdown: str, source_path: pathlib.Path, options: RenderOpt
             while i < len(lines) and "|" in lines[i]:
                 rows.append([cell.strip() for cell in lines[i].strip().strip("|").split("|")])
                 i += 1
-            header_html = "".join(f'<th style="{styles["th"]}">{inline(cell, citations, options.cite, options.base_url)}</th>' for cell in headers)
-            row_html = "".join("<tr>" + "".join(f'<td style="{styles["td"]}">{inline(cell, citations, options.cite, options.base_url)}</td>' for cell in row) + "</tr>" for row in rows)
+            header_html = "".join(f'<th style="{styles["th"]}">{inline(cell, citations, options.cite, options.base_url, options.color)}</th>' for cell in headers)
+            row_html = "".join("<tr>" + "".join(f'<td style="{styles["td"]}">{inline(cell, citations, options.cite, options.base_url, options.color)}</td>' for cell in row) + "</tr>" for row in rows)
             output.append(f'<table style="{styles["table"]}"><thead><tr>{header_html}</tr></thead><tbody>{row_html}</tbody></table>')
             continue
-        output.append(f'<p style="{styles["p"]}">{inline(stripped, citations, options.cite, options.base_url)}</p>')
+        output.append(f'<p style="{styles["p"]}">{inline(stripped, citations, options.cite, options.base_url, options.color)}</p>')
         i += 1
 
     if citations:

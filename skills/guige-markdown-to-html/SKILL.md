@@ -78,7 +78,10 @@ python3 {baseDir}/scripts/main.py article.md \
 
 - Support headings, emphasis, inline and fenced code, blockquotes, lists, tables, rules, links, and images.
 - Render styles inline for WeChat and rich-text-editor compatibility.
+- The default `simple/github` profile follows Gui Ge's established WeChat visual baseline: 16px Chinese sans-serif body text, 1.75 line height, blue chapter labels, subtle rules, compact tables, and GitHub-light code highlighting with the Mac-style header.
+- Use the active theme color for body emphasis and table headers; render H3 as a tinted information card with a colored left rule so long technical articles retain a clear visual rhythm.
 - Resolve `title`, `author`, and `description` / `summary` from frontmatter. When `author` is absent, use `鬼哥`.
+- Render an introductory lead callout from frontmatter `highlight`, falling back to `description` / `summary`. Use `highlight: false` to omit it. Markdown bold inside the callout uses the active theme color.
 - Write `contentSourceUrl` for publisher handoff: use frontmatter `content_source_url` / `source_url` when supplied, otherwise derive `https://luoli523.github.io/p/<slug>/` from Hugo's `slug` or the article directory name. Root-relative overrides resolve against `base_url`.
 - Remove the first H1/H2 from the body by default. Keep it only with `--keep-title`.
 - Preserve image `src` values and report each image with its source, resolved local path, and alt text. Resolve cover frontmatter (`coverImage`, `featureImage`, `cover`, `image`), then `imgs/cover.png`, then the first inline image.
