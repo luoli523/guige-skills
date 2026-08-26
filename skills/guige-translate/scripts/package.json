@@ -1,0 +1,11 @@
+{
+  "name": "guige-translate-chunk",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "bun test"
+  },
+  "dependencies": {
+    "markdown-it": "^15.0.0"
+  }
+}

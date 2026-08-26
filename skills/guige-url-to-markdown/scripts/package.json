@@ -1,0 +1,30 @@
+{
+  "name": "guige-url-to-markdown-scripts",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "guige-fetch": "./guige-fetch"
+  },
+  "scripts": {
+    "reader": "bun ./lib/cli.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "chrome-launcher": "^1.2.1",
+    "defuddle": "^0.19.3",
+    "jsdom": "^29.1.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "turndown": "^7.2.0",
+    "turndown-plugin-gfm": "^1.0.2",
+    "undici": "^7.29.0",
+    "unified": "^11.0.5",
+    "ws": "^8.21.3"
+  },
+  "overrides": {
+    "@xmldom/xmldom": "0.8.13",
+    "undici": "7.29.0"
+  }
+}

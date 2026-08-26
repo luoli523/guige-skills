@@ -15,6 +15,8 @@ cat <<'EOF'
   /x-to-blog           X 推文改写为博客
   /x-2-md              X / Twitter 转 Markdown
   /to-wechat           微信公众号草稿
+  /translate           快翻 / 常规翻译 / 精翻
+  /url-to-markdown     网页转 Markdown / JSON
   /video-download      视频 / 音频下载
   /digital-human       数字人口播视频 (MiniMax 声音克隆 + HeyGen)
   /wuxia-writing       原创武侠构思、创作、改写与审校

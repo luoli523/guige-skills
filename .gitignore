@@ -2,6 +2,7 @@
 .obsidian/
 __pycache__/
 *.pyc
+node_modules/
 
 # Local secrets and machine-specific configuration.
 .env
@@ -16,6 +17,7 @@ imagen/
 svg/
 slide-deck/
 x-to-markdown/
+translate/
 post-to-wechat/
 wechat/
 downloads/

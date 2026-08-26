@@ -67,6 +67,14 @@
     ├── guige-to-wechat/
     │   ├── SKILL.md
     │   └── scripts/
+    ├── guige-translate/
+    │   ├── SKILL.md
+    │   ├── references/
+    │   └── scripts/
+    ├── guige-url-to-markdown/
+    │   ├── SKILL.md
+    │   ├── references/
+    │   └── scripts/
     ├── guige-video-download/
     │   ├── SKILL.md
     │   ├── references/
@@ -114,9 +122,29 @@
 | `guige-picbook` | 儿童科普绘本 | 从主题生成儿童教育绘本，输出结构化 Markdown 章节与插图 prompts，可选上传到 NotebookLM 生成 Slides PDF、推送到 Telegram，或通过 `guige-drive-upload` 上传材料。 |
 | `guige-markdown-to-html` | Markdown 转 HTML | 将 Markdown 渲染为带内联 CSS 的微信友好 HTML，并输出供发布器消费的元数据、封面和正文图片 manifest，不负责上传或发布。 |
 | `guige-to-wechat` | 微信公众号发布 | 消费 `guige-markdown-to-html` 的 render manifest，通过 Python 客户端上传封面与正文图片并创建微信公众号草稿。 |
+| `guige-translate` | 多模式翻译 | 支持 quick、normal、refined 三种模式，提供术语表、受众与文风配置、长文 Markdown 分块、审校与润色工作流。 |
+| `guige-url-to-markdown` | 网页转 Markdown | 使用 Chrome CDP 抓取网页并转为 Markdown/JSON，内置 X、YouTube、Hacker News 与通用页面适配器，支持登录交互和媒体本地化。 |
 | `guige-digital-human` | 数字人口播视频 | MiniMax 声音克隆配音 + HeyGen Image-to-Video 的数字人口播生产线，内置资产校验、15 秒预览 gate、job-state 断点续跑，触发词 `/digital-human`、数字人、口播视频。 |
 | `guige-wuxia-writing` | 原创武侠写作 | 面向原创武侠与历史冒险的构思、篇章规划、场景创作、改写、诊断和文化素材入库工作流，沉淀宏观叙事、十二类句式、连接词、节奏、视角、人物声口、文化织入与反模式。 |
 | `guige-x-to-blog` | X 推文转博客 | 将 X 推文下载、整理并改写为中文博客文章，复用原图，按既有博客发布流程交付。触发词 `/x-to-blog`、`x 推文转博客`、`tweet to blog`。 |
+
+## `guige-url-to-markdown` 快速使用
+
+```bash
+# 直接调用底层 CLI；通过 skill 使用时，首次会先询问媒体与输出目录偏好
+skills/guige-url-to-markdown/scripts/guige-fetch 'https://example.com/article' --output article.md
+
+# 遇到登录或验证码时打开可交互浏览器
+skills/guige-url-to-markdown/scripts/guige-fetch 'https://example.com/private' --wait-for interaction --output article.md
+```
+
+## `guige-translate` 快速使用
+
+`guige-translate` 由 agent 完成翻译；脚本负责在 normal/refined 长文流程中按 Markdown 结构分块：
+
+```bash
+bun skills/guige-translate/scripts/main.ts source.md --max-words 5000 --output-dir source-zh-CN
+```
 
 ## `guige-disassembly-diagram` 快速使用
 
