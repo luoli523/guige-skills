@@ -120,7 +120,7 @@
 | `guige-x-2-md` | X 转 Markdown | 将 X/Twitter 推文、线程和 X Articles 转为 Markdown，使用 Python 标准库实现逆向 X Web API 客户端，支持登录 cookie、YAML front matter、媒体本地化和 JSON 输出。 |
 | `guige-blog-post` | 博客写作发布 | 端到端写作、配图、发布到 `luoli523.github.io` Hugo 博客。触发词 `/blog-post`、`writing blog post`、`publish post`。 |
 | `guige-picbook` | 儿童科普绘本 | 从主题生成儿童教育绘本，输出结构化 Markdown 章节与插图 prompts，可选上传到 NotebookLM 生成 Slides PDF、推送到 Telegram，或通过 `guige-drive-upload` 上传材料。 |
-| `guige-markdown-to-html` | Markdown 转 HTML | 将 Markdown 渲染为带内联 CSS 的微信友好 HTML，并输出供发布器消费的元数据、封面和正文图片 manifest，不负责上传或发布。 |
+| `guige-markdown-to-html` | 通用 Markdown 转 HTML | 将 Markdown 渲染为独立网页、可嵌入片段、Email 或微信富文本，支持 GFM、脚注、Alerts、数学公式、代码高亮、图表、Obsidian 图片、CSS/资源策略与通用 manifest；只渲染，不发布。 |
 | `guige-to-wechat` | 微信公众号发布 | 消费 `guige-markdown-to-html` 的 render manifest，通过 Python 客户端上传封面与正文图片并创建微信公众号草稿。 |
 | `guige-translate` | 多模式翻译 | 支持 quick、normal、refined 三种模式，提供术语表、受众与文风配置、长文 Markdown 分块、审校与润色工作流。 |
 | `guige-url-to-markdown` | 网页转 Markdown | 使用 Chrome CDP 抓取网页并转为 Markdown/JSON，内置 X、YouTube、Hacker News 与通用页面适配器，支持登录交互和媒体本地化。 |

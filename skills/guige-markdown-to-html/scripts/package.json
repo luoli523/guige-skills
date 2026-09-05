@@ -1,0 +1,30 @@
+{
+  "name": "guige-markdown-to-html-scripts",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mdit/plugin-alert": "^2.0.0",
+    "@mdit/plugin-katex": "^1.1.0",
+    "highlight.js": "^11.11.1",
+    "js-yaml": "^4.1.0",
+    "juice": "^11.0.1",
+    "katex": "^0.18.5",
+    "markdown-it": "^15.0.0",
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-task-lists": "^2.1.1",
+    "sanitize-html": "^2.17.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.21",
+    "@types/js-yaml": "^4.0.9",
+    "@types/markdown-it": "^14.1.2",
+    "@types/markdown-it-footnote": "^3.0.4",
+    "@types/sanitize-html": "^2.16.0",
+    "typescript": "^5.9.2"
+  }
+}

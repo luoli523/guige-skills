@@ -1,129 +1,92 @@
 ---
 name: guige-markdown-to-html
-description: Convert Markdown files into styled, WeChat-friendly HTML and a publication manifest with metadata, cover selection, and resolved image assets. Use when the user asks to convert Markdown to HTML, render or prepare Markdown for WeChat, create a publisher-ready article package, or preview/export a rich-text article without publishing it.
+description: Convert Markdown into reusable, styled HTML for the web, embedded fragments, email, or WeChat. Supports GFM, footnotes, alerts, math, code highlighting, diagrams, Obsidian images, configurable CSS and asset handling, and versioned JSON manifests. Use for Markdown-to-HTML conversion, HTML export, rich-text rendering, or publisher-ready HTML preparation; it renders files but does not publish them.
+metadata:
+  openclaw:
+    requires:
+      anyBins:
+        - bun
+        - npx
 ---
 
 # Gui Ge Markdown to HTML
 
-Render a Markdown file into standalone HTML. This skill only renders content; it does not upload images, open browsers, or publish to any platform.
+Render an existing Markdown file as general-purpose HTML. This skill owns conversion and local asset preparation only; it does not authenticate, open a browser for publication, or call a publishing API.
 
 ## Runtime
 
+Resolve `${BUN_X}` as `bun` when installed, otherwise `npx -y bun`. If `scripts/node_modules` is absent, run `${BUN_X} install` in the scripts directory before conversion.
+
 ```bash
-python3 {baseDir}/scripts/main.py <markdown-file> [options]
+${BUN_X} {baseDir}/scripts/main.ts <markdown-file> [options]
 ```
 
-Use only this skill's scripts and configuration. Do not read or depend on another skill's private files or configuration.
+Use only this skill's scripts and configuration. Do not read or invoke another skill's private implementation.
+
+## Choose an Output Profile
+
+Use `web` unless the requested destination requires another profile:
+
+| Profile | Use for | Default CSS mode |
+|---|---|---|
+| `web` | Standalone HTML documents | `embedded` |
+| `fragment` | HTML embedded in another application | `none` |
+| `wechat` | WeChat-compatible rich text | `inline` |
+| `email` | Email-oriented HTML | `inline` |
+| `bare` | Semantic HTML with minimal presentation assumptions | `none` |
+
+Read [profiles.md](references/profiles.md) when selecting a non-default profile or CSS delivery mode.
+
+## Typical Commands
+
+```bash
+# Generic standalone web document
+${BUN_X} {baseDir}/scripts/main.ts article.md
+
+# Reusable HTML fragment
+${BUN_X} {baseDir}/scripts/main.ts article.md --profile fragment --output article.fragment.html
+
+# Portable single-file HTML with embedded images
+${BUN_X} {baseDir}/scripts/main.ts article.md --assets embed
+
+# General manifest v2
+${BUN_X} {baseDir}/scripts/main.ts article.md --manifest article.json --manifest-version 2 --json
+
+# Explicit compatibility handoff to guige-to-wechat
+${BUN_X} {baseDir}/scripts/main.ts article.md --profile wechat \
+  --manifest article.wechat.json --manifest-version 1 --json
+```
+
+Read [cli.md](references/cli.md) for all options and [manifest.md](references/manifest.md) when another tool consumes the output.
+
+## Content Support
+
+- CommonMark plus GFM tables, task lists, autolinks, and strikethrough
+- headings, nested lists, blockquotes, links, images, and fenced code
+- footnotes, GitHub-style alerts, and `{base|annotation}` ruby text
+- inline and display math rendered as MathML
+- syntax highlighting, optional line numbers, and Mac-style code headers
+- Markdown images and Obsidian `![[image.png|alt]]` embeds
+- Mermaid and PlantUML source fallback; optional local static SVG/PNG rendering
+
+Read [extensions.md](references/extensions.md) only when the input uses math, diagrams, raw HTML, Obsidian embeds, or non-default asset handling.
 
 ## Configuration
 
-Load the first existing file:
+Load the first existing `EXTEND.md`:
 
 1. `.guige-skills/guige-markdown-to-html/EXTEND.md`
 2. `${XDG_CONFIG_HOME:-$HOME/.config}/guige-skills/guige-markdown-to-html/EXTEND.md`
 3. `$HOME/.guige-skills/guige-markdown-to-html/EXTEND.md`
 
-Supported keys:
+CLI values override configuration, which overrides profile defaults. Configuration is private to this skill.
 
-```yaml
-default_theme: simple
-default_color: blue
-default_font_family: sans
-default_font_size: 16
-default_code_theme: github
-mac_code_block: true
-cite: true
-keep_title: false
-base_url: https://luoli523.github.io
-```
+## Safety and Boundaries
 
-CLI arguments override `EXTEND.md`, which overrides skill defaults. Frontmatter supplies article metadata only.
-
-## Usage
-
-```bash
-# Render article.md to article.html
-python3 {baseDir}/scripts/main.py article.md
-
-# Render with typography choices
-python3 {baseDir}/scripts/main.py article.md \
-  --theme grace --color '#009874' --font-family serif-cjk --font-size 16
-
-# Produce the explicit HTML + manifest interface for a publisher
-python3 {baseDir}/scripts/main.py article.md \
-  --output article.html --manifest article.wechat.json --json
-```
-
-## Options
-
-| Option | Description |
-|---|---|
-| `<markdown-file>` | Existing `.md` input file |
-| `--output <path>` | Output HTML path; default is the input path with `.html` extension |
-| `--theme <name>` | `default`, `simple`, `grace`, or `modern` |
-| `--color <name-or-hex>` | Primary accent color |
-| `--font-family <name-or-css>` | `sans`, `serif`, `serif-cjk`, `mono`, or a CSS font stack |
-| `--font-size <px>` | Base font size from `14` to `18` |
-| `--code-theme <name>` | Code-block style; `github` is light and `dark`, `github-dark`, `monokai`, and `nord` use a dark surface |
-| `--no-mac-code-block` | Disable the mac-style code-block header |
-| `--base-url <url>` | Resolve root-relative Markdown links such as `/p/article/` to absolute HTTPS links |
-| `--cite` | Convert ordinary external links into bottom citations |
-| `--no-cite` | Keep ordinary external links inline |
-| `--keep-title` | Keep the first H1/H2 in the HTML body |
-| `--manifest <path>` | Write a schema version 1 renderer-to-publisher JSON manifest |
-| `--dry-run` | Render and validate without writing output |
-| `--json` | Print a machine-readable result |
-
-## Rendering Rules
-
-- Support headings, emphasis, inline and fenced code, blockquotes, lists, tables, rules, links, and images.
-- Render styles inline for WeChat and rich-text-editor compatibility.
-- The default `simple/github` profile follows Gui Ge's established WeChat visual baseline: 16px Chinese sans-serif body text, 1.75 line height, blue chapter labels, subtle rules, compact tables, and GitHub-light code highlighting with the Mac-style header.
-- Use the active theme color for body emphasis and table headers; render H3 as a tinted information card with a colored left rule so long technical articles retain a clear visual rhythm.
-- Resolve `title`, `author`, and `description` / `summary` from frontmatter. When `author` is absent, use `鬼哥`.
-- Render an introductory lead callout from frontmatter `highlight`, falling back to `description` / `summary`. Use `highlight: false` to omit it. Markdown bold inside the callout uses the active theme color.
-- Write `contentSourceUrl` for publisher handoff: use frontmatter `content_source_url` / `source_url` when supplied, otherwise derive `https://luoli523.github.io/p/<slug>/` from Hugo's `slug` or the article directory name. Root-relative overrides resolve against `base_url`.
-- Remove the first H1/H2 from the body by default. Keep it only with `--keep-title`.
-- Preserve image `src` values and report each image with its source, resolved local path, and alt text. Resolve cover frontmatter (`coverImage`, `featureImage`, `cover`, `image`), then `imgs/cover.png`, then the first inline image.
-- Convert ordinary external links to numbered bottom citations only with `--cite`. Keep WeChat article links inline.
-- Resolve root-relative site links against `https://luoli523.github.io` by default. Override it with `--base-url` or `base_url` in `EXTEND.md` for another site.
-- Treat raw HTML as unsupported input. Escape generated text.
-
-## Output
-
-Use `--json` to return a result similar to:
-
-```json
-{
-  "success": true,
-  "htmlPath": "/path/article.html",
-  "title": "文章标题",
-  "summary": "文章摘要",
-  "author": "鬼哥",
-  "contentSourceUrl": "https://luoli523.github.io/p/article-slug/",
-  "schemaVersion": 1,
-  "assetBaseDir": "/path",
-  "cover": {
-    "source": "cover.webp",
-    "resolvedPath": "/path/cover.webp"
-  },
-  "theme": "grace",
-  "color": "#009874",
-  "codeTheme": "github",
-  "contentImages": [
-    {
-      "source": "imgs/chart.png",
-      "resolvedPath": "/path/imgs/chart.png",
-      "alt": "图表"
-    }
-  ]
-}
-```
-
-## Boundaries
-
-- Do not publish, authenticate, call platform APIs, or open browsers.
-- Do not mutate input Markdown files.
-- Do not call `baoyu-*` skills or use their scripts or configuration.
-- Treat the generated manifest as the public handoff to publisher skills.
-- Add Mermaid only as an explicit future feature with a static PNG fallback and documented runtime dependency.
+- Raw HTML is escaped by default. `--allow-html` still sanitizes elements, attributes, and URL schemes.
+- Remote images are fetched only with explicit `--assets download`; private-network targets, unsafe media types, and files over 20 MiB are rejected.
+- Static diagram rendering is explicit. It invokes local `mmdc` or `plantuml` without a shell and falls back to source when unavailable.
+- Never execute scripts embedded in Markdown or generated HTML.
+- Do not mutate the input Markdown.
+- Do not publish, upload to a platform, or read publisher credentials.
+- Use manifest schema v2 for general integrations. Emit schema v1 only for the existing `guige-to-wechat` compatibility boundary.

@@ -24,7 +24,15 @@ The script uses only Python's standard library. It uploads local or remote image
 
 ## Render Manifest Contract
 
-`guige-markdown-to-html --manifest article.wechat.json` creates schema version 1 manifests. The publisher requires:
+`guige-markdown-to-html` is a general renderer. Resolve `${BUN_X}` as `bun` when installed, otherwise `npx -y bun`, then use its explicit `wechat` profile and schema version 1 compatibility manifest for this publisher:
+
+```bash
+${BUN_X} <markdown-to-html-baseDir>/scripts/main.ts article.md \
+  --profile wechat --output article.html \
+  --manifest article.wechat.json --manifest-version 1
+```
+
+The publisher requires:
 
 ```json
 {
@@ -71,9 +79,10 @@ Credentials resolve from the selected account, account-specific environment vari
 ## Usage
 
 ```bash
-# 1. Render Markdown and write its publication manifest
-python3 <markdown-to-html-baseDir>/scripts/main.py article.md \
-  --output article.html --manifest article.wechat.json
+# 1. Render Markdown and write its schema v1 publication manifest
+${BUN_X} <markdown-to-html-baseDir>/scripts/main.ts article.md \
+  --profile wechat --output article.html \
+  --manifest article.wechat.json --manifest-version 1
 
 # 2. Validate the draft inputs without API calls
 python3 {baseDir}/scripts/main.py article.wechat.json --dry-run --json
