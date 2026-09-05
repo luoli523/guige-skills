@@ -1,16 +1,17 @@
-# Flowchart Layout
+# Flowcharts
 
-Use `flowchart` for ordered processes and decisions.
+The main or happy path runs top-to-bottom. Branches leave decisions left or right and merge back with orthogonal connectors.
 
-Recommended spec:
+| Meaning | Shape |
+|---|---|
+| start/end | highly rounded rectangle or capsule |
+| action/process | rounded rectangle |
+| decision | diamond |
+| input/output | parallelogram |
+| data store | cylinder |
 
-- `nodes`: ordered from top to bottom.
-- `kind`: `start`, `process`, `decision`, or `end`.
-- `edges`: use `from`, `to`, and optional `label`.
+Place “yes/no”, guard, or outcome labels immediately after the decision, not in the middle of a long connector. Use color and line style to distinguish success, failure, and retry paths.
 
-Rendering behavior:
+For loops, route the return line around the outside of the main column. Never draw a loop back through existing nodes. For ten or more steps, split into phases or swim lanes with labeled headers.
 
-- Primary layout is top-to-bottom.
-- Decisions render as diamonds.
-- Start/end nodes render as rounded pills.
-- Edges render with arrowheads and optional labels.
+Maintain 60-90 px between consecutive nodes so the arrow and its label have room. Keep the main path visually straighter and brighter than exceptions.

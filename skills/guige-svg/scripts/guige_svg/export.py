@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 
-def export_png(svg_path: str | Path, png_path: str | Path | None = None, scale: int = 2) -> Path | None:
+def export_png(svg_path: str | Path, png_path: str | Path | None = None, scale: float = 2) -> Path | None:
     source = Path(svg_path).expanduser().resolve()
     target = Path(png_path).expanduser().resolve() if png_path else source.with_suffix(".png")
 

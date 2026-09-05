@@ -11,7 +11,7 @@ Blog images should adapt to the article instead of always using a dark technolog
 | High-density article summary, product analysis, trend explainer | `guige-infographic` | `dense-modules` + `guige-journal`, `clean-explainer`, `social-pop`, or `lab-notes` | The image should summarize many points in one shareable poster |
 | Warm knowledge card, practical checklist, essay-like concept explainer | `guige-hand-write-pic` | `hand-drawn-edu`, `chubby-sketch`, `morandi-journal`, or `craft-handmade` | The article is educational, reflective, or non-hardcore technical |
 | Code, benchmark, CLI, infrastructure, model internals | `guige-infographic` or `guige-hand-write-pic` | `lab-notes`, `dark-terminal`, `technical-schematic`, or `pop-laboratory` | Technical precision matters more than warmth |
-| Architecture, workflow, dependency map, timeline, comparison matrix | `guige-svg` | `architecture`, `flowchart`, `timeline`, or `matrix`; theme `guige-light`, `dark-tech` only for infrastructure/code | A deterministic editable diagram is better than a generated illustration |
+| Architecture, workflow, dependency map, timeline, comparison matrix | `guige-svg` | Select the matching diagram type; use the dark technical palette only for infrastructure/code | A directly authored editable diagram is better than a generated illustration |
 | Product anatomy, hardware, physical objects, model/system component teardown | `guige-disassembly-diagram` | `hybrid`, `exploded`, or `cutaway`; light technical education poster | The image needs labeled parts, internals, material cues, or working principle |
 | Emotional cover, metaphor, story scene, abstract article mood | `guige-imagen` | Natural editorial illustration, watercolor, claymation, bold graphic, cinematic, or other article-specific style | The image should create a first-glance mood rather than explain details |
 | Personal life, travel, memory, family, reflective writing | `guige-hand-write-pic` or `guige-imagen` | `storybook-watercolor`, `craft-handmade`, `morandi-journal`, warm editorial illustration | Avoid dark tech unless the article itself is about technology |
@@ -48,7 +48,7 @@ Then write the actual image prompt using the selected skill's vocabulary. Keep t
 
 **Cover images**: Should be visually striking and convey the article's core concept at a glance. Text is allowed only when it functions as a short title or label and the exact wording is specified.
 
-**Diagram images**: Use `guige-svg` for deterministic diagrams or `guige-infographic` / `guige-hand-write-pic` for generated explanatory diagrams. Choose the layout from the content: flowchart, timeline, matrix, architecture, comparison, hub-spoke, bridge, funnel, or circular-flow.
+**Diagram images**: Use `guige-svg` for precise editable diagrams or `guige-infographic` / `guige-hand-write-pic` for generated explanatory diagrams. Choose the layout from the content: flowchart, sequence, structural, timeline, matrix, architecture, mind map, state machine, data flow, or illustrative.
 
 **Comparison images**: Split-screen or side-by-side layout. Use color contrast to distinguish sides.
 

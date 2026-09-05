@@ -332,7 +332,7 @@ Before writing `image-prompts.md`, choose a visual direction from the local Guig
 5. For each image prompt, include a compact metadata line before the prompt:
    - `Skill/style`: e.g. `guige-hand-write-pic / hand-drawn-edu / portrait`
    - `Role`: cover, section explainer, comparison, timeline, architecture, teardown, metaphor, etc.
-6. Do not default to the old dark-tech palette. Use `dark-terminal`, `cyberpunk-neon`, `technical-schematic`, or `guige-svg` `dark-tech` only when the content actually calls for code, infrastructure, terminal logs, cybersecurity, or futuristic tech.
+6. Do not default to a dark-tech palette. Use `dark-terminal`, `cyberpunk-neon`, `technical-schematic`, or the `guige-svg` dark technical palette only when the content actually calls for code, infrastructure, terminal logs, cybersecurity, or futuristic tech.
 7. Text is allowed when it improves clarity; specify exact wording and keep it short and legible.
 8. Blog images default to `9:16` portrait for mobile reading. Use `16:9` for architecture diagrams, SVG exports, and dense technical maps when landscape is more readable.
 

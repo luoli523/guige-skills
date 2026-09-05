@@ -1,17 +1,11 @@
-# Matrix Layout
+# Matrices and Comparison Boards
 
-Use `matrix` for schedules, weekly plans, comparison tables, and grouped cards.
+Use a matrix for schedules, feature comparisons, responsibility maps, quadrants, or grouped cards.
 
-Recommended spec:
+- Use regular rows and columns when exact comparison matters.
+- Use card groups when entries contain short explanatory text.
+- Keep row headers visually stronger than cell text.
+- Align comparable values to the same baseline and use consistent symbols.
+- For a 2×2 quadrant, label both axes and explain which direction is better or stronger.
 
-- `sections`: 3-7 cards.
-- Each section should have 2-5 `items`.
-- Keep each item `label` short and `text` under 20 Chinese characters where possible.
-- Use `highlights` for a bottom row of priorities or windows.
-
-Rendering behavior:
-
-- Cards are arranged left-to-right.
-- Each card uses a pastel fill and a hand-drawn-style border.
-- Item labels are bold; item text wraps below the label.
-- Highlights appear as small dashed boxes under the cards.
+Limit ordinary card boards to 3-7 groups and 2-5 items per group. If the content exceeds that density, enlarge the canvas or split it instead of shrinking type below 11 px.

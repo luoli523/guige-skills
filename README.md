@@ -115,7 +115,7 @@
 | `guige-infographic` | 信息图生成 | 生成鬼哥风格信息图，内置鬼哥角色图，支持 `--layout`、`--style`、`--aspect`、`--lang` 参数，并可按需通过 `guige-drive-upload` 上传到 Google Drive。 |
 | `guige-hand-write-pic` | 手绘知识卡 | 生成一页式手绘教育信息图，固定暖米色纸张、sketchnote、粉彩卡片和短标签风格；复用 `guige-imagen` 生图底座，并可按需通过 `guige-drive-upload` 上传到 Google Drive。 |
 | `guige-slides` | 图片式幻灯片 | 把文章、主题或素材整理成适合阅读和分享的图片式幻灯片，生成 outline、逐页 prompt、PNG slide，并用 Python 标准库脚本合并为 PPTX/PDF，可按需上传到 Google Drive。 |
-| `guige-svg` | 可编辑图表 | 生成可编辑 SVG 图表和时间表，使用结构化 JSON spec 与 Python 确定性渲染器，支持矩阵、流程图、时间线和架构图，可按需导出 PNG 并上传到 Google Drive。 |
+| `guige-svg` | 专业 SVG 图表 | 由 Agent 直接编写自包含、可编辑 SVG，支持架构图、流程图、时序图、类图/ER 图、组织架构、脑图、时间线、状态机、数据流、矩阵和概念示意图，并提供安全校验与可选 @2x PNG 导出。 |
 | `guige-video-download` | 视频下载 | 使用自包含的 Gui Ge 工作流封装 `yt-dlp`，下载 YouTube、YouTube Shorts、X.com 和 Twitter 视频，支持视频、音频、封面、字幕、metadata、JSON 输出和可选 Google Drive 上传。 |
 | `guige-x-2-md` | X 转 Markdown | 将 X/Twitter 推文、线程和 X Articles 转为 Markdown，使用 Python 标准库实现逆向 X Web API 客户端，支持登录 cookie、YAML front matter、媒体本地化和 JSON 输出。 |
 | `guige-blog-post` | 博客写作发布 | 端到端写作、配图、发布到 `luoli523.github.io` Hugo 博客。触发词 `/blog-post`、`writing blog post`、`publish post`。 |

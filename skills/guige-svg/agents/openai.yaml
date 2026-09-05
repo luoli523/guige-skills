@@ -1,7 +1,7 @@
 interface:
   display_name: "guige-svg"
-  short_description: "Generate editable SVG diagrams from structured specs."
+  short_description: "Write polished, editable SVG diagrams directly."
   brand_color: "#22A7A0"
-  default_prompt: "Use $guige-svg to turn this content into an editable SVG diagram."
+  default_prompt: "Use $guige-svg to design and write a polished, editable SVG diagram directly from this content."
 policy:
   allow_implicit_invocation: true
