@@ -67,6 +67,98 @@ describe("generic rendering profiles", () => {
   });
 });
 
+describe("wechat inline style coverage", () => {
+  const listArticle = [
+    "Lead **FACT** note.",
+    "- First **待核** item\n- Second item",
+    "1. Step one\n2. Step two",
+    "| 信号 | 标签 |\n|---|---|\n| Harness | **FACT** |",
+  ].join("\n\n");
+
+  test("inlines styles on the elements wechat would otherwise leave bare", () => {
+    const result = renderMarkdown(listArticle, sourcePath, { profile: "wechat" });
+
+    for (const tag of ["strong", "li", "ul", "ol", "p", "td", "th"]) {
+      const opens = result.contentHtml.match(new RegExp(`<${tag}(\\s[^>]*)?>`, "g")) ?? [];
+      expect(opens.length).toBeGreaterThan(0);
+      expect(opens.every((open) => open.includes("style="))).toBe(true);
+    }
+    expect(result.contentHtml).toMatch(/<td style="[^"]*word-break:\s*keep-all/);
+  });
+
+  test("keeps the wechat supplement out of the other profiles", () => {
+    const wechat = renderMarkdown(listArticle, sourcePath, { profile: "wechat" });
+    const web = renderMarkdown(listArticle, sourcePath, { profile: "web", cssMode: "inline" });
+
+    expect(wechat.contentHtml).toMatch(/<strong style="[^"]*color:/);
+    expect(web.contentHtml).toContain("<strong>");
+    expect(web.contentHtml).not.toContain("letter-spacing");
+    expect(web.contentHtml).not.toContain("keep-all");
+  });
+
+  test("renders references as plain text for wechat and as links elsewhere", () => {
+    const article = "See [Harness](https://example.com/harness) today.";
+    const wechat = renderMarkdown(article, sourcePath, { profile: "wechat" });
+    const web = renderMarkdown(article, sourcePath, { profile: "web", cite: true });
+
+    const wechatReferences = wechat.contentHtml.slice(wechat.contentHtml.indexOf("参考链接"));
+    expect(wechatReferences).not.toContain("<a href");
+    expect(wechatReferences).toContain("[1] Harness: https://example.com/harness");
+
+    const webReferences = web.contentHtml.slice(web.contentHtml.indexOf("参考链接"));
+    expect(webReferences).toContain('<a href="https://example.com/harness"');
+  });
+
+  test("suppresses the ordered-list marker so the [n] label is not numbered twice", () => {
+    const result = renderMarkdown("See [Doc](https://example.com/doc).", sourcePath, { profile: "wechat" });
+
+    expect(result.contentHtml).toMatch(/<ol style="[^"]*list-style:\s*none/);
+  });
+
+  test("takes the citation label from the link text, including nested markup", () => {
+    const result = renderMarkdown(
+      "A [**bold**text](https://example.com/a) and B [`pkg==1.0`](https://example.com/b).",
+      sourcePath,
+      { profile: "wechat" },
+    );
+
+    expect(result.contentHtml).toContain("[1] boldtext: https://example.com/a");
+    expect(result.contentHtml).toContain("[2] pkg==1.0: https://example.com/b");
+  });
+
+  test("does not repeat the url when an autolink is its own label", () => {
+    const result = renderMarkdown("Bare <https://example.com/page> here.", sourcePath, { profile: "wechat" });
+
+    expect(result.contentHtml).toContain("[1] https://example.com/page");
+    expect(result.contentHtml).not.toContain("https://example.com/page: https://example.com/page");
+  });
+
+  test("applies the resolved color to both the heading block and emphasis", () => {
+    const result = renderMarkdown("## Section\n\n**FACT** claim.", sourcePath, {
+      profile: "wechat",
+      keepTitle: true,
+      color: "green",
+    });
+
+    const accent = result.css.match(/\.markdown-body a\{color:(#[0-9a-f]{3,8})/i)?.[1];
+    expect(accent).toBeTruthy();
+    expect(result.contentHtml).toContain(`background: ${accent}`);
+    expect(result.contentHtml).toMatch(new RegExp(`<strong style="color: ${accent}`, "i"));
+  });
+
+  test("wechat headings win over the selected theme", () => {
+    const result = renderMarkdown("## Section\n\nBody", sourcePath, {
+      profile: "wechat",
+      keepTitle: true,
+      theme: "modern",
+    });
+
+    const heading = result.contentHtml.match(/<h2[^>]*>/)![0];
+    expect(heading).toContain("display: table");
+    expect(heading).toContain("border-bottom: none");
+  });
+});
+
 describe("markdown and safety", () => {
   test("renders GFM tables, task lists, strikethrough, and footnotes", () => {
     const markdown = [

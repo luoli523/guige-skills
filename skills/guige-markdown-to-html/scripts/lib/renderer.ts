@@ -362,7 +362,7 @@ function createMarkdownIt(options: Required<RenderOptions>): MarkdownItInstance 
     if (shouldCite) {
       let citationIndex = citationState.citations.findIndex((item) => item.url === href);
       if (citationIndex < 0) {
-        citationState.citations.push({ label: "", url: href });
+        citationState.citations.push({ label: linkText(tokens, index), url: href });
         citationIndex = citationState.citations.length - 1;
       }
       citationState.citationStack.push(citationIndex + 1);
@@ -378,6 +378,22 @@ function createMarkdownIt(options: Required<RenderOptions>): MarkdownItInstance 
     return suffix + defaultLinkClose(tokens, index, renderOptions, env, renderer);
   };
   return md;
+}
+
+function linkText(tokens: ReturnType<MarkdownItInstance["parse"]>, openIndex: number): string {
+  let depth = 0;
+  const parts: string[] = [];
+  for (let index = openIndex; index < tokens.length; index += 1) {
+    const token = tokens[index]!;
+    if (token.type === "link_open") depth += 1;
+    else if (token.type === "link_close") {
+      depth -= 1;
+      if (depth === 0) break;
+    } else if (depth === 1 && (token.type === "text" || token.type === "code_inline")) {
+      parts.push(token.content ?? "");
+    }
+  }
+  return parts.join("").trim();
 }
 
 function collectImages(tokens: ReturnType<MarkdownItInstance["parse"]>, sourcePath: string): ContentAsset[] {
@@ -467,6 +483,8 @@ function themeCss(options: Required<RenderOptions>): string {
     `.markdown-body h2{font-size:1.55em;margin:1.6em 0 .7em;padding-bottom:.3em;border-bottom:2px solid ${accent}}`,
     `.markdown-body h3{font-size:1.25em;margin:1.5em 0 .6em;padding-left:.65em;border-left:4px solid ${accent}}`,
     `.markdown-body p{margin:1em 0}`,
+    `.markdown-body ul,.markdown-body ol{margin:1em 0;padding-left:1.5em}`,
+    `.markdown-body li{margin:.4em 0}`,
     `.markdown-body a{color:${accent};text-decoration:none}`,
     `.markdown-body blockquote{margin:1.2em 0;padding:.8em 1em;border-left:4px solid ${accent};background:#f6f8fa}`,
     `.markdown-body table{border-collapse:collapse;width:100%;margin:1.2em 0}`,
@@ -478,6 +496,8 @@ function themeCss(options: Required<RenderOptions>): string {
     `.markdown-body :not(pre)>code{padding:.15em .35em;border-radius:4px;background:#f1f3f5;color:#d14}`,
     `.markdown-body .task-list-item{list-style:none}`,
     `.markdown-body .footnotes{margin-top:2em;font-size:.9em;color:#57606a}`,
+    `.markdown-body .references ol{margin:1em 0;padding-left:0;list-style:none}`,
+    `.markdown-body .references li{margin:.5em 0;font-size:.9em;color:#57606a;word-break:break-all}`,
     `.markdown-body .markdown-alert{padding:.7em 1em;margin:1em 0;border-left:4px solid ${accent};background:#f6f8fa}`,
     `.markdown-body .markdown-alert-title{font-weight:700;color:${accent}}`,
     `.markdown-body ruby rt{font-size:.65em;color:#57606a}`,
@@ -494,6 +514,27 @@ function themeCss(options: Required<RenderOptions>): string {
     `.markdown-body .hljs-keyword,.markdown-body .hljs-selector-tag,.markdown-body .hljs-built_in{color:${codeKeyword}}`,
     `.markdown-body .hljs-string,.markdown-body .hljs-title,.markdown-body .hljs-section{color:${codeString}}`,
     `.markdown-body .hljs-number,.markdown-body .hljs-literal,.markdown-body .hljs-variable{color:${codeNumber}}`,
+  ].join("\n");
+}
+
+// WeChat's editor discards <style> blocks and class selectors, keeping only inline
+// styles. juice inlines whatever themeCss declares, so any element without a rule
+// there arrives unstyled and falls back to the editor's own poor defaults. These
+// supplements cover the elements that matter most for CJK reading: emphasis,
+// paragraph rhythm, lists, and table line breaking.
+function wechatCss(options: Required<RenderOptions>): string {
+  const accent = options.color;
+  return [
+    `.markdown-body h2{display:table;margin:2.5em auto 1.2em;padding:.3em 1.2em;color:#fff;background:${accent};font-size:1.3em;font-weight:700;text-align:center;border-bottom:none;border-radius:8px 24px 8px 24px;box-shadow:0 2px 6px rgba(0,0,0,.06)}`,
+    `.markdown-body h3{margin:1.8em 8px .7em 0}`,
+    `.markdown-body p{margin:1.5em 8px;letter-spacing:.1em;color:#3f3f3f}`,
+    `.markdown-body strong{color:${accent};font-weight:700}`,
+    `.markdown-body ul,.markdown-body ol{margin:1.2em 8px;padding-left:1.5em}`,
+    `.markdown-body ul{list-style:disc outside}`,
+    `.markdown-body ol{list-style:decimal outside}`,
+    `.markdown-body li{margin:.5em 0;letter-spacing:.1em;color:#3f3f3f}`,
+    `.markdown-body th,.markdown-body td{word-break:keep-all}`,
+    `.markdown-body .references li{letter-spacing:0;word-break:break-all}`,
   ].join("\n");
 }
 
@@ -565,14 +606,27 @@ export function renderMarkdown(
   if (options.lineNumbers) content = addCodeLineNumbers(content);
   if (options.macCodeBlock) content = addMacCodeHeaders(content);
   if (env.citations.length) {
-    const items = env.citations.map((item, index) => `<li><a href="${md.utils.escapeHtml(item.url)}">[${index + 1}] ${md.utils.escapeHtml(item.url)}</a></li>`).join("");
+    // WeChat strips or flags external anchors in article bodies, so the reference
+    // list ships as plain text there and keeps real links everywhere else.
+    const items = env.citations.map((item, index) => {
+      const marker = `[${index + 1}]`;
+      // Autolinks carry the URL as their own text; repeating it adds nothing.
+      const label = item.label && item.label !== item.url ? `${md.utils.escapeHtml(item.label)}: ` : "";
+      const url = md.utils.escapeHtml(item.url);
+      const body = options.profile === "wechat"
+        ? `${marker} ${label}${url}`
+        : `${marker} ${label}<a href="${url}">${url}</a>`;
+      return `<li>${body}</li>`;
+    }).join("");
     content += `<section class="references"><h2>参考链接</h2><ol>${items}</ol></section>`;
   }
   if (options.count) {
     content = `<aside class="document-stats">${stats.words} words · ${stats.readingMinutes} min read</aside>${content}`;
   }
   content = sanitizeRenderedHtml(content);
-  const css = themeCss(options);
+  const css = options.profile === "wechat"
+    ? `${themeCss(options)}\n${wechatCss(options)}`
+    : themeCss(options);
   let contentHtml = `<article class="markdown-body">${content}</article>`;
   if (options.cssMode === "inline") {
     const inlinedDocument = juice(documentHtml(metadata.title, contentHtml, css, metadata.language), {
