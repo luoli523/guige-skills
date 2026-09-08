@@ -1,7 +1,7 @@
 ---
 name: guige-blog-post
-description: "Write distinctive, evidence-based, shareable blog posts in Guige's veteran AI/technology voice, then illustrate and publish them to the luoli523.github.io Hugo blog. Trigger on: /blog-post, writing blog post, publish post, write article for blog."
-version: 0.3.0
+description: "Write useful, evidence-based AI and technology blog posts in Guige's experienced peer voice, helping readers understand mechanisms, complete tasks, and make decisions; support illustration and publishing to the luoli523.github.io Hugo blog. Trigger on: /blog-post, writing blog post, publish post, write article for blog."
+version: 0.4.0
 ---
 
 # Blog Post Workflow
@@ -33,8 +33,8 @@ Copy this checklist and update as you progress:
 ```
 Blog Post Progress:
 - [ ] Step 0: Load preferences
-- [ ] Step 1: Define reader, brand angle, and evidence
-- [ ] Step 2: Develop thesis, titles, and structure
+- [ ] Step 1: Define reader task, intended gain, and evidence
+- [ ] Step 2: Choose article type, titles, and structure
 - [ ] Step 3: Draft and complete editorial review
 - [ ] Step 4: Generate image prompts
 - [ ] Step 5: User generates images (manual, wait for user)
@@ -65,13 +65,13 @@ cat "$BLOG_REPO/CLAUDE.md"
 
 Read `references/guige-editorial-guide.md` before planning or drafting an article.
 
-### Step 1: Define Reader, Brand Angle, and Evidence
+### Step 1: Define Reader Task, Intended Gain, and Evidence
 
 | User Input | Action |
 |------------|--------|
 | A topic/idea (string) | Research the topic, then write article |
-| A markdown file path | Use as article content, validate frontmatter |
-| An existing post directory | Skip to Step 6 (image conversion) |
+| A markdown file path | Use as the draft; preserve the user's intended content, check frontmatter, and complete Step 3 editorial review before publishing |
+| An existing post directory | Route by requested work: writing/revision uses Steps 1–3; image-only work starts at Step 6; publishing checks editorial readiness before Steps 7–8 |
 | `/blog-post` with no args | Ask user what they want to write about |
 
 Before research, create an internal editorial brief. Do not put this planning block in the published article.
@@ -79,15 +79,21 @@ Before research, create an internal editorial brief. Do not put this planning bl
 ```markdown
 Reader: <the specific AI/technology practitioner this article serves>
 Reader situation: <the problem, decision, or conversation they are facing>
+Prior knowledge: <what this reader already understands; do not infer expertise from job title>
+Knowledge gap: <what they need explained to follow or use this article>
+Article type: <tutorial, mechanism explainer, evaluation/selection, engineering retrospective, analysis, or reflective essay>
 Surface topic: <what happened or what the article appears to discuss>
-Core thesis: <one arguable sentence, not a topic label>
-Guige angle: <what years of technical practice make visible here>
-Reader gain: <new judgment, reusable method, or useful information>
+Central question: <one concrete question the article answers>
+Core thesis: <a defensible claim for commentary/analysis; optional for other types>
+Guige angle: <the useful explanation, experience, or judgment this material supports>
+Reader gain: <what the reader can explain, complete, diagnose, or decide afterward>
+Deliverable: <the example, working path, comparison, or reasoning that demonstrates this gain>
+Out of scope: <what this article does not resolve>
 Share trigger: <why a reader would send this to one specific colleague>
 Evidence needed: <facts, sources, examples, counterexamples>
 ```
 
-The article must have one primary reader and one core thesis. If the thesis could be agreed with before reading the article, it is probably too generic.
+Each article must serve one primary reader situation and answer one central question. Commentary also needs a defensible core thesis. A clear explanation, reproducible solution, or well-organized synthesis can provide original value without a controversial opinion. Use the article-type delivery standards in `references/guige-editorial-guide.md` to define completion.
 
 **Research and evidence rules**:
 
@@ -95,23 +101,24 @@ The article must have one primary reader and one core thesis. If the thesis coul
 2. Separate verified facts, personal interpretation, and inference in the notes.
 3. Never invent first-hand experience, conversations, results, quotations, or statistics to make the story stronger.
 4. When the topic is current or factual claims may have changed, verify them before drafting.
-5. Research until the thesis can be supported and challenged, not until every corner of the topic has been summarized.
+5. Treat the initial answer or thesis as provisional. Research until the reader's question can be answered with adequate evidence and limits; revise the conclusion when the evidence changes it.
+6. Apply the technical evidence requirements in `references/guige-editorial-guide.md` when including code, evaluations, performance, or cost claims.
 
 **If user provides a URL or reference content**: Extract and summarize key points as source material.
 
-### Step 2: Develop Thesis, Titles, and Structure
+### Step 2: Choose Article Type, Titles, and Structure
 
-#### 2.1 Stress-test the thesis
+#### 2.1 Stress-test the reader gain
 
 Answer these questions before writing:
 
-- What is the article's single strongest claim?
-- What would an informed skeptic say?
-- Which evidence could change the conclusion?
-- Why is Guige the right person to make this observation?
-- What should the reader think or do differently afterward?
+- What concrete question will the article resolve?
+- What will demonstrate that the promised reader gain has been delivered?
+- Which prerequisite, missing step, or uncertainty could prevent the reader from using it?
+- What useful explanation or judgment does Guige contribute beyond repeating sources?
+- For commentary: what is the strongest claim, what would an informed skeptic say, and which evidence could change the conclusion?
 
-If the article merely reports what happened, add a useful interpretation. If there is no defensible interpretation, publish a concise news note instead of stretching it into an essay.
+If the material only supports a brief factual update, write a concise note. Do not manufacture disagreement or stretch it into an essay. Useful synthesis should resolve confusion, connect scattered information, or explain practical consequences.
 
 #### 2.2 Run the title lab
 
@@ -120,6 +127,7 @@ Generate 8-12 working titles across at least four approaches:
 - Direct judgment: state the sharpest defensible conclusion
 - Conflict or tension: expose a tradeoff practitioners recognize
 - Concrete result: lead with a verified number, consequence, or decision
+- Task or question: name what the reader can accomplish or understand, with a relevant scope or constraint
 - Narrative curiosity: reveal the setup but reserve the deeper meaning
 - Veteran perspective: show what experience changes about the interpretation
 
@@ -131,20 +139,23 @@ Choose the structure that fits the material. Do not force every article into the
 
 | Article type | Recommended structure |
 |--------------|-----------------------|
-| Technical judgment | Real situation -> common interpretation -> Guige's disagreement -> evidence -> practical consequence |
-| Tool or product analysis | User problem -> hands-on observation -> what works -> hidden cost -> who should use it |
-| Industry commentary | Event -> why the obvious reading is incomplete -> underlying mechanism -> second-order effect |
+| Technical judgment | Reader decision -> possible answers -> evidence and reasoning -> recommendation and limits |
+| Tool or product analysis | User problem -> evidence from testing or attributed sources -> alternatives and tradeoffs -> who should use it |
+| Industry commentary | Verified change -> possible interpretations -> underlying mechanism -> consequences and action conditions |
 | Tutorial | Painful task -> smallest working path -> key decisions -> failure cases -> reusable checklist |
+| Mechanism explainer | Concrete question -> running example -> causal mechanism -> misconceptions -> limits |
+| Engineering retrospective | Symptom and impact -> investigation evidence -> root cause -> repair -> verification and transferable lesson |
 | Reflective essay | Concrete scene -> tension -> widening interpretation -> restrained reversal -> opening callback |
 
 Plan these elements before drafting:
 
-- One opening scene, conflict, or surprising fact
-- Two to four evidence-backed movements in the argument
-- At least one credible counterargument or limitation
-- Two to four quotable sentences that emerge naturally from the reasoning
-- One reusable artifact when appropriate: checklist, model, comparison, code, or decision rule
-- A conclusion that changes or deepens the meaning of the opening
+- An opening that establishes the reader's task, question, or decision
+- Sections that each resolve a specific part of that question
+- The deliverable required by the selected article type
+- Relevant limitations, failure conditions, or counterarguments
+- An ending suited to the reader gain: verification, next action, decision rule, or reflection
+
+Layer detail when useful: state the result and applicability early, explain the mechanism, then supply implementation or evaluation details. Do not add a section for every profession. Humor, quotable lines, narrative tension, and callbacks are optional; do not plan quotas for them.
 
 #### 2.4 Create the post directory
 
@@ -164,14 +175,14 @@ ls "$BLOG_REPO/content/post/<slug>/"
 
 ### Step 3: Draft and Complete Editorial Review
 
-The brand promise is: **an experienced AI/technology practitioner helps readers see what the excitement leaves out.** The voice is restrained and professional, with dry humor, self-deprecation, precise analogies, and occasional setup-payoff callbacks.
+The brand promise is: **Guige explains AI technology, products, and engineering as an experienced peer, helping readers understand mechanisms, make choices, complete work, and recognize the limits of the advice.** The voice is restrained and professional; dry humor, self-deprecation, precise analogies, and callbacks are optional when they help the material.
 
 **Frontmatter template** (YAML, between `---` delimiters):
 
 ```yaml
 ---
 title: "从标题实验室选出的最终标题"
-description: "120 字以内，独立表达文章对象、核心冲突和读者收益；不得重复标题或制造正文无法兑现的悬念。"
+description: "120 字以内，独立表达文章对象、适用场景和读者收益；不得重复标题或制造正文无法兑现的悬念。"
 date: YYYY-MM-DD
 slug: <slug>
 image: cover.webp
@@ -197,17 +208,18 @@ tags:
 
 #### Opening: earn attention
 
-Draft three openings, then keep the one that best combines specificity, tension, and trust. Good openings usually begin with a real scene, a concrete contradiction, a costly mistake, or a defensible observation. Within the first 150 Chinese characters, make clear what the article is about and why the reader should continue.
+Within the first 150 Chinese characters, make clear what the article concerns and what the reader gains. Tutorials can open with the task and expected result; explainers with the question and a concrete example. Scenes, contradictions, or observations can serve essays and commentary. Try alternative openings when the first is weak; a narrative hook is not mandatory.
 
 Avoid generic throat-clearing, invented drama, unsupported numbers, and formulas such as “你以为 X，其实 Y” unless the contrast is genuinely surprising.
 
-#### Body: deliver judgment, not coverage
+#### Body: deliver the promised reader gain
 
-- Build each section around a claim, evidence, and consequence.
+- Build each section around a specific reader question. Use claim–evidence–consequence for arguments, input–action–expected result for procedures, and example–mechanism–boundary for explanations.
 - Use concrete scenes and examples before abstract explanation when possible.
-- Distinguish observation from opinion; link claims to sources where appropriate.
+- Prefer one running example for a complex mechanism. Explain how an analogy maps to the actual system and where it stops working.
+- Distinguish observation from opinion; place sources next to key factual claims and collect them at the end.
 - Include uncertainty, tradeoffs, and failure conditions. Veteran credibility comes from knowing where an idea stops working.
-- Delete background knowledge the target reader already knows unless it is needed for the argument.
+- Explain prerequisites identified in the brief, defining unfamiliar terms on first use. Link or briefly separate optional background; omit material this reader already knows unless needed for the explanation.
 - Let memorable lines summarize earned reasoning. Do not insert slogans that the article has not proved.
 
 #### Humor: setup, turn, and callback
@@ -244,7 +256,7 @@ Do not end with a generic summary, engagement bait, or “收藏起来以后用�
 **反模式（写完自查是否中招）**：
 
 - ❌ 开头"本文将介绍..."、"今天我们来聊..."（零钩子）
-- ❌ 中间写成维基百科式的综述（没观点 = 没增量）
+- ❌ 只复述材料，既没有解释增量，也没有方法、证据或决策价值
 - ❌ 结尾"以上就是全部内容，谢谢阅读"（没 takeaway）
 - ❌ 堆砌 ChatGPT 味的排比短句（"它不仅 X，还 Y，更重要的是 Z"）
 - ❌ 每个小标题都工整对仗——读起来像目录，不像文章
@@ -260,10 +272,10 @@ Do not end with a generic summary, engagement bait, or “收藏起来以后用�
 
 Write the article to: `$BLOG_REPO/content/post/<slug>/index.md`
 
-Before planning images, run all four editorial passes in `references/guige-editorial-guide.md`: truth and evidence, brand and argument, reading and voice, utility and spread. Then:
+Before planning images, run all four editorial passes in `references/guige-editorial-guide.md`: truth and evidence, reader gain and explanation, reading and voice, utility and spread. Then:
 
-1. Score the article with the 40-point release scorecard and report the scores to the user.
-2. If it fails a threshold, revise the two lowest-scoring dimensions and score it again.
+1. Score the article with the 40-point release scorecard, cite concrete passages or gaps supporting the scores, and report the result to the user.
+2. If it fails a threshold, address release blockers first, then revise the two lowest-scoring dimensions and score it again.
 3. Run the de-AI pass to remove repetitive sentence shapes, mechanical contrasts, generic transitions, and slogan-heavy endings.
 4. Treat the article as stable only after it clears the release thresholds. Generate images from this stable version.
 
@@ -386,7 +398,7 @@ ls content/post/<slug>/*.webp
 1. Check frontmatter completeness: title, description, date, slug, image, categories, tags.
 2. Check all images referenced in the article exist as `.webp` files.
 3. Check `cover.webp` exists (required for announcement system).
-4. Confirm images still match the final title and thesis. If the article changed materially after Step 3, repeat the editorial scorecard before publishing.
+4. Confirm images still match the final title and content. Before publishing an imported or existing article, complete Step 3 editorial review if there is no review for the current text. If the article changed materially after review, repeat the editorial checks. Image-only work does not trigger unsolicited rewriting.
 5. Optionally run Hugo to verify:
 
 ```bash

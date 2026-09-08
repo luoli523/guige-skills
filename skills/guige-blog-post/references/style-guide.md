@@ -66,13 +66,6 @@ Then write the actual image prompt using the selected skill's vocabulary. Keep t
 | Naming | kebab-case, descriptive |
 | Cover filename | `cover.webp` (mandatory) |
 
-### Writing Tone Reference
+### Editorial Alignment
 
-Based on existing posts (gemma4-analysis, cc-anatomy series):
-
-- 技术深度 + 口语化表达
-- 用数据和对比开场
-- 偶尔自嘲或幽默（"本着先吹牛再干活的优良传统"）
-- 大量加粗标记核心观点
-- 每个章节有独立的价值，可以单独阅读
-- 结尾有行动建议或前瞻
+Use `guige-editorial-guide.md` as the source of truth for writing tone and editorial standards. Visuals should support the article's reader gain: explain a mechanism, clarify a comparison, show a process, or establish an appropriate mood. Do not put essential instructions or evidence only inside an image; preserve them in searchable, copyable article text.
