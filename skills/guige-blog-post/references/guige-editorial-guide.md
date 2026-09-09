@@ -1,262 +1,130 @@
-# Guige Editorial Guide
+# 鬼哥博客编辑指南
 
-Use this guide when planning, drafting, and reviewing every article produced by `guige-blog-post`.
+规划、起草和修改 `guige-blog-post` 文章时使用。本指南指导阅读体验；核实资料的过程留在幕后。
 
-## Brand Position
+## 写给愿意读下去的人
 
-Guige writes for Chinese-speaking AI practitioners, developers, technology enthusiasts, founders, product managers, and technical managers. Each article serves one concrete task or decision within this audience. Do not assume a job title implies familiarity with a specific AI concept or with recent news; establish prior knowledge and the knowledge gap in the editorial brief.
+读者包括 AI 从业者、开发者、创业者、产品经理、技术管理者和技术爱好者。他们可能想解决工作中的麻烦，也可能只是好奇、想创作一点东西、理解一种变化，或者找个人把自己说不清的感受说清楚。不要把所有人都想象成正在做技术选型的工程师，也不要从职位推断知识水平。
 
-The brand promise is:
+品牌承诺：
 
-> Guige explains AI technology, products, and engineering as an experienced peer, helping readers understand mechanisms, make choices, complete work, and recognize the limits of the advice.
+> 鬼哥从你熟悉的场景聊起，把 AI 和技术里有意思、有用的东西讲明白，让你顺着好奇心读下去，读完觉得懂了，也想试试。
 
-Authority must come from sound judgment, concrete evidence, honest limits, and useful experience. Never rely on seniority alone.
+文章需要同时让人愿意读、读得顺、读完有所得。“有所得”可以是一个办法，也可以是终于理解了某件事、看见一种新可能，或记住了一个贴切的解释。不要把它一律换算成清单和操作步骤。
 
-## Article-Type Delivery Standards
+作者像一位有经验、有兴致的同行：会观察、会解释，有自己的判断，也会觉得某件事好玩或出乎意料。资历藏在看问题的角度里。允许温度、欣喜、疑惑、自嘲和适度吐槽，不用公文口吻维持专业形象。
 
-Choose the dominant type from the reader's task. For mixed articles, add only the standards needed by the promises actually made; do not concatenate every template.
+## 从一个具体用场找到入口
 
-| Type | Reader gain | Required delivery |
-|------|-------------|-------------------|
-| Tutorial | Complete a task | Prerequisites, smallest working path, expected result and how to check it, likely failures and recovery |
-| Mechanism explainer | Explain how and why something works | A concrete running example, causal steps, key distinctions or misconceptions, and the mechanism's limits |
-| Tool evaluation or selection | Decide whether an option fits | Target scenario, meaningful baseline or alternatives, evidence basis, cost and limitations, conditional recommendation |
-| Engineering retrospective | Diagnose or avoid a similar problem | Symptom and impact, investigation evidence, root cause, repair and verification, transferable lesson; attribute public cases |
-| Industry or product analysis | Adjust a judgment or action | Verified change, causal reasoning, affected users or workflows, credible alternatives and uncertainty, conditions for action |
-| Reflective essay | Understand an experience or recognize a pattern | An honestly sourced scene or observation, developed interpretation, and a specific insight; no forced checklist |
+先找到读者能够认出的时刻：他在做什么，想得到什么，哪里别扭，哪一点值得好奇。
 
-A useful synthesis may supply value through explanation, integration, or reduced effort. It does not need to disagree with conventional wisdom. Commentary needs a defensible thesis; other types need a clear central question and a demonstrated answer.
+“提升知识工作效率”还不是场景；“准备客户方案，资料散在聊天记录、产品文档和几份旧 PPT 里”才让人看见事情。“AI 创作”太宽；“想把孩子随口编的故事做成一本能翻的绘本”有了愿望和用场。具体不等于必须写成故障故事，也不必把每篇文章都写成创业成败。
 
-## Technical Evidence Requirements
+优先使用用户提供的经历、可归属的公开案例或实际可见的材料。没有亲历时，可以用“假设你正在……”引入贴近现实的示意场景。让读者知道这是举例；不要编造某个客户、昨晚的一次测试、具体对话或成功数据来增加真实感。
 
-Apply these to the claims and deliverables actually present:
+选一条能贯穿全文的线索：一个想完成的东西、一个不解的问题、一段使用过程，或者一个值得追究的细节。不需要在正文宣布读者画像、学习目标和交付成果。
 
-- **Code and commands:** state relevant environment, dependencies and versions, expected output, and verification method. Identify unexecuted examples as untested and pseudocode as illustrative. Never imply a successful run without execution evidence.
-- **Model or tool evaluation:** identify tasks, sample size or selection, baseline, configuration, evaluation criteria, and observed failures where available. A demo or a few examples support only a bounded observation, not a general ranking.
-- **Performance and cost:** give measurement conditions, units, scope, and calculation assumptions. Distinguish estimates from measurements and identify omitted cost components that could change the decision.
-- **Evidence origin:** distinguish author measurements, vendor claims, third-party reports, and illustrative examples. If hands-on evidence is unavailable, scope the article as source-based analysis and narrow its conclusions accordingly.
-- **Sources and freshness:** link key factual claims near the claim, with a reference list for navigation. State verification date and relevant version for fast-changing capabilities, pricing, and procedures.
+## 标题与开头：给人一个想看的理由
 
-Missing evidence should lead to a narrower claim, an explicit unknown, or further research. It must not be filled with invented experiments or apparent precision.
+标题让读者知道对象，也让他看见与自己有关的趣味、困惑或可能性。可以从用场、意外细节、具体问题、鲜明判断几个方向试写，保留最贴合正文的一条。内部比较两三个候选即可，不必为了数量凑标题。
 
-## Voice Coordinates
+开头要尽快让人产生一种反应：“这事我也遇到过”“这个我想试”“怎么会这样”“接下来呢”。先给实质内容，不要靠隐瞒文章主题或拖延答案制造悬念。
 
-| Dimension | Target | Avoid |
-|-----------|--------|-------|
-| Expertise | Experienced peer who has built and operated systems | Lecturer displaying credentials |
-| Confidence | Clear judgment with explicit limits | Certainty unsupported by evidence |
-| Humor | Dry, observant, self-aware, occasionally surprising | Meme stacking, forced punchlines, mockery |
-| Language | Conversational, precise, economical | Academic review, corporate memo, AI-generated cadence |
-| Emotion | Calm curiosity with controlled intensity | Manufactured outrage, anxiety, or triumph |
-| Reader relationship | Talking with capable colleagues | Teaching down to beginners |
+可以从具体动作、想要的结果、一个有意思的观察或有来由的判断开篇。题目本身已经很有吸引力时，直入主题就好。不要为了钩子虚构事故、夸大普遍性，或者套上“你以为……其实……”的壳。
 
-## Signature Moves
+下面是说明性改写示例，并非作者亲历。
 
-Use these selectively. Repetition across every article turns a signature into a template.
+**偏报告的开头：**
 
-### The veteran's second question
+> 本文面向产品经理，介绍如何利用大模型提升需求文档质量，并从准确性、完整性和可执行性三个维度进行评估。
 
-After describing an exciting capability, ask the operational question that experience makes unavoidable:
+**更接近日常用场的开头：**
 
-- What happens when it fails?
-- Who pays the latency, cost, or maintenance bill?
-- Which assumption stops being true at production scale?
-- What human or organizational problem is being mislabeled as a model problem?
+> 假设你刚让 AI 把几条需求扩成一份文档。背景、目标、用户故事，样样齐全。你正准备发给研发，忽然想到一个问题：用户付了钱，又点了取消，怎么办？翻回去找了找，那份看起来很完整的文档，恰好没写这一段。
 
-Also look for constructive opportunities:
+这个入口让读者看见“文档齐全”和“问题想清楚”之间的落差。接下来应沿着取消订单这个例子展开，别马上切回抽象的三维框架。不要把这个场景复用到无关文章。
 
-- What previously impractical task has become feasible?
-- Under which conditions is it worth trying now?
-- What is the smallest useful experiment, and what outcome would justify continuing?
-- Does the evidence overturn an assumption learned from earlier systems?
+## 正文：顺着发现往前走
 
-Choose questions that illuminate this material. Do not turn every article into a warning about production complexity.
+开头有钩子还不够。读者往下读，是因为上一段让下一段变得值得看。
 
-### Concrete before abstract
+- 让例子发生变化：一个请求得到什么回应，哪里令人满意，哪里让人停了一下，换个问法或做法又看见什么。只描述材料实际支持的变化；设想的结果要保持设想语气。
+- 在读者需要时解释概念。先让他遇见问题，再把术语作为解释问题的名字交给他。解释完回到例子，看理解改变了什么。
+- 每一节带来一点进展：多看清一层原因、发现一个细节、解决一个疑问，或者看见新的可能。章节之间靠内容联系，不靠“接下来我们介绍”串目录。
+- 给抽象段落落脚点。使用具体动作、对象、简短的输入输出或恰当类比；不要连续堆“能力、机制、范式、维度、闭环”。
+- 简单处走快一点，值得琢磨处停一停。长短句和段落随意思变化，不要整篇碎成金句，也不要每节都按同一套论证格式收尾。
+- 直接表达判断：“我更在意的是……”可以是作者观点；“我用了一周发现……”必须有实际经历。自然的第一人称不等于可以编造亲历。
+- 不必把所有背景讲完。删掉不影响这次理解的支线；教程承诺读者能做成的关键步骤则要保留。
 
-Open a conceptual argument with a real decision, failure, user interaction, debugging session, or observed contradiction. Do not fabricate a scene. If no first-hand scene exists, attribute the public example honestly.
+**正文推进的示例，承接前面的假设场景：**
 
-### Restrained reversal
+> 先把“用户可以取消订单”这句话拎出来。订单还没发货，取消之后退钱，听起来很顺。可如果仓库已经打包了呢？如果钱退了，包裹却还在路上呢？
+>
+> 到这里，再让 AI “补充细节”就有点含糊了。你可以换一个具体问题：沿着下单、付款、打包、发货这条线，看看用户在哪一步取消，会留下什么没处理完的事。它给出的每一种情况，都可以拿来和研发讨论：产品究竟准备怎么处理？
+>
+> 这时候，文档里多出来的才不只是字数。你有了几件原先没想到、现在必须想清楚的事。
 
-Let the article's surface subject lead to a deeper conclusion:
+这段通过同一个例子推进到一种使用方法，没有声称某次实测一定有效，也没另起“方法论与验收标准”。专业细节应像这样参与故事，而不是打断故事。
 
-```text
-Surface: a new model is better at coding
-Deeper turn: the scarce skill is deciding what deserves to be built
-```
+## 趣味来自观察和理解
 
-The turn must follow from the evidence. It is not a trick ending.
+趣味不等于每段有笑话。一个出乎意料却能解释清楚的细节，一个“原来如此”的瞬间，一个想亲手试试的效果，都能带动阅读。
 
-### Setup and callback
+幽默可以来自轻描淡写、自嘲、准确的类比，或人们熟悉的小尴尬。例如，写到需求文档样样齐全却漏掉关键行为时，“目录已经很像产品了，产品还没想好”可以压缩前面的观察。它必须由具体内容托住，不能为了这句话去编一段失败经历。
 
-Plant a concrete image, phrase, or question near the beginning. Return to it near the end after the reader's understanding has changed. Use one callback, not a chain of theatrical reveals.
+遇到有意思的东西，允许作者真诚地感到惊喜；谈到麻烦，也可以有一点同感和吐槽。别嘲笑新手，不堆热梗，不用笑话盖过一个尚未解释清楚的问题。
 
-### Earned quotability
+回扣开头、前后呼应和小转折都可以用，但不是每篇必须完成的动作。不要把结尾都拔高成“真正重要的永远是人”一类万能结论。
 
-A quotable sentence compresses an argument already demonstrated by the article. It should remain meaningful when copied out of context.
+## 按材料选择写法
 
-Good pattern:
+这些是可选路线，不是文章必须具备的模块，也不要求混合文章逐项满足所有类型。
 
-```text
-Specific evidence -> explanation -> concise judgment
-```
+| 材料 | 可以怎样带着读者走 |
+|------|--------------------|
+| 工具或产品 | 跟着一个读者真想完成的用场走，呈现最有意思的帮助和实际摩擦，最后自然说清谁会喜欢或受益 |
+| 原理解释 | 从一个让人困惑的现象出发，用同一个例子逐步揭开原因，再回来看原来的问题 |
+| 实操教程 | 先展示值得做的结果，带读者取得第一次小成功，再处理关键难点；步骤和预期结果要足够照做 |
+| 行业观察 | 从变化触及人的具体地方切入，展开它为什么发生、给谁带来机会或麻烦 |
+| 工程经历 | 跟着症状、线索、误判与发现走，在关键处补解释；不能虚构排查过程，公开案例应注明来源 |
+| 随笔 | 从一个有意味的细节进入，展开感受和思考，停在文章真正抵达的地方 |
 
-Weak pattern:
+用户明确要求完整技术教程、可复现评测或研究报告时，按其需求提供相应细节。不要把所有普通博客升级成这些文体。
 
-```text
-Unsupported slogan -> three parallel slogans -> request to repost
-```
+## 可信度在幕后托住文章
 
-## Humor System
+不编造经历、对话、实测、引用或数字；对会变化的事实先查证；把事实与自己的解释分清楚。这些是底线，不是要求正文处处展示审查过程。
 
-Humor is seasoning and evidence of personality, not a quota.
+- 重要事实就近放一个自然的来源链接，文末可集中列参考资料。正文不必反复使用“证据显示”“根据验证”。
+- 不是亲测，就用“官方演示中”“从公开资料看”等自然归属，不装成使用心得。不必因此为整篇加一段正式免责声明。
+- 代码需要读者照做时，给必要的环境与关键步骤；未经运行不声称验证通过。一般观察文章不因提到技术就增加环境表。
+- 主动声称某工具更快、更便宜或更准时，需要足以支持比较的条件和来源。没有依据就收窄或删掉结论，不用虚构数字添趣。
+- 限制会改变读者的理解或行动时，在相关位置讲明。冗长参数、测试设置可放文末；不要藏起足以推翻主要结论的信息，也不用给每段附上适用边界。
 
-Preferred techniques:
+## 结尾让开头的期待得到回应
 
-- Dry understatement after describing obvious complexity
-- A precise analogy drawn from engineering or working life
-- Self-deprecation that increases trust without weakening the argument
-- Misdirection followed by a technically accurate turn
-- A callback that rewards readers who remember the opening
+回到那件事情：现在读者看清了什么，哪个烦恼有了新解法，什么变得值得试一试？可以用一个具体建议、一点余味、一个被重新理解的细节收住。
 
-Guardrails:
+教程可以简短提醒下一步；随笔可以停在一个有意味的画面。只有读者确实需要照着操作或比较时才整理清单。不要默认附上“适用人群、行动建议、验收标准”，也别请求收藏转发。
 
-- Never joke at the expense of vulnerable people or inexperienced readers.
-- Never use humor to hide weak evidence.
-- Avoid internet slang that will age the article quickly.
-- Remove a joke if it competes with the paragraph's technical meaning.
-- Do not label a sentence as humorous; let the turn do the work.
+## 编辑时真的读一遍
 
-## Title Lab
+不用总分决定文章是否好看，不默认向用户输出评审表。把下面的问题用于修改实际段落，内部保留必要笔记即可。
 
-Generate 8-12 titles before choosing one. Include at least four title approaches, but do not publish the full candidate list unless the user requests it.
+1. **有没有认出自己？** 开头的具体事情和读者有什么关系？如果只是行业介绍或目标声明，换一个更贴近人的入口。
+2. **为什么接着读？** 找出第一处像上课、重复或跳到另一份报告的地方。换例子、调整顺序、缩短支线，让上一段的问题在下一段得到推进。不能只加“更有意思的是”或一个笑话。
+3. **有没有读懂的快感？** 读者在哪一处看见变化、理解原因，或发现一个想试的可能？如果全文只有主张，补充能让人看见的材料。
+4. **有没有兑现？** 标题和开头引起的期待是否得到满足？好看但没说清关键内容，需要补足；严谨完整却毫无吸引力，同样需要重写。
+5. **有没有失真？** 最后核查关键事实、来源归属和可能误导人的表述。真实问题必须修正，不能用阅读流畅为夸大开脱。
 
-Score the three strongest candidates from 1 to 5:
+再朗读开头和正文最密的一段：这像一个有兴致的人在讲一件值得听的事吗？删除公文转场、无用英文标签、机械排比、反复的“不是……而是……”和每节末尾的口号。保留自然的节奏、专业细节和个人判断，不必故意写得粗糙。
 
-| Criterion | Question |
-|-----------|----------|
-| Clarity | Can the intended reader tell what the article concerns? |
-| Reader relevance | Does it name a useful task, question, consequence, or tradeoff? |
-| Specificity | Does it contain a concrete object, consequence, or judgment? |
-| Brand fit | Does it sound like an experienced practitioner rather than a media account? |
-| Credibility | Can every implication be defended by the article? |
-| Memorability | Is there a phrase or idea the reader can recall later? |
+## 容易走偏的地方
 
-Reject a title if `Credibility` scores below 4, regardless of its total. Break ties in favor of `Clarity`, then `Reader relevance`. A straightforward task title can be stronger than a clever one for a tutorial.
-
-Avoid:
-
-- Unverified numbers or superlatives
-- “震惊”“彻底”“颠覆一切” and similar inflation
-- Hiding the actual subject only to manufacture curiosity
-- Claiming first-hand use when the article is based on secondary sources
-- A title that could be attached unchanged to ten unrelated AI articles
-
-## Opening Test
-
-Choose an opening suited to the article. Try alternatives when needed:
-
-1. Scene: a real moment that contains the article's tension
-2. Contradiction: two facts or beliefs that cannot comfortably coexist
-3. Judgment: a sharp, defensible conclusion followed by the evidence it must earn
-4. Task: the goal, applicability, and expected result
-5. Explanation: a concrete question and example that expose what needs explaining
-
-The chosen opening should pass all four checks:
-
-- The subject is identifiable within the first 150 Chinese characters.
-- The task, question, or tension is specific rather than generic urgency.
-- The reader understands the promised gain and whether it fits their situation.
-- The tone creates trust rather than suspicion of clickbait.
-
-## Shareability Without Begging
-
-Design for three legitimate reasons to share:
-
-| Share motive | Article should provide |
-|--------------|------------------------|
-| “This expresses what I have struggled to explain” | A precise, earned judgment |
-| “This will help a colleague make a decision” | A reusable model, checklist, or boundary |
-| “We need to discuss this” | A credible tension with consequences for the reader's work |
-
-Do not add explicit “please repost” language unless the user asks for a campaign-style call to action.
-
-## Four-Pass Editorial Review
-
-Review the complete draft in four separate passes. Revise after each pass.
-
-### Pass 1: Truth and evidence
-
-- Are changing facts verified and sources included?
-- Are fact, inference, opinion, and personal experience distinguishable?
-- Does any sentence exaggerate what the evidence supports?
-- Is a counterexample, limitation, or uncertainty missing?
-- Do technical claims meet the applicable evidence requirements above?
-
-Any invented experience, quote, result, or statistic is a release blocker.
-
-### Pass 2: Reader gain and explanation
-
-- Is the central reader question clear, with an arguable thesis when the type calls for one?
-- Does the draft deliver the selected article type's required content?
-- Are prerequisites and causal steps sufficient for the stated reader, with examples that make the explanation usable?
-- Is expertise demonstrated through evidence, explanation, and judgment rather than asserted through status?
-- Does every major section help answer the central question?
-
-### Pass 3: Reading and voice
-
-- Does the opening establish subject, applicability, and reader gain quickly?
-- Are abstract stretches grounded by examples?
-- Does the prose vary naturally in sentence length and rhythm?
-- If humor, memorable lines, or callbacks are present, do they help rather than interrupt understanding?
-- Can generic transitions, repeated conclusions, and throat-clearing be deleted?
-
-### Pass 4: Utility and spread
-
-- What will the reader remember tomorrow?
-- What can the reader apply at work?
-- Even if the reader accepts the conclusion, what would they still be unable to explain, choose, or do?
-- What example, explanation, procedure, or decision rule would be useful to revisit?
-- Who would they send it to, and why?
-- Does the ending supply an appropriate verification step, action, decision condition, or earned reflection? A concise operational recap is valid when it helps the reader use the article.
-
-## Release Scorecard
-
-Score each dimension from 1 to 5:
-
-| Dimension | Release standard |
-|-----------|------------------|
-| Focus | One clear reader question; a defensible thesis for commentary |
-| Evidence | Claims supported; uncertainty and sources handled honestly |
-| Reader value | The promised gain is demonstrated by the required article-type deliverable |
-| Explanation clarity | The intended reader can follow the mechanism, procedure, or reasoning without a material missing step |
-| Applicability and limits | Readers can recognize when the explanation or advice applies and where it fails |
-| Voice | Professional, conversational, restrained, recognizably Guige |
-| Reading efficiency | Structure, examples, and level of detail make the answer easy to follow and revisit |
-| Reusable value | A specific reader has a reason to revisit or share the explanation, method, or judgment |
-
-Release only when:
-
-- No dimension scores below 3
-- `Evidence`, `Reader value`, and `Explanation clarity` each score at least 4
-- Total score is at least 31 out of 40
-- The selected article type's required delivery is complete; missing essentials cannot be offset by style points
-
-For each score, name a concrete passage or deliverable that supports it and any remaining gap. Use 3 for useful but incomplete work, 4 for meeting the stated standard, and 5 only when additional demonstrated quality warrants it. Self-scoring is an editing aid, not proof of reader outcomes.
-
-If the draft fails, address release blockers first, then revise the two lowest dimensions and reassess. Do not inflate the score without changing the article.
-
-## De-AI Pass
-
-Search for and rewrite these common signals:
-
-- Repeated “不是……而是……” constructions
-- Mechanical triples and symmetrical parallel sentences
-- Every section ending with a bold slogan
-- Excessive rhetorical questions
-- Empty transitions such as “值得注意的是” or “更重要的是”
-- Unnecessary English labels where clear Chinese exists
-- Generic conclusions that could fit any topic
-- Uniform paragraph and sentence lengths
-
-Do not remove all structure or polish. The goal is human judgment and natural rhythm, not deliberate roughness.
+- 把“有用”等同于工程检查表，把所有读者都当作部署系统的人。
+- 用读者画像、交付标准、证据等级、局限性堆出论文外形。
+- 开头讲故事，正文立刻换成百科式的概念目录。
+- 用“想象一下”包装与目标读者无关的戏剧场景。
+- 为了活泼牺牲准确性，编造对话、体验或未经证实的效果。
+- 用大量反问、短句和感叹号模拟兴奋，却没有值得好奇的具体内容。
+- 把例子写成固定模板；本指南的示例只用于校准表达，不可当作作者经历或反复套用。
