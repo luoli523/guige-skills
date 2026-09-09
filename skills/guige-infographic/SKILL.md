@@ -1,23 +1,23 @@
 ---
 name: guige-infographic
-description: Generate Gui Ge branded infographics in Gui Ge's personal style as a standalone skill. Supports --layout, --style, --aspect, and --lang options; always uses the bundled Gui Ge character image from assets/guige.jpeg; creates analysis/structured content/prompts independently; generates the final infographic through guige-imagen when keyed or deterministic output is required, and in no-key Codex sessions prefers Codex's built-in imagen/image generation tool before other runtime tools; can optionally upload generated materials through guige-drive-upload. Use for 鬼哥信息图, 中文信息图, 信息图, 高密度信息大图, visual summary, or turning article/content into a Gui Ge branded infographic. For unbranded warm sketchnote summaries, use guige-hand-write-pic instead.
+description: Generate Gui Ge branded infographics in Gui Ge's personal style as a standalone skill. Supports --layout, --style, --aspect, and --lang options; always uses the shared Gui Ge character image from ../../references/guige-character.png; creates analysis/structured content/prompts independently; generates the final infographic through guige-imagen when keyed or deterministic output is required, and in no-key Codex sessions prefers Codex's built-in imagen/image generation tool before other runtime tools; can optionally upload generated materials through guige-drive-upload. Use for 鬼哥信息图, 中文信息图, 信息图, 高密度信息大图, visual summary, or turning article/content into a Gui Ge branded infographic. For unbranded warm sketchnote summaries, use guige-hand-write-pic instead.
 version: 0.3.3
 ---
 
 # Gui Ge Infographic
 
-Standalone workflow for infographics with the bundled Gui Ge narrator character and optional Google Drive delivery.
+Standalone workflow for infographics with the shared Gui Ge narrator character and optional Google Drive delivery.
 
 This skill owns its own analysis, structure, design choices, prompt generation, image generation, and upload flow.
 
-Use this skill when the output should be Gui Ge branded or should include the Gui Ge narrator/character. Use `guige-hand-write-pic` instead for plain warm cream-paper sketchnote summaries without the bundled Gui Ge character image.
+Use this skill when the output should be Gui Ge branded or should include the Gui Ge narrator/character. Use `guige-hand-write-pic` instead for plain warm cream-paper sketchnote summaries without the shared Gui Ge character image.
 
 ## Defaults
 
 | Setting | Default |
 |---------|---------|
 | Language | `zh` |
-| Character image | `assets/guige.jpeg` |
+| Character image | `../../references/guige-character.png` |
 | Working root | `infographic/{topic-slug}/` |
 | Final image directory | `~/Downloads/guige-skill-imagen/` |
 | Final image filename | `{topic-slug}-infographic.png` |
@@ -30,16 +30,16 @@ Use this skill when the output should be Gui Ge branded or should include the Gu
 
 ## Assets
 
-Always use the bundled character asset:
+Always use the shared character asset:
 
 ```text
-assets/guige.jpeg
+../../references/guige-character.png
 ```
 
 At run time, copy it into the output directory:
 
 ```text
-infographic/{topic-slug}/refs/01-ref-guige.jpeg
+infographic/{topic-slug}/refs/01-ref-guige.png
 ```
 
 Use the image as a style/character reference whenever the active image backend supports reference images. If the backend does not support reference images, inject the character traits in text:
@@ -103,7 +103,7 @@ Parameter handling:
    - `infographic/{topic-slug}/refs/`
    - `infographic/{topic-slug}/prompts/`
 4. If the output directory already exists, append `-YYYYMMDD-HHMMSS`.
-5. Copy `assets/guige.jpeg` to `refs/01-ref-guige.jpeg`.
+5. Copy `../../references/guige-character.png` to `refs/01-ref-guige.png`.
 6. Save pasted content or source file content as `source-{topic-slug}.md`.
 
 ### Step 2: Analyze Content
@@ -183,7 +183,7 @@ The prompt must include:
 ```yaml
 references:
   - ref_id: 01
-    filename: 01-ref-guige.jpeg
+    filename: 01-ref-guige.png
     usage: style
 ```
 
@@ -199,7 +199,7 @@ Use the best image backend available in the current runtime:
 4. Another configured local image generation skill or script, if the current runtime provides one.
 5. If no image backend exists, stop and report the prepared prompt path.
 
-If the backend supports image references, pass `refs/01-ref-guige.jpeg`. If not, rely on the text character section in the prompt.
+If the backend supports image references, pass `refs/01-ref-guige.png`. If not, rely on the text character section in the prompt.
 
 Normalize final output by moving the generated image to:
 

@@ -15,6 +15,13 @@ Image generation foundation for the Gui Ge skill set.
 
 This skill is a generic backend. It does not apply Gui Ge character style by default; upstream skills such as `guige-infographic` should provide their own prompt, reference images, and output conventions.
 
+## Shared Gui Ge Character Reference
+
+When a user explicitly requests the Gui Ge/鬼哥 character, use the repository's
+canonical image at `../../references/guige-character.png` (relative to this
+skill directory). Read [guige-character.md](../../references/guige-character.md)
+for its usage contract. Do not add this reference for generic image requests.
+
 ## Backend Selection
 
 Use the best image backend available for the user's context:
@@ -120,6 +127,9 @@ python3 {baseDir}/scripts/main.py --promptfiles system.md content.md --image out
 
 # Reference images
 python3 {baseDir}/scripts/main.py --prompt "Restyle this image" --ref source.png --image out.png --provider google
+
+# Explicit Gui Ge character request; path is relative to this skill directory
+python3 {baseDir}/scripts/main.py --prompt "Gui Ge explains a concept" --ref ../../references/guige-character.png --image guige-explainer.png --provider google
 
 # JSON output
 python3 {baseDir}/scripts/main.py --prompt "A cat" --image cat.png --json

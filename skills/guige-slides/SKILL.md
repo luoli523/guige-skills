@@ -49,6 +49,11 @@ Accept CLI-style options in the user request.
 | `--no-upload` | Force local-only output |
 | `--no-confirm` | Skip option confirmation |
 
+When the user explicitly asks for the Gui Ge/鬼哥 character, use the shared
+reference `../../references/guige-character.png` (relative to this skill
+directory) and follow [guige-character.md](../../references/guige-character.md).
+It is opt-in and must not be added to ordinary slide decks.
+
 ## File Layout
 
 ```text
@@ -150,7 +155,7 @@ Use the best image backend available:
 
 Generate sequentially. Save or copy each generated slide image into the deck directory with the exact filename from the outline, usually `NN-slide-{slug}.png`.
 
-For reference images, copy user-supplied files to `refs/NN-ref-{slug}.{ext}` and include them in prompt frontmatter. If the backend supports references, pass them; otherwise describe style/palette traits in the prompt.
+For reference images, copy user-supplied files to `refs/NN-ref-{slug}.{ext}` and include them in prompt frontmatter. If the backend supports references, pass them; otherwise describe style/palette traits in the prompt. For an explicit Gui Ge/鬼哥 request, copy `../../references/guige-character.png` to `refs/01-ref-guige.png` and record its source in the prompt frontmatter.
 
 ### Step 8: Merge PPTX And PDF
 

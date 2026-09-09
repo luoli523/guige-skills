@@ -10,7 +10,7 @@ Generate one-page educational visual summaries with a warm cream-paper sketchnot
 
 This skill is for visual-first summaries. It should transform content into icons, doodles, simple diagrams, grouped cards, wavy arrows, and short labels rather than dense paragraphs.
 
-This skill does not use the bundled Gui Ge character image by default. It should not create a recurring `鬼哥` narrator, orange headband, blue hoodie, guitar prop, or `refs/01-ref-guige.jpeg`. Use `guige-infographic` when the user wants a Gui Ge branded character/narrator image.
+This skill does not use the shared Gui Ge character image by default. It should not create a recurring `鬼哥` narrator, orange headband, blue hoodie, guitar prop, or `refs/01-ref-guige.png`. Use `guige-infographic` when the user wants a Gui Ge branded character/narrator image. The canonical image is documented in [guige-character.md](../../references/guige-character.md).
 
 ## Defaults
 
@@ -107,7 +107,7 @@ Parameter handling:
 - When style is `chubby-sketch` and the user does not specify layout/aspect/density, prefer `--layout dense-modules --aspect portrait --density high`.
 - If `--style` or `--density` is provided, use it in `analysis.md`, `structured-content.md`, and `prompts/hand-write-pic.md`.
 - If a provided style is unknown, map it to the closest supported style and state the mapping before generation.
-- Style values inherited from `guige-infographic` must remain unbranded in this skill. Never add `refs/01-ref-guige.jpeg`, a Gui Ge narrator, or `鬼哥` headband unless switching to `guige-infographic`.
+- Style values inherited from `guige-infographic` must remain unbranded in this skill. Never add `refs/01-ref-guige.png`, a Gui Ge narrator, or `鬼哥` headband unless switching to `guige-infographic`.
 - If only some options are provided, ask only about missing choices unless `--no-confirm` or `直接生成` is present.
 - If the user says `默认`, use `--layout auto --style hand-drawn-edu --aspect landscape --lang zh --density normal`.
 

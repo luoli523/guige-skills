@@ -23,6 +23,14 @@ This skill is a high-level prompt workflow. Use `guige-imagen` for the image-gen
 | Upload backend | `guige-drive-upload` |
 | Upload Drive folder | `guige-skills/guige-disassembly-diagram/{topic-slug}/` |
 
+## Gui Ge Character Reference
+
+This skill remains object-first and does not add a narrator by default. When a
+user explicitly requests a Gui Ge/鬼哥 narrator or callout host, use
+`../../references/guige-character.png` relative to this skill directory; copy
+it to the task's `refs/01-ref-guige.png` before passing it to a compatible image
+backend. Follow [guige-character.md](../../references/guige-character.md).
+
 ## Options
 
 Accept CLI-style options in the user's request.
@@ -52,6 +60,7 @@ Mode handling:
 3. Parse explicit options: `--aspect`, `--lang`, `--mode`, `--upload`, `--no-upload`, `--no-confirm`.
 4. Create:
    - `disassembly-diagram/{topic-slug}/`
+   - `disassembly-diagram/{topic-slug}/refs/`
    - `disassembly-diagram/{topic-slug}/prompts/`
 5. If the output directory already exists, append `-YYYYMMDD-HHMMSS`.
 6. Save the user's topic, constraints, and source material as `source-{topic-slug}.md`.

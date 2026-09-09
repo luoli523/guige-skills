@@ -6,7 +6,7 @@ Use this template to create `prompts/infographic.md`.
 ---
 references:
   - ref_id: 01
-    filename: 01-ref-guige.jpeg
+    filename: 01-ref-guige.png
     usage: style
 ---
 
@@ -30,7 +30,7 @@ Create a polished infographic in {language}.
 
 ## Gui Ge Character Reference
 
-Use the bundled reference image as the character/style anchor. Integrate a recurring Q-style Gui Ge narrator:
+Use the shared reference image as the character/style anchor. Integrate a recurring Q-style Gui Ge narrator:
 
 - sleepy half-lidded eyes
 - mildly sarcastic / 吐槽 expression
@@ -62,7 +62,7 @@ Use the bundled reference image as the character/style anchor. Integrate a recur
 
 ## Prompt Checklist
 
-- The prompt references `refs/01-ref-guige.jpeg` in frontmatter.
+- The prompt references `refs/01-ref-guige.png` in frontmatter.
 - The prompt includes the Gui Ge character traits in text.
 - The prompt includes the chosen layout, style, aspect ratio, and selected language requirement.
 - The prompt includes the structured content and required labels.

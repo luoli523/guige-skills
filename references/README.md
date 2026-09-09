@@ -1,8 +1,14 @@
 # Shared References
 
-Placeholder for cross-skill shared reference content.
+Cross-skill reference content lives here. Each skill keeps references used only by
+that skill inside `skills/<name>/references/`.
 
-**Currently empty.** Each skill keeps its own references inside `skills/<name>/references/`.
+## Available shared references
+
+- [guige-character.md](guige-character.md) — canonical Gui Ge character-image
+  usage rules and visual traits.
+- `guige-character.png` — canonical Gui Ge character image. From a skill root,
+  reference it as `../../references/guige-character.png`.
 
 ## When to add a file here
 
@@ -18,5 +24,7 @@ If only one skill uses a file, keep it inside that skill — do not pre-extract.
 
 - One file per topic, kebab-case: `brand-palette.md`, `quality-checklist.md`
 - Skills reference these via relative path: `../../references/<name>.md`
+- Shared binary assets use the same name and location convention, for example
+  `../../references/guige-character.png`.
 - Update the relevant skills` SKILL.md to point at the top-level file when moving content here
 - Keep this README updated as files are added
