@@ -1,23 +1,58 @@
 # Architecture Diagrams
 
-Use one primary direction:
+## Direction
 
-- left-to-right for requests, pipelines, or data movement;
-- top-to-bottom for layered systems and deployment stacks.
+- Left-to-right for request paths, pipelines, data movement: clients at left, stores at right.
+- Top-to-bottom for layered stacks and deployments: clients at top, infrastructure at bottom.
 
-Group components by role or boundary: clients, edge/gateway, services, messaging, data, and infrastructure. Draw region boundaries before connectors. Nest boundaries only when the nesting conveys deployment or ownership.
+## Layout algorithm
 
-For left-to-right layouts, assign one column per layer and stack peers vertically. For top-to-bottom layouts, assign one row per layer. Place databases and durable stores at the final layer unless the architecture requires otherwise.
+1. Group components into layers by role: client, edge/gateway, service, messaging, data, infrastructure.
+2. One layer per column (LTR) or row (TTB). Column starts every 220 px from `x=60`; row starts every 120 px from `y=110`.
+3. Inside a layer, stack peers on a shared axis. Center the shorter layers on the tallest one so all layers share a vertical midline.
+4. Draw regions around layers or sublayers that share infrastructure; pad 20 px inside the boundary and leave room for the region label.
+5. Draw connectors between adjacent layers only. Skip-layer links use `.conn-dim`.
+6. Place a legend only if a class is not obvious from the labels.
 
-Route busy connections orthogonally with `<path>` segments. Use a horizontal or vertical bus bar for a shared queue/event bus instead of drawing every pairwise connection. De-emphasize secondary links with lower opacity.
+## LTR grid, four layers, 1200 × 750
 
-Represent common components consistently:
+```
+x=60            x=280           x=500           x=720           x=940
+[Web]           [Gateway]       [Order Svc]     [Kafka bus]     [(PostgreSQL)]
+[Mobile]                        [Payment Svc]                   [(Redis)]
+[Partner API]                   [Inventory Svc]                 [(S3)]
+```
 
-- user-facing/client: rounded rectangle, primary cyan;
-- service/process: rounded rectangle, secondary emerald;
-- database/store: cylinder, data violet;
-- queue/bus: narrow bar or capsule, connector orange;
-- external dependency: neutral dashed boundary;
-- security boundary or failure path: alert rose.
+Peers inside a column: `y = 140, 240, 340` (60-high nodes, 40-px gaps).
 
-Keep region labels at the upper-left inside each boundary. Put a legend outside all regions when symbols or colors are not self-explanatory.
+## TTB grid
+
+```
+y=110   [Browser]  [Mobile]  [CLI]                 class primary
+y=230   [        Load Balancer / API Gateway ]     class neutral, width spans the row
+y=350   [Auth]     [User]    [Order]               class secondary
+y=450   ==== event bus =====================       class bus, 14 px tall
+y=530   [(Redis)]  [(PostgreSQL)]  [(S3)]          class data
+```
+
+## Connectors
+
+Adjacent layers, one arrow per real dependency:
+
+```svg
+<path class="conn" d="M 220,170 L 280,170" marker-end="url(#arrow)"/>
+```
+
+Many services into one gateway: trunk first, then one entry (see design-system connector rules). Services onto a bus: short vertical stubs down to the bar, no arrowheads, and the bar carries the label.
+
+```svg
+<path class="conn" d="M 580,400 L 580,450"/>
+```
+
+## Region nesting
+
+Outer to inner: cloud provider (`stroke-dasharray="12 4"`), region or VPC (`8 4`), zone or subnet (`4 4`). Region labels use the same stroke color as the boundary. At most three nesting levels.
+
+## Class assignment
+
+client `.primary`; gateway and load balancer `.neutral`; service `.secondary`; queue `.bus`; database, cache, object store `.data` as cylinders; cloud region `.infra` boundary; security zone `.alert` boundary.

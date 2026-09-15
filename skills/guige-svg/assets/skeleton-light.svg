@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" role="img" aria-labelledby="diagram-title diagram-desc">
+  <title id="diagram-title">DIAGRAM TITLE</title>
+  <desc id="diagram-desc">One sentence describing what the diagram shows.</desc>
+
+  <style>
+    text { font-family: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'PingFang SC', 'Noto Sans SC', monospace; fill: #0f172a; }
+    .title    { font-size: 22px; font-weight: 700; }
+    .subtitle { font-size: 12px; font-weight: 400; fill: #64748b; }
+    .group    { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; }
+    .label    { font-size: 13px; font-weight: 600; text-anchor: middle; }
+    .sub      { font-size: 10px; font-weight: 400; fill: #64748b; text-anchor: middle; }
+    .annot    { font-size: 10px; font-weight: 400; fill: #475569; }
+    .edge     { font-size: 10px; font-weight: 500; fill: #64748b; text-anchor: middle; }
+    .legend   { font-size: 10px; fill: #64748b; }
+    .caption  { font-size: 12px; fill: #475569; text-anchor: middle; }
+
+    .mask   { fill: #f8fafc; }
+    .node   { stroke-width: 1.5; }
+    .primary   { fill: rgba(6, 182, 212, 0.12);  stroke: #0891b2; }
+    .secondary { fill: rgba(16, 185, 129, 0.12); stroke: #059669; }
+    .data      { fill: rgba(139, 92, 246, 0.12); stroke: #7c3aed; }
+    .infra     { fill: rgba(245, 158, 11, 0.12); stroke: #d97706; }
+    .alert     { fill: rgba(244, 63, 94, 0.12);  stroke: #e11d48; }
+    .bus       { fill: rgba(249, 115, 22, 0.14); stroke: #ea580c; }
+    .neutral   { fill: rgba(100, 116, 139, 0.10); stroke: #64748b; }
+    .highlight { fill: rgba(59, 130, 246, 0.12); stroke: #2563eb; }
+
+    .region       { fill: none; stroke-width: 1; stroke-dasharray: 8 4; }
+    .region-label { font-size: 10px; font-weight: 600; }
+    .conn      { fill: none; stroke: #64748b; stroke-width: 1.5; }
+    .conn-dim  { fill: none; stroke: #64748b; stroke-width: 1.2; stroke-opacity: 0.55; }
+    .conn-main { fill: none; stroke: #2563eb; stroke-width: 2; }
+    .conn-err  { fill: none; stroke: #e11d48; stroke-width: 1.5; stroke-dasharray: 6 3; }
+    .lifeline  { stroke: #cbd5e1; stroke-width: 1; stroke-dasharray: 6 4; }
+    .divider   { stroke: #cbd5e1; stroke-width: 1; }
+  </style>
+
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e2e8f0" stroke-width="0.6"/>
+    </pattern>
+
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-main" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-err" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#e11d48"/>
+    </marker>
+    <marker id="arrow-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0891b2"/>
+    </marker>
+    <marker id="arrow-emerald" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#059669"/>
+    </marker>
+    <marker id="arrow-open" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto-start-reverse">
+      <polyline points="0 0, 10 3.5, 0 7" fill="none" stroke="#64748b" stroke-width="1.5"/>
+    </marker>
+    <marker id="inherit" markerWidth="12" markerHeight="10" refX="12" refY="5" orient="auto-start-reverse">
+      <polygon points="0 0, 12 5, 0 10" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+    </marker>
+    <marker id="diamond-filled" markerWidth="12" markerHeight="8" refX="0" refY="4" orient="auto-start-reverse">
+      <polygon points="0 4, 6 0, 12 4, 6 8" fill="#64748b"/>
+    </marker>
+    <marker id="diamond-open" markerWidth="12" markerHeight="8" refX="0" refY="4" orient="auto-start-reverse">
+      <polygon points="0 4, 6 0, 12 4, 6 8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+    </marker>
+  </defs>
+
+  <!-- 1. background -->
+  <rect width="100%" height="100%" fill="#f8fafc"/>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+
+  <!-- 2. title block (top-left, x=40 y=44) -->
+  <text class="title" x="40" y="44">DIAGRAM TITLE</text>
+  <text class="subtitle" x="40" y="64">Subtitle or one-line context</text>
+
+  <!-- 3. regions (dashed boundaries) -->
+  <g id="regions">
+  </g>
+
+  <!-- 4. connectors (behind nodes) -->
+  <g id="connectors">
+  </g>
+
+  <!-- 5. nodes: each node = mask rect + styled rect + labels -->
+  <g id="nodes">
+  </g>
+
+  <!-- 6. legend (bottom, outside all regions) -->
+  <g id="legend">
+  </g>
+</svg>

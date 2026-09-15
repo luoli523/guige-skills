@@ -1,66 +1,163 @@
 # SVG Design System
 
-Use this foundation for every diagram, then adapt density and emphasis to the content.
+Every diagram starts from a skeleton file, never from a blank document:
 
-## Canvas and hierarchy
+- dark (default): `assets/skeleton-dark.svg`
+- light: `assets/skeleton-light.svg`
 
-- Default to a landscape canvas around `1200 × 750`; derive other dimensions from content rather than forcing a ratio.
-- Reserve 32-48 px outer padding, 64-90 px for the title block, and 24-40 px between groups.
-- Give the reader one obvious entry point and one dominant flow direction.
-- Use no more than three visual hierarchy levels: title, node label, annotation.
+Copy the chosen skeleton to the output path, then fill the `regions`, `connectors`, `nodes`, and `legend` groups and edit the title block. Keep the `<style>` classes and `<defs>` markers; add new ones only when a diagram needs them. Everything below assumes those class names exist.
 
-## Default dark technical palette
+## Themes
 
-| Role | Fill | Stroke/text |
+| Role | Dark (default) | Light |
 |---|---|---|
-| background | `#0F172A` | grid `#1E293B` |
-| primary | `rgba(8,51,68,.72)` | `#22D3EE` |
-| secondary | `rgba(6,78,59,.66)` | `#34D399` |
-| data | `rgba(76,29,149,.65)` | `#A78BFA` |
-| infrastructure | `rgba(120,53,15,.55)` | `#FBBF24` |
-| alert | `rgba(136,19,55,.62)` | `#FB7185` |
-| neutral | `rgba(30,41,59,.88)` | `#94A3B8` |
-| main text | — | `#F8FAFC` |
-| secondary text | — | `#94A3B8` |
+| background | `#0f172a` | `#f8fafc` |
+| grid | `#1e293b` | `#e2e8f0` |
+| main text | `#f8fafc` | `#0f172a` |
+| muted text | `#94a3b8` | `#64748b` |
+| connector | `#64748b` | `#64748b` |
+| lifeline / divider | `#334155` | `#cbd5e1` |
 
-For a light editorial diagram, use `#F8FAFC` or `#F5F0E8` as background, `#172033` as text, and retain the semantic stroke hues at accessible contrast. Do not use color as the only carrier of meaning.
+Semantic node classes (fill alpha stays low so the grid shows through and boxes read as glass, not bricks):
 
-When the user wants adaptive embedding, define palette values as CSS custom properties and override them inside `@media (prefers-color-scheme: light)` or `dark`. Keep the base declarations complete so PNG converters that ignore media queries still produce a deliberate default appearance.
+| Class | Meaning | Dark stroke | Light stroke |
+|---|---|---|---|
+| `.primary` | client, frontend, input, actor | `#22d3ee` | `#0891b2` |
+| `.secondary` | service, backend, process | `#34d399` | `#059669` |
+| `.data` | database, storage, cache | `#a78bfa` | `#7c3aed` |
+| `.infra` | cloud, region, decision | `#fbbf24` | `#d97706` |
+| `.alert` | security, error, failure | `#fb7185` | `#e11d48` |
+| `.bus` | queue, event bus, middleware | `#fb923c` | `#ea580c` |
+| `.neutral` | external, generic | `#94a3b8` | `#64748b` |
+| `.highlight` | start/end, active, current step | `#60a5fa` | `#2563eb` |
 
-## Typography
+Do not invent new colors. Do not use color as the only carrier of meaning. In flowcharts and sequence diagrams assign classes by role, not by technology.
 
-Use system fallbacks only:
+## Canvas and fixed dimensions
 
-```css
-text { font-family: "SFMono-Regular", "Cascadia Code", "Noto Sans SC", "PingFang SC", monospace; }
+- Default `viewBox="0 0 1200 750"`. Grow the canvas to fit content; never shrink type below the sizes here.
+- Outer padding 40 px. Title block at `x=40 y=44` (title) and `y=64` (subtitle). Content starts at `y=100`.
+- Standard node: `160 × 60`, `rx=6`. Large node: `200 × 80` to `200 × 120`. Compact node: `120 × 44`.
+- Gaps: 40 px vertical and 60 px horizontal between nodes; 20 px region padding; 20 px between the lowest content and the legend.
+- Columns (left-to-right layouts): 220 px between column starts. Rows (top-to-bottom): 120 px between row starts.
+- Font sizes are fixed by class: title 22, group 12, label 13, sub 10, annotation 10, edge label 10, legend 10. Use `class`, not inline `font-size`.
+- CJK characters are about 1.0 × font-size wide; Latin about 0.6 ×. Budget: a 160-wide box fits 11 CJK or 20 Latin characters at 13 px. If a label does not fit, widen the box or wrap with `<tspan>`. Never truncate with an ellipsis and never indent with full-width spaces.
+
+## Layer order
+
+Paint back-to-front in this order and keep each layer inside its skeleton group:
+
+1. background + grid (already in skeleton)
+2. title block
+3. region boundaries
+4. connectors
+5. mask rect + node rect + node text, per node
+6. legend and caption
+
+The mask rect is mandatory: without it, connectors show through the translucent node fill.
+
+## Primitives
+
+Standard node:
+
+```svg
+<g transform="translate(240,140)">
+  <rect class="mask" width="160" height="60" rx="6"/>
+  <rect class="node secondary" width="160" height="60" rx="6"/>
+  <text class="label" x="80" y="26">Order Service</text>
+  <text class="sub" x="80" y="44">Go · gRPC</text>
+</g>
 ```
 
-- Title: 24-32 px, 700
-- Group heading: 14-17 px, 600-700
-- Node label: 12-15 px, 600
-- Annotation and arrow label: 10-12 px, 400-500
-- Estimate CJK characters as roughly twice the width of Latin characters at the same size. Wrap manually with `<tspan>`; SVG text does not wrap automatically.
+Single-line node: put the label at `y=35` and omit `.sub`.
 
-## Reusable primitives
+Decision diamond (100 × 70):
 
-Define arrow markers in `<defs>`: solid arrow for normal flow, open arrow for async/return, empty triangle for inheritance, filled/empty diamonds for composition and aggregation. Give each ID a diagram-specific prefix if combining SVG fragments.
+```svg
+<g transform="translate(600,320)">
+  <polygon class="mask" points="0,-35 50,0 0,35 -50,0"/>
+  <polygon class="node infra" points="0,-35 50,0 0,35 -50,0"/>
+  <text class="label" y="4">库存充足?</text>
+</g>
+```
 
-Place connectors behind nodes. Where a connector crosses a semi-transparent node, draw an opaque background-colored mask underneath the node before drawing its styled rectangle.
+Database cylinder (120 × 70):
 
-Use these minimum clearances:
+```svg
+<g transform="translate(900,140)">
+  <rect class="mask" y="10" width="120" height="50"/>
+  <ellipse class="mask" cx="60" cy="10" rx="60" ry="10"/>
+  <ellipse class="mask" cx="60" cy="60" rx="60" ry="10"/>
+  <rect class="node data" y="10" width="120" height="50" stroke="none"/>
+  <ellipse class="node data" cx="60" cy="60" rx="60" ry="10"/>
+  <ellipse class="node data" cx="60" cy="10" rx="60" ry="10"/>
+  <line class="node data" x1="0" y1="10" x2="0" y2="60"/>
+  <line class="node data" x1="120" y1="10" x2="120" y2="60"/>
+  <text class="label" x="60" y="42">PostgreSQL</text>
+</g>
+```
 
-- 30 px horizontal and 40 px vertical between nodes
-- 16 px between a connector label and a node boundary
-- 8-12 px internal node padding
-- 20 px from the lowest content to a legend
+Region boundary with label at the inside top-left:
+
+```svg
+<rect class="region" x="200" y="100" width="520" height="300" rx="12" stroke="#fbbf24"/>
+<text class="region-label" x="212" y="118" fill="#fbbf24">Kubernetes Cluster</text>
+```
+
+Security boundary: same, with `stroke="#fb7185" stroke-dasharray="4 4"`.
+
+Bus bar (shared queue between layers):
+
+```svg
+<rect class="mask" x="200" y="330" width="600" height="14" rx="7"/>
+<rect class="node bus" x="200" y="330" width="600" height="14" rx="7"/>
+<text class="edge" x="500" y="324">Kafka · order-events</text>
+```
+
+Number badge (sequence steps, ordered phases):
+
+```svg
+<circle cx="380" cy="200" r="9" class="node highlight"/>
+<text class="edge" x="380" y="203.5" fill="#60a5fa">3</text>
+```
+
+Legend row (bottom, outside all regions):
+
+```svg
+<g id="legend" transform="translate(40,690)">
+  <rect class="node primary" width="14" height="14" rx="3"/>
+  <text class="legend" x="20" y="11">Client</text>
+  <rect class="node secondary" x="100" width="14" height="14" rx="3"/>
+  <text class="legend" x="120" y="11">Service</text>
+</g>
+```
+
+## Connector rules
+
+- Only horizontal, vertical, or L-shaped orthogonal paths. Diagonal lines are not allowed except for mind-map curves.
+- Start and end at the midpoint of a node edge, with a 4 px gap from the stroke: `M 400,170 L 460,170` for a node whose right edge is at 400.
+- Many-to-one: bring the many into a shared vertical or horizontal trunk first, then a single arrow into the target. Never fan four lines into one box side.
+
+```svg
+<!-- four clients on the left join a trunk at x=300, one arrow enters the target at x=380 -->
+<path class="conn" d="M 260,130 L 300,130 L 300,250 L 380,250" marker-end="url(#arrow)"/>
+<path class="conn" d="M 260,210 L 300,210"/>
+<path class="conn" d="M 260,290 L 300,290"/>
+<path class="conn" d="M 260,370 L 300,370 L 300,250"/>
+```
+
+- Edge labels sit horizontally above a horizontal segment (`y - 6`) or to the right of a vertical segment (`x + 8`). A label needs a segment at least 16 px longer than the text; on a shorter segment, move the label beside the trunk or onto the longest segment of the path. Never rotate text. Never put a label on a diagonal.
+- Use `.conn-main` with `arrow-main` for the primary path, `.conn` for ordinary links, `.conn-dim` for secondary links, `.conn-err` with `arrow-err` for failure paths. Return or async messages use `marker-end="url(#arrow-open)"` and `stroke-dasharray="6 3"`.
+- Route around nodes, not through them. A loop-back goes around the outside of the column.
 
 ## Quality gate
 
-Before delivery, check:
+Render the PNG and look at it before delivering. Reject the diagram and fix it if any of these are true:
 
-- every label fits its box and no text is clipped;
-- arrowheads point toward the destination and branches are unambiguous;
-- connectors do not run through labels or unrelated nodes;
-- the viewBox includes all content plus outer padding;
-- repeated node roles use consistent geometry and colors;
-- the diagram remains legible at approximately 800 px display width.
+- text touches or crosses a box edge, or any label is truncated;
+- any diagonal connector or rotated label exists;
+- more than two connectors enter the same node edge without a trunk;
+- nodes of the same role differ in size or class;
+- rows or columns are not on a shared grid (misaligned by more than 2 px);
+- the legend or caption sits inside a region or within 20 px of the canvas edge;
+- the viewBox clips any content or leaves more than 120 px of empty band on any side.

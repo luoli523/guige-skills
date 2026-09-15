@@ -1,6 +1,6 @@
 ---
 name: guige-svg
-description: Create polished, editable, self-contained SVG diagrams by writing SVG directly. Use for architecture diagrams, flowcharts, sequence diagrams, class or ER diagrams, org charts, mind maps, timelines, state machines, data-flow diagrams, comparison matrices, conceptual illustrations, and any request to draw or visualize structure, logic, process, or relationships. Optionally validates the SVG and exports an @2x PNG.
+description: Create polished, editable, self-contained SVG diagrams by writing SVG directly, dark-themed by default with a light theme option. Use for architecture diagrams, flowcharts, sequence diagrams, class or ER diagrams, org charts, mind maps, timelines, state machines, data-flow diagrams, comparison matrices, conceptual illustrations, and any request to draw or visualize structure, logic, process, or relationships. Trigger on "画个图", "画个架构图", "流程图", "时序图", "diagram", "draw me a ...". Validates the SVG and exports an @2x PNG for visual inspection.
 metadata:
   openclaw:
     requires:
@@ -10,7 +10,16 @@ metadata:
 
 # Gui Ge SVG Diagram
 
-Create the final diagram by writing real SVG code directly. Do not create a JSON spec and do not invoke an automatic layout renderer. Use the bundled script only to validate the finished SVG and optionally export PNG.
+Write the final diagram as real SVG, starting from the bundled skeleton file. Do not create a JSON spec and do not invoke an automatic layout renderer. The bundled script validates the finished SVG and exports PNG; both steps are mandatory before delivery.
+
+## Theme
+
+| Option | Skeleton | When |
+|---|---|---|
+| `dark` (default) | `assets/skeleton-dark.svg` | technical docs, blog posts, slides on dark backgrounds |
+| `light` | `assets/skeleton-light.svg` | only when the user explicitly asks for 浅色 / light / 白底 |
+
+Always use dark unless the user explicitly asks for light. Do not switch to light on your own because of the destination page. State the chosen theme in one line when presenting the result.
 
 ## Diagram Types
 
@@ -27,40 +36,42 @@ Create the final diagram by writing real SVG code directly. Do not create a JSON
 | `illustrative` | mechanisms, comparisons, visual metaphors | [conceptual.md](references/conceptual.md#illustrative) |
 | `matrix` | schedules, comparisons, grouped cards | [matrix.md](references/matrix.md) |
 
-Always read [design-system.md](references/design-system.md), then read only the reference for the selected type. When one source needs several diagrams, choose the smallest set that gives each diagram one clear message.
+Always read [design-system.md](references/design-system.md) first, then only the reference for the selected type. When one source needs several diagrams, choose the smallest set that gives each diagram one clear message.
 
 ## Workflow
 
-1. Identify the reader's question and select the diagram type. For an obvious single diagram, proceed directly. Confirm once only when splitting into multiple diagrams or when the requested visual direction is materially ambiguous.
-2. If the input is a file, save under `{input-file-directory}/diagram/`; otherwise use `svg/{topic-slug}/`. Save source notes only when they help preserve provenance.
-3. Plan the canvas before writing: list elements, group them, choose one primary flow direction, assign approximate boxes, and reserve margins for title, legend, and annotations.
-4. Write a standalone `.svg` file directly. Calculate coordinates deliberately; do not embed Mermaid, PlantUML, HTML, JavaScript, or external images.
-5. Validate:
+1. Identify the reader's question, select the diagram type and theme. Confirm once only when splitting into multiple diagrams or when the visual direction is materially ambiguous.
+2. Choose the output path. If the input is a file, save under `{input-file-directory}/diagram/`; otherwise `svg/{topic-slug}/`.
+3. Copy the skeleton to the output path:
 
 ```bash
-python3 {baseDir}/scripts/main.py path/to/diagram.svg --validate-only --json
+cp {baseDir}/assets/skeleton-dark.svg path/to/diagram.svg
 ```
 
-6. Correct validation failures and inspect the rendered result for overlaps, clipped labels, crossing arrows, weak contrast, and excessive empty space.
-7. Generate an @2x PNG when a raster deliverable or visual inspection is useful:
+4. Plan the canvas on paper before touching the file: list every node with its class and size, assign each to a column/row on the grid from design-system.md, choose one flow direction, and write down the coordinates. Widen the viewBox if the plan does not fit in 1200 × 750.
+5. Edit the skeleton: set title and desc, fill the `regions`, `connectors`, `nodes`, and `legend` groups using the primitives from design-system.md and the type reference. Keep the skeleton's `<style>` and `<defs>`.
+6. Validate and export PNG in one run:
 
 ```bash
 python3 {baseDir}/scripts/main.py path/to/diagram.svg --json
 ```
 
-If neither `rsvg-convert` nor CairoSVG is available, keep the validated SVG and report the PNG warning. Upload only when the user asks, through the public `guige-drive-upload` CLI.
+7. Open the PNG and check it against the quality gate in design-system.md. Fix and re-run until it passes. A diagram that has not been rendered and inspected is not finished.
+8. Present the SVG and PNG paths and the theme used. Upload only when the user asks, through the public `guige-drive-upload` CLI.
+
+If neither `rsvg-convert` nor CairoSVG is available, report the PNG warning and inspect the SVG by other means before delivering.
 
 ## Required SVG Contract
 
-- Root element uses `xmlns="http://www.w3.org/2000/svg"`, a fitted `viewBox`, and no fixed root `width` or `height`.
-- Include a non-empty `<title>` and `role="img"`; add `aria-labelledby` when a description is present.
-- Put reusable styles, markers, gradients, filters, and patterns in `<defs>` near the top.
-- Draw background and regions first, connectors next, opaque node masks and nodes after them, then labels, legend, and title.
-- Embed styles and use system font fallbacks. Do not load remote fonts, stylesheets, scripts, or images.
-- Keep IDs unique and every `url(#id)` or fragment reference resolvable.
-- Escape `&`, `<`, and `>` in text. Never place untrusted content into markup or attributes without XML escaping.
-- Prefer straight or orthogonal connectors. Route around nodes and keep labels off connector lines.
-- Keep at least 30 px outer padding and enough internal spacing for CJK text.
+The skeleton already satisfies these; keep them intact while editing:
+
+- Root uses `xmlns="http://www.w3.org/2000/svg"`, a fitted `viewBox`, `role="img"`, `aria-labelledby`, and no fixed root `width` or `height`.
+- Non-empty `<title>` and `<desc>`.
+- Styles, markers, and patterns live in `<style>` and `<defs>` at the top. Do not load remote fonts, stylesheets, scripts, or images; no `@import`.
+- Paint order: background, title, regions, connectors, mask + node + labels, legend.
+- IDs unique; every `url(#id)` resolvable.
+- Escape `&`, `<`, `>` in text. XML-escape any untrusted content.
+- Connectors are horizontal, vertical, or L-shaped only. Text is never rotated. Labels are never truncated.
 
 ## CLI
 
@@ -72,7 +83,7 @@ main.py <svg-file>
   --json                Print a machine-readable result
 ```
 
-The validator rejects malformed XML, fixed root dimensions, missing accessibility titles, broken SVG ID references, scripts, event handlers, XML entities, `foreignObject`, and external resource loading.
+The validator rejects malformed XML, fixed root dimensions, missing `role="img"` or title, broken SVG ID references, scripts, event handlers, XML entities, `foreignObject`, and external resource loading. It does not check layout; that is what the PNG inspection step is for.
 
 ## Migration from the Former Spec Renderer
 
